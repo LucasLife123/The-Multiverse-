@@ -1,1 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
+
+  <title>Multiverse</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="gameShell">
+
+  <canvas
+    id="gameCanvas"
+    width="1280"
+    height="720"
+  ></canvas>
+
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+
+    <div class="startLogo">
+      <div class="smallTitle">A MULTIVERSE ADVENTURE</div>
+
+      <h1>MULTIVERSE</h1>
+
+      <p>
+        Somewhere in space, one wrong turn changes everything.
+      </p>
+
+      <button id="startButton" class="mainButton">
+        PRESS TO START
+      </button>
+
+      <div class="controlsText">
+        WASD / Arrow Keys to move<br>
+        E to interact · SPACE to attack
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- CINEMATIC TEXT -->
+  <div id="cinematicText"></div>
+
+
+  <!-- GAME HUD -->
+  <div id="hud" class="hidden">
+
+    <div class="hudTop">
+
+      <div class="profileCard">
+
+        <div class="avatarMini">
+          ●
+        </div>
+
+        <div class="profileInfo">
+          <strong>RIFTWALKER</strong>
+
+          <div class="levelText">
+            LV. <span id="levelText">1</span>
+          </div>
+
+          <div class="hpBar">
+            <div id="hpFill"></div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="worldCard">
+
+        <div class="worldLabel">
+          CURRENT WORLD
+        </div>
+
+        <strong id="worldName">
+          EARTH 2.0
+        </strong>
+
+      </div>
+
+
+      <div class="currencyCard">
+
+        <div>
+          🪙 <span id="coinText">0</span>
+        </div>
+
+        <div>
+          ✦ <span id="coreText">0</span>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- QUEST -->
+    <div id="questBox">
+
+      <div class="questSmall">
+        MAIN QUEST
+      </div>
+
+      <div id="questTitle">
+        Stranded
+      </div>
+
+      <div id="questDescription">
+        Inspect your crashed spaceship.
+      </div>
+
+    </div>
+
+
+    <!-- LOADOUT -->
+    <div id="loadout">
+
+      <div class="loadoutTitle">
+        LOADOUT
+      </div>
+
+      <div class="loadoutSlots">
+
+        <div class="loadoutSlot">
+          <span id="weaponIcon">✊</span>
+          <small id="weaponName">Fists</small>
+        </div>
+
+        <div class="loadoutSlot">
+          <span id="gearIcon">🥼</span>
+          <small id="gearName">Pilot Suit</small>
+        </div>
+
+        <div class="loadoutSlot">
+          <span id="petIcon">?</span>
+          <small id="petName">No Pet</small>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- MINI MAP -->
+    <div id="miniMap">
+
+      <div class="miniMapTitle">
+        EARTH 2.0
+      </div>
+
+      <div class="miniMapTrack">
+
+        <div id="miniMapPlayer"></div>
+
+        <div class="mapMarker crashMarker"></div>
+        <div class="mapMarker ruinMarker"></div>
+        <div class="mapMarker petMarker"></div>
+        <div class="mapMarker towerMarker"></div>
+        <div class="mapMarker portalMarker"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- INTERACTION -->
+    <div id="interactionPrompt" class="hidden">
+      <span class="key">E</span>
+      <span id="interactionText">Interact</span>
+    </div>
+
+
+    <!-- BOTTOM MESSAGE -->
+    <div id="messageBox" class="hidden">
+      <div id="messageSpeaker"></div>
+      <div id="messageText"></div>
+    </div>
+
+  </div>
+
+
+  <!-- WORLD DISCOVERY -->
+  <div id="discoveryScreen" class="hidden">
+
+    <div class="discoveryCard">
+
+      <div class="discoverySmall">
+        SIGNAL DETECTED
+      </div>
+
+      <h2>UNKNOWN STRUCTURE</h2>
+
+      <p>
+        This world is not alone.
+      </p>
+
+      <button id="continueButton" class="mainButton">
+        CONTINUE
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- MOBILE CONTROLS -->
+  <div id="mobileControls" class="hidden">
+
+    <div class="mobilePad">
+
+      <button data-key="ArrowUp">▲</button>
+
+      <div>
+        <button data-key="ArrowLeft">◀</button>
+        <button data-key="ArrowDown">▼</button>
+        <button data-key="ArrowRight">▶</button>
+      </div>
+
+    </div>
+
+    <div class="mobileActions">
+      <button data-key="KeyE">E</button>
+      <button data-key="Space">⚔</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
