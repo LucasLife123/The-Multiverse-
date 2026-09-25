@@ -1,1 +1,957 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  background: #02040c;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  color: white;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+}
+
+
+/* =========================
+   GAME SHELL
+========================= */
+
+#gameShell {
+  position: relative;
+
+  width: min(100vw, 1600px);
+
+  background: #02050d;
+
+  overflow: hidden;
+
+  user-select: none;
+
+  box-shadow:
+    0 0 100px rgba(49, 112, 255, 0.15);
+}
+
+
+/* =========================
+   CANVAS
+========================= */
+
+#gameCanvas {
+  display: block;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  background:
+    radial-gradient(
+      circle at center,
+      #0b1830,
+      #02040b
+    );
+}
+
+
+/* =========================
+   BASIC UI
+========================= */
+
+.hidden {
+  display: none !important;
+}
+
+.screen {
+  position: absolute;
+
+  inset: 0;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 30px;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(25, 53, 108, 0.2),
+      rgba(0, 0, 0, 0.18)
+    );
+}
+
+.screen.active {
+  display: flex;
+}
+
+
+/* =========================
+   START SCREEN
+========================= */
+
+.startLogo {
+  max-width: 720px;
+
+  padding: 40px 50px;
+
+  border-radius: 30px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 13, 30, 0.35),
+      rgba(1, 5, 15, 0.6)
+    );
+
+  backdrop-filter: blur(8px);
+
+  border:
+    1px solid rgba(136, 187, 255, 0.16);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.smallTitle {
+  color: #80d8ff;
+
+  font-weight: 900;
+
+  letter-spacing: 0.28em;
+
+  font-size: 12px;
+}
+
+.startLogo h1 {
+  margin-top: 4px;
+
+  font-size:
+    clamp(
+      48px,
+      8vw,
+      105px
+    );
+
+  line-height: 0.95;
+
+  letter-spacing: -0.05em;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #87dcff 55%,
+      #696cff
+    );
+
+  -webkit-background-clip: text;
+
+  color: transparent;
+
+  filter:
+    drop-shadow(
+      0 0 24px
+      rgba(80, 179, 255, 0.45)
+    );
+}
+
+.startLogo p {
+  margin: 18px auto 26px;
+
+  max-width: 500px;
+
+  color: #b8c8df;
+
+  font-size: 16px;
+}
+
+.mainButton {
+  min-width: 260px;
+
+  padding: 17px 30px;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  color: #07111e;
+
+  font-size: 16px;
+
+  font-weight: 1000;
+
+  letter-spacing: 0.08em;
+
+  cursor: pointer;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #9aeaff,
+      #8f8cff
+    );
+
+  box-shadow:
+    0 10px 40px
+    rgba(91, 191, 255, 0.3);
+
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.mainButton:hover {
+  transform:
+    translateY(-2px)
+    scale(1.02);
+
+  box-shadow:
+    0 16px 50px
+    rgba(91, 191, 255, 0.4);
+}
+
+.controlsText {
+  margin-top: 22px;
+
+  color: #72829b;
+
+  font-size: 12px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   CINEMATIC
+========================= */
+
+#cinematicText {
+  position: absolute;
+
+  left: 50%;
+  bottom: 9%;
+
+  transform: translateX(-50%);
+
+  width: min(900px, 90%);
+
+  color: white;
+
+  font-size:
+    clamp(
+      18px,
+      2.3vw,
+      32px
+    );
+
+  font-weight: 900;
+
+  text-align: center;
+
+  text-shadow:
+    0 4px 20px black;
+
+  pointer-events: none;
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+#hud {
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+}
+
+.hudTop {
+  position: absolute;
+
+  top: 18px;
+  left: 18px;
+  right: 18px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.profileCard,
+.worldCard,
+.currencyCard {
+  padding: 10px 14px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.13);
+
+  background:
+    rgba(7, 15, 31, 0.78);
+
+  backdrop-filter: blur(10px);
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 12px 28px
+    rgba(0, 0, 0, 0.18);
+}
+
+.profileCard {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 215px;
+}
+
+.avatarMini {
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  color: #fff;
+
+  font-size: 30px;
+
+  background:
+    linear-gradient(
+      180deg,
+      white 0 48%,
+      #111827 49%
+    );
+
+  border:
+    2px solid #8edcff;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo strong {
+  font-size: 12px;
+
+  letter-spacing: 0.06em;
+}
+
+.levelText {
+  color: #8da4c1;
+
+  font-size: 10px;
+
+  margin-top: 2px;
+}
+
+.hpBar {
+  height: 6px;
+
+  margin-top: 6px;
+
+  overflow: hidden;
+
+  background: #1a2b43;
+
+  border-radius: 999px;
+}
+
+#hpFill {
+  width: 100%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #46bfff,
+      #72f2ff
+    );
+
+  transition: width 0.2s;
+}
+
+.worldCard {
+  min-width: 170px;
+
+  text-align: center;
+}
+
+.worldLabel {
+  color: #7290af;
+
+  font-size: 9px;
+
+  letter-spacing: 0.16em;
+
+  font-weight: 900;
+}
+
+.worldCard strong {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: 14px;
+}
+
+.currencyCard {
+  display: flex;
+
+  gap: 14px;
+
+  font-weight: 900;
+
+  align-items: center;
+}
+
+
+/* =========================
+   QUEST
+========================= */
+
+#questBox {
+  position: absolute;
+
+  top: 92px;
+  left: 18px;
+
+  max-width: 330px;
+
+  padding: 13px 16px;
+
+  border-radius: 0 14px 14px 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 17, 35, 0.9),
+      rgba(7, 17, 35, 0.68)
+    );
+
+  border-left:
+    3px solid #71d9ff;
+}
+
+.questSmall {
+  color: #72d9ff;
+
+  font-size: 9px;
+
+  font-weight: 1000;
+
+  letter-spacing: 0.18em;
+}
+
+#questTitle {
+  margin-top: 2px;
+
+  font-weight: 900;
+
+  font-size: 15px;
+}
+
+#questDescription {
+  margin-top: 2px;
+
+  color: #9aadc5;
+
+  font-size: 11px;
+}
+
+
+/* =========================
+   LOADOUT
+========================= */
+
+#loadout {
+  position: absolute;
+
+  left: 18px;
+  bottom: 18px;
+
+  padding: 10px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(5, 13, 27, 0.8);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(8px);
+}
+
+.loadoutTitle {
+  color: #778fae;
+
+  font-size: 9px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.14em;
+
+  margin-bottom: 6px;
+}
+
+.loadoutSlots {
+  display: flex;
+
+  gap: 6px;
+}
+
+.loadoutSlot {
+  width: 69px;
+
+  padding: 6px 4px;
+
+  text-align: center;
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+}
+
+.loadoutSlot span {
+  display: block;
+
+  font-size: 20px;
+}
+
+.loadoutSlot small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #b9c6d8;
+
+  font-size: 8px;
+}
+
+
+/* =========================
+   MINI MAP
+========================= */
+
+#miniMap {
+  position: absolute;
+
+  right: 18px;
+  top: 90px;
+
+  width: 240px;
+
+  padding: 10px 12px;
+
+  background:
+    rgba(5, 13, 27, 0.75);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 13px;
+}
+
+.miniMapTitle {
+  font-size: 9px;
+
+  color: #93a8c2;
+
+  letter-spacing: 0.12em;
+
+  font-weight: 900;
+}
+
+.miniMapTrack {
+  position: relative;
+
+  height: 8px;
+
+  margin-top: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #48d7a6,
+      #58aaff,
+      #8f5cff
+    );
+
+  border-radius: 999px;
+}
+
+#miniMapPlayer {
+  position: absolute;
+
+  left: 8%;
+  top: 50%;
+
+  width: 12px;
+  height: 12px;
+
+  transform:
+    translate(-50%, -50%);
+
+  background: white;
+
+  border:
+    2px solid #17233a;
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 10px white;
+}
+
+.mapMarker {
+  position: absolute;
+
+  top: 50%;
+
+  width: 7px;
+  height: 7px;
+
+  transform:
+    translate(-50%, -50%);
+
+  background: #10182a;
+
+  border:
+    2px solid white;
+
+  border-radius: 50%;
+}
+
+.crashMarker {
+  left: 8%;
+}
+
+.ruinMarker {
+  left: 35%;
+}
+
+.petMarker {
+  left: 52%;
+}
+
+.towerMarker {
+  left: 73%;
+}
+
+.portalMarker {
+  left: 93%;
+}
+
+
+/* =========================
+   INTERACTION
+========================= */
+
+#interactionPrompt {
+  position: absolute;
+
+  left: 50%;
+  bottom: 112px;
+
+  transform: translateX(-50%);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 13px;
+
+  background:
+    rgba(5, 13, 26, 0.9);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.15);
+
+  border-radius: 12px;
+
+  font-size: 12px;
+}
+
+.key {
+  display: inline-grid;
+
+  place-items: center;
+
+  width: 27px;
+  height: 27px;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color: #07101d;
+
+  font-weight: 1000;
+}
+
+
+/* =========================
+   DIALOG
+========================= */
+
+#messageBox {
+  position: absolute;
+
+  left: 50%;
+  bottom: 25px;
+
+  transform: translateX(-50%);
+
+  width: min(700px, 85%);
+
+  padding: 14px 18px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(5, 12, 25, 0.92);
+
+  backdrop-filter: blur(10px);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.13);
+}
+
+#messageSpeaker {
+  color: #77dfff;
+
+  font-size: 10px;
+
+  font-weight: 1000;
+
+  letter-spacing: 0.14em;
+}
+
+#messageText {
+  margin-top: 3px;
+
+  color: #e4edf8;
+
+  font-size: 13px;
+}
+
+
+/* =========================
+   DISCOVERY
+========================= */
+
+#discoveryScreen {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  background:
+    rgba(0, 2, 10, 0.76);
+
+  backdrop-filter: blur(7px);
+
+  z-index: 50;
+}
+
+.discoveryCard {
+  max-width: 600px;
+
+  text-align: center;
+
+  padding: 45px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #111c39,
+      #070d1d
+    );
+
+  border:
+    1px solid rgba(112, 220, 255, 0.35);
+
+  box-shadow:
+    0 0 80px
+    rgba(75, 179, 255, 0.25);
+}
+
+.discoverySmall {
+  color: #78dcff;
+
+  font-size: 10px;
+
+  font-weight: 1000;
+
+  letter-spacing: 0.25em;
+}
+
+.discoveryCard h2 {
+  margin-top: 6px;
+
+  font-size:
+    clamp(
+      32px,
+      5vw,
+      58px
+    );
+}
+
+.discoveryCard p {
+  margin: 12px 0 25px;
+
+  color: #a7b9d1;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+#mobileControls {
+  position: absolute;
+
+  inset:
+    auto 12px
+    12px 12px;
+
+  justify-content: space-between;
+
+  pointer-events: none;
+}
+
+#mobileControls button {
+  pointer-events: auto;
+
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.18);
+
+  background:
+    rgba(7, 16, 32, 0.78);
+
+  color: white;
+
+  border-radius: 12px;
+
+  font-weight: 900;
+}
+
+.mobilePad {
+  text-align: center;
+}
+
+.mobilePad > div {
+  display: flex;
+
+  gap: 4px;
+}
+
+.mobileActions {
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 7px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (pointer: coarse) {
+
+  #mobileControls {
+    display: flex !important;
+  }
+
+  #loadout {
+    bottom: 75px;
+  }
+
+  #interactionPrompt {
+    bottom: 140px;
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .worldCard {
+    display: none;
+  }
+
+  .profileCard {
+    min-width: 165px;
+  }
+
+  #miniMap {
+    width: 180px;
+  }
+
+  #questBox {
+    max-width: 260px;
+  }
+
+}
+
+@media (max-width: 520px) {
+
+  #miniMap {
+    display: none;
+  }
+
+  .currencyCard {
+    font-size: 11px;
+  }
+
+  #questBox {
+    top: 80px;
+  }
+
+}
