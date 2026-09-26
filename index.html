@@ -1,246 +1,1021 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
   >
 
-  <title>Multiverse</title>
+  <title>Multiverse: Riftwalker</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
+
 
 <body>
 
-<div id="gameShell">
+  <main id="gameShell">
 
-  <canvas
-    id="gameCanvas"
-    width="1280"
-    height="720"
-  ></canvas>
+    <!-- =====================================================
+         MAIN GAME CANVAS
+    ====================================================== -->
+
+    <canvas
+      id="gameCanvas"
+      width="1280"
+      height="720"
+      aria-label="Multiverse game canvas"
+    ></canvas>
 
 
-  <!-- START SCREEN -->
-  <div id="startScreen" class="screen active">
+    <!-- =====================================================
+         START SCREEN
+    ====================================================== -->
 
-    <div class="startLogo">
-      <div class="smallTitle">A MULTIVERSE ADVENTURE</div>
+    <section
+      id="startScreen"
+      class="screen"
+    >
 
-      <h1>MULTIVERSE</h1>
+      <div
+        class="titleMark"
+        aria-hidden="true"
+      >
+        <span></span>
+        <i></i>
+      </div>
 
-      <p>
-        Somewhere in space, one wrong turn changes everything.
+
+      <div class="eyebrow">
+        2.5D MULTIVERSE RPG
+      </div>
+
+
+      <h1>
+        MULTIVERSE
+      </h1>
+
+
+      <p class="subtitle">
+        Crash on Earth 2.0.
+        Discover The Hub.
+        Become a Riftwalker.
       </p>
 
-      <button id="startButton" class="mainButton">
-        PRESS TO START
-      </button>
 
-      <div class="controlsText">
-        WASD / Arrow Keys to move<br>
-        E to interact · SPACE to attack
-      </div>
-    </div>
+      <div class="menuButtons">
 
-  </div>
+        <button
+          id="newBtn"
+          class="primary"
+        >
+          NEW GAME
+        </button>
 
 
-  <!-- CINEMATIC TEXT -->
-  <div id="cinematicText"></div>
+        <button id="loadBtn">
+          CONTINUE
+        </button>
 
 
-  <!-- GAME HUD -->
-  <div id="hud" class="hidden">
-
-    <div class="hudTop">
-
-      <div class="profileCard">
-
-        <div class="avatarMini">
-          ●
-        </div>
-
-        <div class="profileInfo">
-          <strong>RIFTWALKER</strong>
-
-          <div class="levelText">
-            LV. <span id="levelText">1</span>
-          </div>
-
-          <div class="hpBar">
-            <div id="hpFill"></div>
-          </div>
-        </div>
+        <button
+          id="bonusBtn"
+          class="bonus"
+        >
+          BONUS MODE
+        </button>
 
       </div>
 
 
-      <div class="worldCard">
-
-        <div class="worldLabel">
-          CURRENT WORLD
-        </div>
-
-        <strong id="worldName">
-          EARTH 2.0
-        </strong>
-
-      </div>
-
-
-      <div class="currencyCard">
-
-        <div>
-          🪙 <span id="coinText">0</span>
-        </div>
-
-        <div>
-          ✦ <span id="coreText">0</span>
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- QUEST -->
-    <div id="questBox">
-
-      <div class="questSmall">
-        MAIN QUEST
-      </div>
-
-      <div id="questTitle">
-        Stranded
-      </div>
-
-      <div id="questDescription">
-        Inspect your crashed spaceship.
-      </div>
-
-    </div>
-
-
-    <!-- LOADOUT -->
-    <div id="loadout">
-
-      <div class="loadoutTitle">
-        LOADOUT
-      </div>
-
-      <div class="loadoutSlots">
-
-        <div class="loadoutSlot">
-          <span id="weaponIcon">✊</span>
-          <small id="weaponName">Fists</small>
-        </div>
-
-        <div class="loadoutSlot">
-          <span id="gearIcon">🥼</span>
-          <small id="gearName">Pilot Suit</small>
-        </div>
-
-        <div class="loadoutSlot">
-          <span id="petIcon">?</span>
-          <small id="petName">No Pet</small>
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- MINI MAP -->
-    <div id="miniMap">
-
-      <div class="miniMapTitle">
-        EARTH 2.0
-      </div>
-
-      <div class="miniMapTrack">
-
-        <div id="miniMapPlayer"></div>
-
-        <div class="mapMarker crashMarker"></div>
-        <div class="mapMarker ruinMarker"></div>
-        <div class="mapMarker petMarker"></div>
-        <div class="mapMarker towerMarker"></div>
-        <div class="mapMarker portalMarker"></div>
-
-      </div>
-
-    </div>
-
-
-    <!-- INTERACTION -->
-    <div id="interactionPrompt" class="hidden">
-      <span class="key">E</span>
-      <span id="interactionText">Interact</span>
-    </div>
-
-
-    <!-- BOTTOM MESSAGE -->
-    <div id="messageBox" class="hidden">
-      <div id="messageSpeaker"></div>
-      <div id="messageText"></div>
-    </div>
-
-  </div>
-
-
-  <!-- WORLD DISCOVERY -->
-  <div id="discoveryScreen" class="hidden">
-
-    <div class="discoveryCard">
-
-      <div class="discoverySmall">
-        SIGNAL DETECTED
-      </div>
-
-      <h2>UNKNOWN STRUCTURE</h2>
-
-      <p>
-        This world is not alone.
+      <p class="controls">
+        Move: WASD / Arrows ·
+        Jump: Space ·
+        Attack: F ·
+        Interact: E ·
+        Dash: Shift ·
+        Inventory: I ·
+        Pets: J ·
+        Map: M ·
+        Music: V ·
+        Pause: Esc
       </p>
 
-      <button id="continueButton" class="mainButton">
-        CONTINUE
-      </button>
-
-    </div>
-
-  </div>
+    </section>
 
 
-  <!-- MOBILE CONTROLS -->
-  <div id="mobileControls" class="hidden">
+    <!-- =====================================================
+         CINEMATIC
+    ====================================================== -->
 
-    <div class="mobilePad">
+    <div
+      id="cinematic"
+      class="cinematic hidden"
+    ></div>
 
-      <button data-key="ArrowUp">▲</button>
 
-      <div>
-        <button data-key="ArrowLeft">◀</button>
-        <button data-key="ArrowDown">▼</button>
-        <button data-key="ArrowRight">▶</button>
+    <!-- =====================================================
+         MAIN PLAYER HUD
+    ====================================================== -->
+
+    <section
+      id="hud"
+      class="hidden"
+      aria-label="Player HUD"
+    >
+
+
+      <!-- TOP HUD -->
+
+      <div class="hudTop">
+
+
+        <!-- PLAYER -->
+
+        <div class="hudCard playerCard">
+
+          <canvas
+            id="hudAvatar"
+            width="58"
+            height="58"
+          ></canvas>
+
+
+          <div class="playerInfo">
+
+            <div class="nameRow">
+
+              <strong>
+                RIFTWALKER
+              </strong>
+
+              <span>
+                LV
+                <b id="levelText">
+                  1
+                </b>
+              </span>
+
+            </div>
+
+
+            <!-- HP -->
+
+            <div class="hpTrack">
+
+              <div id="hpFill"></div>
+
+            </div>
+
+
+            <div class="hpNumbers">
+
+              <b id="hpText">
+                500 / 500
+              </b>
+
+              <span id="armorText">
+                NO ARMOR
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="hudCard statsCard">
+
+          <div>
+
+            <small>
+              ATK
+            </small>
+
+            <b id="atkText">
+              25
+            </b>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              DEF
+            </small>
+
+            <b id="defText">
+              10
+            </b>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              SPD
+            </small>
+
+            <b id="spdText">
+              250
+            </b>
+
+          </div>
+
+        </div>
+
+
+        <!-- CURRENCY -->
+
+        <div class="hudCard currencyCard">
+
+          <canvas
+            id="creditIcon"
+            width="34"
+            height="34"
+          ></canvas>
+
+
+          <div>
+
+            <small>
+              RIFT CREDITS
+            </small>
+
+            <b id="creditText">
+              250
+            </b>
+
+          </div>
+
+
+          <!-- CORE SHARDS -->
+
+          <div class="coreCounter">
+
+            <span class="coreDiamond"></span>
+
+            <b id="coreText">
+              0
+            </b>
+
+          </div>
+
+        </div>
+
       </div>
 
-    </div>
 
-    <div class="mobileActions">
-      <button data-key="KeyE">E</button>
-      <button data-key="Space">⚔</button>
-    </div>
+      <!-- ===================================================
+           LEFT HUD
+      ==================================================== -->
 
-  </div>
+      <div class="leftHud">
 
-</div>
 
-<script src="script.js"></script>
+        <!-- LOCATION -->
+
+        <div class="hudCard locationCard">
+
+          <small>
+            LOCATION
+          </small>
+
+          <b id="locationText">
+            EARTH 2.0
+          </b>
+
+        </div>
+
+
+        <!-- QUEST -->
+
+        <div class="hudCard questCard">
+
+          <small>
+            MAIN QUEST
+          </small>
+
+          <b id="questTitle">
+            STRANDED
+          </b>
+
+          <span id="questText">
+            Inspect the crash site.
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===================================================
+           RIGHT HUD
+      ==================================================== -->
+
+      <div class="rightHud">
+
+
+        <!-- LOADOUT -->
+
+        <div class="hudCard loadoutCard">
+
+          <small>
+            LOADOUT
+          </small>
+
+
+          <div class="loadRow">
+
+            <span class="miniIcon swordMini"></span>
+
+            <b id="weaponText">
+              FISTS
+            </b>
+
+          </div>
+
+
+          <div class="loadRow">
+
+            <span class="miniIcon petMini"></span>
+
+            <b id="petText">
+              NO PET
+            </b>
+
+          </div>
+
+        </div>
+
+
+        <!-- ATTACK COOLDOWN -->
+
+        <div class="hudCard cooldownCard">
+
+          <div class="cooldownLabel">
+
+            <small>
+              NOVA ATTACK
+            </small>
+
+            <b id="cooldownText">
+              READY
+            </b>
+
+          </div>
+
+
+          <div class="cooldownTrack">
+
+            <i id="cooldownFill"></i>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===================================================
+           INTERACT PROMPT
+      ==================================================== -->
+
+      <div
+        id="interactPrompt"
+        class="interact hidden"
+      >
+
+        <kbd>
+          E
+        </kbd>
+
+        <span id="interactText">
+          INTERACT
+        </span>
+
+      </div>
+
+
+      <!-- ===================================================
+           TOAST / IMPORTANT MESSAGES
+      ==================================================== -->
+
+      <div
+        id="toast"
+        class="toast hidden"
+      >
+
+        <b id="toastTitle">
+          SYSTEM
+        </b>
+
+        <span id="toastText"></span>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INVENTORY
+    ====================================================== -->
+
+    <section
+      id="inventoryOverlay"
+      class="overlay hidden"
+    >
+
+      <div class="panel widePanel">
+
+
+        <header>
+
+          <div>
+
+            <small>
+              RIFTWALKER
+            </small>
+
+            <h2>
+              Inventory & Loadout
+            </h2>
+
+          </div>
+
+
+          <button
+            class="closeBtn"
+            data-close="inventoryOverlay"
+          >
+            CLOSE
+          </button>
+
+        </header>
+
+
+        <div class="inventoryLayout">
+
+
+          <!-- ARMOR -->
+
+          <div>
+
+            <h3>
+              Armor
+            </h3>
+
+            <div
+              id="armorGrid"
+              class="cardGrid"
+            ></div>
+
+          </div>
+
+
+          <!-- MATERIALS -->
+
+          <div>
+
+            <h3>
+              Materials
+            </h3>
+
+            <div
+              id="materialGrid"
+              class="cardGrid"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PET SANCTUARY
+    ====================================================== -->
+
+    <section
+      id="petsOverlay"
+      class="overlay hidden"
+    >
+
+      <div class="panel widePanel">
+
+
+        <header>
+
+          <div>
+
+            <small>
+              THE HUB
+            </small>
+
+            <h2>
+              Pet Sanctuary
+            </h2>
+
+          </div>
+
+
+          <button
+            class="closeBtn"
+            data-close="petsOverlay"
+          >
+            CLOSE
+          </button>
+
+        </header>
+
+
+        <!-- PET TABS -->
+
+        <div class="tabs">
+
+          <button
+            class="tab active"
+            data-pet-tab="collection"
+          >
+            COLLECTION
+          </button>
+
+
+          <button
+            class="tab"
+            data-pet-tab="journal"
+          >
+            JOURNAL
+          </button>
+
+
+          <button
+            class="tab"
+            data-pet-tab="training"
+          >
+            TRAINING
+          </button>
+
+        </div>
+
+
+        <!-- =================================================
+             PET COLLECTION
+        ================================================== -->
+
+        <div
+          id="petCollection"
+          class="petPage active"
+        >
+
+          <div
+            id="petGrid"
+            class="cardGrid petGrid"
+          ></div>
+
+        </div>
+
+
+        <!-- =================================================
+             PET JOURNAL
+        ================================================== -->
+
+        <div
+          id="petJournal"
+          class="petPage"
+        >
+
+          <div
+            id="journalSummary"
+            class="journalSummary"
+          ></div>
+
+
+          <div
+            id="journalGrid"
+            class="journalGrid"
+          ></div>
+
+        </div>
+
+
+        <!-- =================================================
+             PET TRAINING
+        ================================================== -->
+
+        <div
+          id="petTraining"
+          class="petPage trainingPage"
+        >
+
+          <canvas
+            id="trainingPet"
+            width="220"
+            height="180"
+          ></canvas>
+
+
+          <div>
+
+            <h3 id="trainingName">
+              No active pet
+            </h3>
+
+
+            <p id="trainingStats">
+              Find and equip a pet first.
+            </p>
+
+
+            <button
+              id="trainPetBtn"
+              class="primary"
+            >
+              TRAIN PET · 300 CREDITS
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WORLD MAP
+    ====================================================== -->
+
+    <section
+      id="mapOverlay"
+      class="overlay hidden"
+    >
+
+      <div class="panel widePanel">
+
+
+        <header>
+
+          <div>
+
+            <small>
+              RIFT NETWORK
+            </small>
+
+            <h2>
+              World Navigation
+            </h2>
+
+          </div>
+
+
+          <button
+            class="closeBtn"
+            data-close="mapOverlay"
+          >
+            CLOSE
+          </button>
+
+        </header>
+
+
+        <p class="panelNote">
+          The Hub is your base and is not counted as a world.
+        </p>
+
+
+        <div
+          id="worldGrid"
+          class="worldGrid"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         BONUS MODE
+         NO STORY
+         ONLINE / PRACTICE COMBAT
+    ====================================================== -->
+
+    <section
+      id="bonusOverlay"
+      class="overlay hidden"
+    >
+
+      <div class="panel bonusPanel">
+
+
+        <header>
+
+          <div>
+
+            <small>
+              NO STORY · PURE COMBAT
+            </small>
+
+            <h2>
+              Rift Arena
+            </h2>
+
+          </div>
+
+
+          <button
+            id="closeBonus"
+            class="closeBtn"
+          >
+            CLOSE
+          </button>
+
+        </header>
+
+
+        <!-- =================================================
+             BONUS HOME
+        ================================================== -->
+
+        <div
+          id="bonusHome"
+          class="bonusPage active"
+        >
+
+
+          <!-- FIGHTER PREVIEW -->
+
+          <div class="arenaPreview">
+
+            <div class="fighterPreview left"></div>
+
+            <div class="versus">
+              VS
+            </div>
+
+            <div class="fighterPreview right"></div>
+
+          </div>
+
+
+          <p>
+            Create a private fight and send the invite link
+            to a friend. This prototype uses WebRTC through
+            PeerJS for direct browser-to-browser play.
+          </p>
+
+
+          <div class="bonusActions">
+
+            <button
+              id="createFightBtn"
+              class="primary"
+            >
+              CREATE FIGHT
+            </button>
+
+
+            <button id="joinFightBtn">
+              JOIN FROM LINK / CODE
+            </button>
+
+
+            <button id="practiceBtn">
+              PRACTICE VS BOT
+            </button>
+
+          </div>
+
+
+          <label class="roomInput">
+
+            Room code or host ID
+
+            <input
+              id="roomCodeInput"
+              autocomplete="off"
+              placeholder="Paste room code"
+            >
+
+          </label>
+
+
+          <p
+            id="networkStatus"
+            class="networkStatus"
+          >
+            Online arena ready when internet access is available.
+          </p>
+
+        </div>
+
+
+        <!-- =================================================
+             PRIVATE ARENA LOBBY
+        ================================================== -->
+
+        <div
+          id="bonusLobby"
+          class="bonusPage"
+        >
+
+          <div class="roomCode">
+
+            <small>
+              PRIVATE ARENA
+            </small>
+
+            <b id="roomCodeText">
+              ...
+            </b>
+
+          </div>
+
+
+          <p id="lobbyStatus">
+            Creating room...
+          </p>
+
+
+          <div class="inviteBox">
+
+            <input
+              id="inviteLink"
+              readonly
+            >
+
+
+            <button id="copyInviteBtn">
+              COPY LINK
+            </button>
+
+          </div>
+
+
+          <button id="cancelLobbyBtn">
+            CANCEL
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PAUSE MENU
+    ====================================================== -->
+
+    <section
+      id="pauseOverlay"
+      class="overlay hidden"
+    >
+
+      <div class="panel pausePanel">
+
+
+        <small>
+          GAME PAUSED
+        </small>
+
+
+        <h2>
+          MULTIVERSE
+        </h2>
+
+
+        <button
+          id="resumeBtn"
+          class="primary"
+        >
+          RESUME
+        </button>
+
+
+        <button id="saveBtn">
+          SAVE GAME
+        </button>
+
+
+        <button id="pauseLoadBtn">
+          LOAD GAME
+        </button>
+
+
+        <button id="quitBtn">
+          MAIN MENU
+        </button>
+
+
+        <p id="saveStatus"></p>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RIFT ARENA HUD
+    ====================================================== -->
+
+    <section
+      id="arenaHud"
+      class="hidden"
+    >
+
+
+      <!-- PLAYER 1 -->
+
+      <div class="arenaPlayer p1">
+
+        <b id="arenaP1Name">
+          YOU
+        </b>
+
+
+        <div class="arenaHp">
+
+          <i id="arenaP1Hp"></i>
+
+        </div>
+
+
+        <span id="arenaP1Text">
+          500 / 500
+        </span>
+
+      </div>
+
+
+      <!-- ROUND -->
+
+      <div
+        id="roundText"
+        class="roundText"
+      >
+        ROUND 1
+      </div>
+
+
+      <!-- PLAYER 2 -->
+
+      <div class="arenaPlayer p2">
+
+        <b id="arenaP2Name">
+          RIVAL
+        </b>
+
+
+        <div class="arenaHp">
+
+          <i id="arenaP2Hp"></i>
+
+        </div>
+
+
+        <span id="arenaP2Text">
+          500 / 500
+        </span>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       ONLINE BONUS MODE
+       PEERJS / WEBRTC
+  ====================================================== -->
+
+  <script
+    src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"
+  ></script>
+
+
+  <!-- =====================================================
+       MAIN GAME JAVASCRIPT
+  ====================================================== -->
+
+  <script src="script.js"></script>
 
 </body>
+
 </html>
