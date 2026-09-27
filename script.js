@@ -4,34 +4,26 @@
    MULTIVERSE: RIFTWALKER
    Full browser prototype
    - 7 worlds + The Hub
-   - 500 HP stat system
+   - 1000 HP stat system
    - armor + pet bonuses
-   - attack cooldown + animated Nova Sword combo
+   - attack cooldown + animated Nova Sword combo + critical hits
+   - command tutorial + one-life stages
    - Rift Credits
-   - custom-drawn 2.5D visuals
-   - procedural SFX
-   - "Across the Rift" adaptive music
+   - custom-drawn 2.5D visuals (no emoji game art)
+   - procedural SFX + "Across the Rift" adaptive music
    - private WebRTC Bonus Mode through PeerJS
    ========================================================= */
 
 const $ = id => document.getElementById(id);
-
 const canvas = $('gameCanvas');
 const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
 
-const W = canvas.width;
-const H = canvas.height;
-
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const lerp = (a, b, t) => a + (b - a) * t;
-const dist = (a, b, c, d) => Math.hypot(a - c, b - d);
-const rand = (a, b) => a + Math.random() * (b - a);
-const randi = (a, b) => Math.floor(rand(a, b + 1));
-
-
-/* =========================================================
-   WORLDS
-========================================================= */
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const lerp = (a,b,t) => a+(b-a)*t;
+const dist = (a,b,c,d) => Math.hypot(a-c,b-d);
+const rand = (a,b) => a + Math.random()*(b-a);
+const randi = (a,b) => Math.floor(rand(a,b+1));
 
 const WORLD_ORDER = [
   'earth',
@@ -43,109 +35,106 @@ const WORLD_ORDER = [
   'matrix'
 ];
 
-
 const WORLDS = {
-
-  earth: {
-    name: 'Earth 2.0',
-    width: 5400,
-    skyA: '#75c9ef',
-    skyB: '#d9eaa4',
-    ground: '#4e9d68',
-    dark: '#153b39',
-    boss: 'Ruin Guardian',
-    mechanic: 'Crash Survival',
-    desc: 'Repair your ship, explore ancient ruins and survive the Guardian.',
-    accent: '#6ee0a0'
+  earth:{
+    name:'Earth 2.0',
+    width:5400,
+    skyA:'#75c9ef',
+    skyB:'#d9eaa4',
+    ground:'#4e9d68',
+    dark:'#153b39',
+    boss:'Ruin Guardian',
+    mechanic:'Crash Survival',
+    desc:'Repair your ship, explore ancient ruins and survive the Guardian.',
+    accent:'#6ee0a0'
   },
 
-  music: {
-    name: 'Music Verse',
-    width: 5200,
-    skyA: '#2a226b',
-    skyB: '#bd5bbf',
-    ground: '#b9429f',
-    dark: '#211448',
-    boss: 'Silence King',
-    mechanic: 'Rhythm Energy',
-    desc: 'Restore sound to districts controlled by the Silence King.',
-    accent: '#6cecff'
+  music:{
+    name:'Music Verse',
+    width:5200,
+    skyA:'#2a226b',
+    skyB:'#bd5bbf',
+    ground:'#b9429f',
+    dark:'#211448',
+    boss:'Silence King',
+    mechanic:'Rhythm Energy',
+    desc:'Restore sound to districts controlled by the Silence King.',
+    accent:'#6cecff'
   },
 
-  money: {
-    name: 'Money Village',
-    width: 5200,
-    skyA: '#5aa884',
-    skyB: '#e2c66f',
-    ground: '#b38a3d',
-    dark: '#334329',
-    boss: 'Greed Golem',
-    mechanic: 'Trade & Treasure',
-    desc: 'Explore markets, vaults and mines while rebuilding the village economy.',
-    accent: '#f2d36d'
+  money:{
+    name:'Money Village',
+    width:5200,
+    skyA:'#5aa884',
+    skyB:'#e2c66f',
+    ground:'#b38a3d',
+    dark:'#334329',
+    boss:'Greed Golem',
+    mechanic:'Trade & Treasure',
+    desc:'Explore markets, vaults and mines while rebuilding the village economy.',
+    accent:'#f2d36d'
   },
 
-  cosmos: {
-    name: 'The Cosmos',
-    width: 5400,
-    skyA: '#07132d',
-    skyB: '#32296f',
-    ground: '#5c55a8',
-    dark: '#080d2b',
-    boss: 'Gravity Maw',
-    mechanic: 'Low Gravity',
-    desc: 'Cross floating stations and recover the Astral Core.',
-    accent: '#92b8ff'
+  cosmos:{
+    name:'The Cosmos',
+    width:5400,
+    skyA:'#07132d',
+    skyB:'#32296f',
+    ground:'#5c55a8',
+    dark:'#080d2b',
+    boss:'Gravity Maw',
+    mechanic:'Low Gravity',
+    desc:'Cross floating stations and recover the Astral Core.',
+    accent:'#92b8ff'
   },
 
-  war: {
-    name: 'The War Zone',
-    width: 5300,
-    skyA: '#44373e',
-    skyB: '#9d5a40',
-    ground: '#765342',
-    dark: '#2b1c1d',
-    boss: 'War Machine',
-    mechanic: 'Battle Pressure',
-    desc: 'Destroy war beacons and shut down the Titan Factory.',
-    accent: '#ff8c61'
+  war:{
+    name:'The War Zone',
+    width:5300,
+    skyA:'#44373e',
+    skyB:'#9d5a40',
+    ground:'#765342',
+    dark:'#2b1c1d',
+    boss:'War Machine',
+    mechanic:'Battle Pressure',
+    desc:'Destroy war beacons and shut down the Titan Factory.',
+    accent:'#ff8c61'
   },
 
-  void: {
-    name: 'The Void',
-    width: 5200,
-    skyA: '#070511',
-    skyB: '#25123b',
-    ground: '#2b173e',
-    dark: '#030207',
-    boss: 'Abyss Warden',
-    mechanic: 'Darkness',
-    desc: 'Use light, pets and instinct to cross the Abyss.',
-    accent: '#a478ff'
+  void:{
+    name:'The Void',
+    width:5200,
+    skyA:'#070511',
+    skyB:'#25123b',
+    ground:'#2b173e',
+    dark:'#030207',
+    boss:'Abyss Warden',
+    mechanic:'Darkness',
+    desc:'Use light, pets and instinct to cross the Abyss.',
+    accent:'#a478ff'
   },
 
-  matrix: {
-    name: 'The Perfect Matrix',
-    width: 5400,
-    skyA: '#071b2b',
-    skyB: '#382268',
-    ground: '#263c56',
-    dark: '#05071a',
-    boss: 'Perfect Error',
-    mechanic: 'Reality Glitch',
-    desc: 'Repair corrupted reality and confront the Perfect Error.',
-    accent: '#5af3ef'
+  matrix:{
+    name:'The Perfect Matrix',
+    width:5400,
+    skyA:'#071b2b',
+    skyB:'#382268',
+    ground:'#263c56',
+    dark:'#05071a',
+    boss:'Perfect Error',
+    mechanic:'Reality Glitch',
+    desc:'Repair corrupted reality and confront the Perfect Error.',
+    accent:'#5af3ef'
   }
 };
 
 
 /* =========================================================
    PETS
-========================================================= */
+   ========================================================= */
 
 const PET_ROSTERS = {
-
-  earth: [
+  earth:[
     'Lucky Rabbit',
     'Moss Shell',
     'Glow Gecko',
@@ -156,7 +145,7 @@ const PET_ROSTERS = {
     'Terra Sprout'
   ],
 
-  music: [
+  music:[
     'Beat Fox',
     'Tempo Bunny',
     'Melody Bird',
@@ -167,7 +156,7 @@ const PET_ROSTERS = {
     'Echo Pup'
   ],
 
-  money: [
+  money:[
     'Coin Hamster',
     'Piggy Pal',
     'Savings Squirrel',
@@ -178,7 +167,7 @@ const PET_ROSTERS = {
     'Ledger Owl'
   ],
 
-  cosmos: [
+  cosmos:[
     'Starling',
     'Nebula Cat',
     'Cosmic Squid',
@@ -189,7 +178,7 @@ const PET_ROSTERS = {
     'Astral Dragon'
   ],
 
-  war: [
+  war:[
     'Scout Hound',
     'Radar Hawk',
     'Iron Shell',
@@ -200,7 +189,7 @@ const PET_ROSTERS = {
     'Titan Lion'
   ],
 
-  void: [
+  void:[
     'Void Eye',
     'Shadow Cat',
     'Null Bat',
@@ -211,7 +200,7 @@ const PET_ROSTERS = {
     'Abyss Dragon'
   ],
 
-  matrix: [
+  matrix:[
     'Byte Cat',
     'Pixel Rabbit',
     'Code Fox',
@@ -225,469 +214,456 @@ const PET_ROSTERS = {
 
 
 const PET_TYPES = {
+  'Lucky Rabbit':'Light / Nature',
+  'Moss Shell':'Nature / Earth',
+  'Glow Gecko':'Light',
+  'Sky Finch':'Light',
+  'Bounce Frog':'Nature / Earth',
+  'Ruin Pup':'Earth',
+  'Crystal Fawn':'Light',
+  'Terra Sprout':'Nature',
 
-  'Lucky Rabbit': 'Light / Nature',
-  'Moss Shell': 'Nature / Earth',
-  'Glow Gecko': 'Light',
-  'Sky Finch': 'Light',
-  'Bounce Frog': 'Nature / Earth',
-  'Ruin Pup': 'Earth',
-  'Crystal Fawn': 'Light',
-  'Terra Sprout': 'Nature',
+  'Beat Fox':'Sound',
+  'Tempo Bunny':'Sound / Light',
+  'Melody Bird':'Sound',
+  'Bass Cat':'Sound',
+  'Drum Frog':'Sound / Earth',
+  'Harmony Butterfly':'Sound / Light',
+  'Chord Whelp':'Sound / Cosmic',
+  'Echo Pup':'Sound',
 
-  'Beat Fox': 'Sound',
-  'Tempo Bunny': 'Sound / Light',
-  'Melody Bird': 'Sound',
-  'Bass Cat': 'Sound',
-  'Drum Frog': 'Sound / Earth',
-  'Harmony Butterfly': 'Sound / Light',
-  'Chord Whelp': 'Sound / Cosmic',
-  'Echo Pup': 'Sound',
+  'Coin Hamster':'Light',
+  'Piggy Pal':'Earth',
+  'Savings Squirrel':'Light / Nature',
+  'Golden Duck':'Light',
+  'Bargain Hound':'Light / Earth',
+  'Profit Bee':'Nature / Light',
+  'Merchant Fox':'Light',
+  'Ledger Owl':'Tech / Light',
 
-  'Coin Hamster': 'Light',
-  'Piggy Pal': 'Earth',
-  'Savings Squirrel': 'Light / Nature',
-  'Golden Duck': 'Light',
-  'Bargain Hound': 'Light / Earth',
-  'Profit Bee': 'Nature / Light',
-  'Merchant Fox': 'Light',
-  'Ledger Owl': 'Tech / Light',
+  'Starling':'Cosmic',
+  'Nebula Cat':'Cosmic',
+  'Cosmic Squid':'Cosmic / Void',
+  'Galaxy Moth':'Cosmic / Light',
+  'Star Whale Calf':'Cosmic / Water',
+  'Comet Pup':'Cosmic / Fire',
+  'Moon Hare':'Cosmic / Light',
+  'Astral Dragon':'Cosmic / Spirit',
 
-  'Starling': 'Cosmic',
-  'Nebula Cat': 'Cosmic',
-  'Cosmic Squid': 'Cosmic / Void',
-  'Galaxy Moth': 'Cosmic / Light',
-  'Star Whale Calf': 'Cosmic / Water',
-  'Comet Pup': 'Cosmic / Fire',
-  'Moon Hare': 'Cosmic / Light',
-  'Astral Dragon': 'Cosmic / Spirit',
+  'Scout Hound':'Earth',
+  'Radar Hawk':'Tech',
+  'Iron Shell':'Earth / Tech',
+  'Charge Boar':'Fire / Earth',
+  'Valor Eagle':'Light / Fire',
+  'Battle Wolf':'Earth / Fire',
+  'Medic Bot':'Tech',
+  'Titan Lion':'Fire / Light',
 
-  'Scout Hound': 'Earth',
-  'Radar Hawk': 'Tech',
-  'Iron Shell': 'Earth / Tech',
-  'Charge Boar': 'Fire / Earth',
-  'Valor Eagle': 'Light / Fire',
-  'Battle Wolf': 'Earth / Fire',
-  'Medic Bot': 'Tech',
-  'Titan Lion': 'Fire / Light',
+  'Void Eye':'Void',
+  'Shadow Cat':'Dark',
+  'Null Bat':'Dark / Void',
+  'Abyss Blob':'Void',
+  'Rift Spider':'Void',
+  'Void Pup':'Void / Dark',
+  'Darkling':'Dark',
+  'Abyss Dragon':'Void / Fire',
 
-  'Void Eye': 'Void',
-  'Shadow Cat': 'Dark',
-  'Null Bat': 'Dark / Void',
-  'Abyss Blob': 'Void',
-  'Rift Spider': 'Void',
-  'Void Pup': 'Void / Dark',
-  'Darkling': 'Dark',
-  'Abyss Dragon': 'Void / Fire',
-
-  'Byte Cat': 'Tech / Glitch',
-  'Pixel Rabbit': 'Glitch / Light',
-  'Code Fox': 'Glitch / Tech',
-  'Data Serpent': 'Glitch',
-  'Vector Bird': 'Tech / Light',
-  'Patch Bot': 'Tech',
-  'Glitchling': 'Glitch',
-  'Perfect Entity': 'Glitch / Spirit'
+  'Byte Cat':'Tech / Glitch',
+  'Pixel Rabbit':'Glitch / Light',
+  'Code Fox':'Glitch / Tech',
+  'Data Serpent':'Glitch',
+  'Vector Bird':'Tech / Light',
+  'Patch Bot':'Tech',
+  'Glitchling':'Glitch',
+  'Perfect Entity':'Glitch / Spirit'
 };
 
 
-/* =========================================================
-   PET STAT BONUSES
-========================================================= */
-
 const PET_BONUS = {
-
-  'Lucky Rabbit': {
-    hp: 30,
-    speed: 10
+  'Lucky Rabbit':{
+    hp:30,
+    speed:10
   },
 
-  'Moss Shell': {
-    hp: 100,
-    def: 25,
-    speed: -5
+  'Moss Shell':{
+    hp:100,
+    def:25,
+    speed:-5
   },
 
-  'Glow Gecko': {
-    hp: 20,
-    atk: 8,
-    speed: 15
+  'Glow Gecko':{
+    hp:20,
+    atk:8,
+    speed:15
   },
 
-  'Sky Finch': {
-    atk: 5,
-    speed: 35
+  'Sky Finch':{
+    atk:5,
+    speed:35
   },
 
-  'Bounce Frog': {
-    hp: 40,
-    def: 5,
-    speed: 25
+  'Bounce Frog':{
+    hp:40,
+    def:5,
+    speed:25
   },
 
-  'Ruin Pup': {
-    hp: 50,
-    atk: 15,
-    def: 12,
-    speed: 5
+  'Ruin Pup':{
+    hp:50,
+    atk:15,
+    def:12,
+    speed:5
   },
 
-  'Crystal Fawn': {
-    hp: 120,
-    def: 10
+  'Crystal Fawn':{
+    hp:120,
+    def:10
   },
 
-  'Terra Sprout': {
-    hp: 150,
-    def: 18,
-    speed: -5
+  'Terra Sprout':{
+    hp:150,
+    def:18,
+    speed:-5
   },
 
-
-  'Beat Fox': {
-    hp: 20,
-    atk: 25,
-    speed: 15,
-    cooldown: .90
+  'Beat Fox':{
+    hp:20,
+    atk:25,
+    speed:15,
+    cooldown:.90
   },
 
-  'Tempo Bunny': {
-    hp: 10,
-    atk: 10,
-    speed: 35,
-    cooldown: .88
+  'Tempo Bunny':{
+    hp:10,
+    atk:10,
+    speed:35,
+    cooldown:.88
   },
 
-  'Melody Bird': {
-    atk: 14,
-    speed: 18
+  'Melody Bird':{
+    atk:14,
+    speed:18
   },
 
-  'Bass Cat': {
-    hp: 40,
-    atk: 30,
-    def: 5
+  'Bass Cat':{
+    hp:40,
+    atk:30,
+    def:5
   },
 
-  'Drum Frog': {
-    hp: 60,
-    atk: 18,
-    def: 12
+  'Drum Frog':{
+    hp:60,
+    atk:18,
+    def:12
   },
 
-  'Harmony Butterfly': {
-    hp: 60,
-    atk: 5,
-    def: 10,
-    speed: 15
+  'Harmony Butterfly':{
+    hp:60,
+    atk:5,
+    def:10,
+    speed:15
   },
 
-  'Chord Whelp': {
-    hp: 90,
-    atk: 24,
-    def: 10
+  'Chord Whelp':{
+    hp:90,
+    atk:24,
+    def:10
   },
 
-  'Echo Pup': {
-    hp: 35,
-    atk: 10,
-    speed: 10
+  'Echo Pup':{
+    hp:35,
+    atk:10,
+    speed:10
   },
 
-
-  'Coin Hamster': {
-    hp: 25,
-    speed: 8
+  'Coin Hamster':{
+    hp:25,
+    speed:8
   },
 
-  'Piggy Pal': {
-    hp: 100,
-    def: 14
+  'Piggy Pal':{
+    hp:100,
+    def:14
   },
 
-  'Savings Squirrel': {
-    hp: 40,
-    speed: 18
+  'Savings Squirrel':{
+    hp:40,
+    speed:18
   },
 
-  'Golden Duck': {
-    hp: 55,
-    def: 8
+  'Golden Duck':{
+    hp:55,
+    def:8
   },
 
-  'Bargain Hound': {
-    hp: 50,
-    def: 10
+  'Bargain Hound':{
+    hp:50,
+    def:10
   },
 
-  'Profit Bee': {
-    hp: 35,
-    speed: 22
+  'Profit Bee':{
+    hp:35,
+    speed:22
   },
 
-  'Merchant Fox': {
-    atk: 10,
-    speed: 20
+  'Merchant Fox':{
+    atk:10,
+    speed:20
   },
 
-  'Ledger Owl': {
-    def: 8,
-    speed: 14
+  'Ledger Owl':{
+    def:8,
+    speed:14
   },
 
-
-  'Starling': {
-    hp: 20,
-    atk: 10,
-    speed: 30
+  'Starling':{
+    hp:20,
+    atk:10,
+    speed:30
   },
 
-  'Nebula Cat': {
-    hp: 40,
-    atk: 15,
-    def: 5,
-    speed: 35
+  'Nebula Cat':{
+    hp:40,
+    atk:15,
+    def:5,
+    speed:35
   },
 
-  'Cosmic Squid': {
-    hp: 70,
-    atk: 20
+  'Cosmic Squid':{
+    hp:70,
+    atk:20
   },
 
-  'Galaxy Moth': {
-    hp: 30,
-    speed: 28
+  'Galaxy Moth':{
+    hp:30,
+    speed:28
   },
 
-  'Star Whale Calf': {
-    hp: 180,
-    def: 25,
-    speed: -10
+  'Star Whale Calf':{
+    hp:180,
+    def:25,
+    speed:-10
   },
 
-  'Comet Pup': {
-    atk: 25,
-    speed: 30
+  'Comet Pup':{
+    atk:25,
+    speed:30
   },
 
-  'Moon Hare': {
-    hp: 40,
-    speed: 30
+  'Moon Hare':{
+    hp:40,
+    speed:30
   },
 
-  'Astral Dragon': {
-    hp: 130,
-    atk: 38,
-    def: 16
+  'Astral Dragon':{
+    hp:130,
+    atk:38,
+    def:16
   },
 
-
-  'Scout Hound': {
-    hp: 50,
-    atk: 10,
-    def: 8,
-    speed: 20
+  'Scout Hound':{
+    hp:50,
+    atk:10,
+    def:8,
+    speed:20
   },
 
-  'Radar Hawk': {
-    atk: 10,
-    speed: 25
+  'Radar Hawk':{
+    atk:10,
+    speed:25
   },
 
-  'Iron Shell': {
-    hp: 180,
-    def: 35,
-    speed: -15
+  'Iron Shell':{
+    hp:180,
+    def:35,
+    speed:-15
   },
 
-  'Charge Boar': {
-    hp: 100,
-    atk: 22,
-    def: 10
+  'Charge Boar':{
+    hp:100,
+    atk:22,
+    def:10
   },
 
-  'Valor Eagle': {
-    atk: 28,
-    speed: 15
+  'Valor Eagle':{
+    atk:28,
+    speed:15
   },
 
-  'Battle Wolf': {
-    hp: 70,
-    atk: 30,
-    def: 10,
-    speed: 10
+  'Battle Wolf':{
+    hp:70,
+    atk:30,
+    def:10,
+    speed:10
   },
 
-  'Medic Bot': {
-    hp: 140,
-    def: 15
+  'Medic Bot':{
+    hp:140,
+    def:15
   },
 
-  'Titan Lion': {
-    hp: 140,
-    atk: 35,
-    def: 18
+  'Titan Lion':{
+    hp:140,
+    atk:35,
+    def:18
   },
 
-
-  'Void Eye': {
-    atk: 10,
-    def: 8
+  'Void Eye':{
+    atk:10,
+    def:8
   },
 
-  'Shadow Cat': {
-    hp: 20,
-    atk: 20,
-    speed: 35
+  'Shadow Cat':{
+    hp:20,
+    atk:20,
+    speed:35
   },
 
-  'Null Bat': {
-    atk: 22,
-    speed: 18
+  'Null Bat':{
+    atk:22,
+    speed:18
   },
 
-  'Abyss Blob': {
-    hp: 130,
-    def: 24,
-    speed: -8
+  'Abyss Blob':{
+    hp:130,
+    def:24,
+    speed:-8
   },
 
-  'Rift Spider': {
-    atk: 20,
-    speed: 24
+  'Rift Spider':{
+    atk:20,
+    speed:24
   },
 
-  'Void Pup': {
-    hp: 80,
-    atk: 25,
-    def: 10,
-    speed: 15
+  'Void Pup':{
+    hp:80,
+    atk:25,
+    def:10,
+    speed:15
   },
 
-  'Darkling': {
-    atk: 18,
-    speed: 22
+  'Darkling':{
+    atk:18,
+    speed:22
   },
 
-  'Abyss Dragon': {
-    hp: 120,
-    atk: 45,
-    def: 20,
-    speed: 5
+  'Abyss Dragon':{
+    hp:120,
+    atk:45,
+    def:20,
+    speed:5
   },
 
-
-  'Byte Cat': {
-    hp: 50,
-    atk: 20,
-    def: 5,
-    speed: 30
+  'Byte Cat':{
+    hp:50,
+    atk:20,
+    def:5,
+    speed:30
   },
 
-  'Pixel Rabbit': {
-    hp: 40,
-    speed: 32
+  'Pixel Rabbit':{
+    hp:40,
+    speed:32
   },
 
-  'Code Fox': {
-    atk: 25,
-    speed: 20
+  'Code Fox':{
+    atk:25,
+    speed:20
   },
 
-  'Data Serpent': {
-    atk: 24,
-    def: 8
+  'Data Serpent':{
+    atk:24,
+    def:8
   },
 
-  'Vector Bird': {
-    atk: 18,
-    speed: 28
+  'Vector Bird':{
+    atk:18,
+    speed:28
   },
 
-  'Patch Bot': {
-    hp: 120,
-    def: 25
+  'Patch Bot':{
+    hp:120,
+    def:25
   },
 
-  'Glitchling': {
-    atk: 30,
-    speed: 18
+  'Glitchling':{
+    atk:30,
+    speed:18
   },
 
-  'Perfect Entity': {
-    hp: 200,
-    atk: 40,
-    def: 35,
-    speed: 30,
-    cooldown: .84
+  'Perfect Entity':{
+    hp:200,
+    atk:40,
+    def:35,
+    speed:30,
+    cooldown:.84
   }
 };
 
 
 /* =========================================================
    ARMOR
-========================================================= */
+   ========================================================= */
 
 const ARMORS = {
-
-  none: {
-    name: 'No Armor',
-    hp: 0,
-    atk: 0,
-    def: 0,
-    speed: 0,
-    price: 0,
-    unlocked: true
+  none:{
+    name:'No Armor',
+    hp:0,
+    atk:0,
+    def:0,
+    speed:0,
+    price:0,
+    unlocked:true
   },
 
-  scout: {
-    name: 'Scout Armor',
-    hp: 40,
-    atk: 0,
-    def: 8,
-    speed: 25,
-    price: 750,
-    unlocked: false
+  scout:{
+    name:'Scout Armor',
+    hp:40,
+    atk:0,
+    def:8,
+    speed:25,
+    price:750,
+    unlocked:false
   },
 
-  rift: {
-    name: 'Rift Armor',
-    hp: 100,
-    atk: 12,
-    def: 20,
-    speed: 0,
-    price: 2500,
-    unlocked: false
+  rift:{
+    name:'Rift Armor',
+    hp:100,
+    atk:12,
+    def:20,
+    speed:0,
+    price:2500,
+    unlocked:false
   },
 
-  titan: {
-    name: 'Titan Armor',
-    hp: 200,
-    atk: 5,
-    def: 40,
-    speed: -20,
-    price: 6000,
-    unlocked: false
+  titan:{
+    name:'Titan Armor',
+    hp:200,
+    atk:5,
+    def:40,
+    speed:-20,
+    price:6000,
+    unlocked:false
   },
 
-  void: {
-    name: 'Void Armor',
-    hp: 80,
-    atk: 25,
-    def: 18,
-    speed: 15,
-    price: 8500,
-    unlocked: false
+  void:{
+    name:'Void Armor',
+    hp:80,
+    atk:25,
+    def:18,
+    speed:15,
+    price:8500,
+    unlocked:false
   },
 
-  matrix: {
-    name: 'Perfect Matrix Armor',
-    hp: 150,
-    atk: 35,
-    def: 30,
-    speed: 35,
-    price: 14000,
-    unlocked: false
+  matrix:{
+    name:'Perfect Matrix Armor',
+    hp:150,
+    atk:35,
+    def:30,
+    speed:35,
+    price:14000,
+    unlocked:false
   }
 };
 
@@ -707,176 +683,808 @@ const MATERIALS = [
 
 
 /* =========================================================
-   GAME STATE
-========================================================= */
+   EASTER EGGS / SECRETS
+   ========================================================= */
+
+const EASTER_EGGS = [
+
+  // EARTH 2.0
+
+  {
+    id:'earth_scarf',
+    world:'earth',
+    x:820,
+    y:455,
+    name:'Prototype Scarf',
+    msg:'A tiny red scarf is tied to an old branch. The tag reads: V0.1.',
+    art:'scarf',
+    reward:75
+  },
+
+  {
+    id:'earth_cart',
+    world:'earth',
+    x:1880,
+    y:610,
+    name:'Ancient Game Cartridge',
+    msg:'Somehow this survived the old world. The label only says: INSERT COIN.',
+    art:'cartridge',
+    reward:100
+  },
+
+  {
+    id:'earth_smile',
+    world:'earth',
+    x:3090,
+    y:445,
+    name:'Smiling Ruin',
+    msg:'Someone carved a smile into the ruins long before you arrived.',
+    art:'smile',
+    reward:90
+  },
+
+  {
+    id:'earth_coffee',
+    world:'earth',
+    x:4380,
+    y:605,
+    name:'Cold Developer Coffee',
+    msg:'Still cold. Still unfinished. Somehow still powerful.',
+    art:'coffee',
+    reward:125
+  },
+
+  // MUSIC VERSE
+
+  {
+    id:'music_silent',
+    world:'music',
+    x:760,
+    y:610,
+    name:'The Silent Note',
+    msg:'A musical note that makes absolutely no sound.',
+    art:'note',
+    reward:100
+  },
+
+  {
+    id:'music_record',
+    world:'music',
+    x:1760,
+    y:445,
+    name:'Backwards Record',
+    msg:'The record spins backwards. You swear it whispered your name.',
+    art:'record',
+    reward:125
+  },
+
+  {
+    id:'music_metro',
+    world:'music',
+    x:3210,
+    y:610,
+    name:'Golden Metronome',
+    msg:'It ticks perfectly in time with your footsteps.',
+    art:'metronome',
+    reward:150
+  },
+
+  {
+    id:'music_pixel',
+    world:'music',
+    x:4470,
+    y:450,
+    name:'8-Bit Melody',
+    msg:'Four tiny pixels play a melody from a game that never existed.',
+    art:'pixel',
+    reward:175
+  },
+
+  // MONEY VILLAGE
+
+  {
+    id:'money_coin',
+    world:'money',
+    x:690,
+    y:450,
+    name:'The First Rift Credit',
+    msg:'Serial number: 00000001. Definitely not for spending.',
+    art:'coin',
+    reward:111
+  },
+
+  {
+    id:'money_pig',
+    world:'money',
+    x:1670,
+    y:610,
+    name:'Emergency Piggy',
+    msg:'A secret piggy bank marked: DO NOT BREAK UNLESS BOSS FIGHT.',
+    art:'pig',
+    reward:150
+  },
+
+  {
+    id:'money_receipt',
+    world:'money',
+    x:3020,
+    y:445,
+    name:'Infinite Receipt',
+    msg:'The receipt keeps printing. Total: somehow still zero.',
+    art:'receipt',
+    reward:175
+  },
+
+  {
+    id:'money_cat',
+    world:'money',
+    x:4380,
+    y:610,
+    name:'Market Cat',
+    msg:'It has been watching every transaction. Suspiciously wealthy.',
+    art:'cat',
+    reward:200
+  },
+
+  // THE COSMOS
+
+  {
+    id:'cosmos_flag',
+    world:'cosmos',
+    x:780,
+    y:610,
+    name:'Tiny Explorer Flag',
+    msg:'A tiny flag from an explorer who clearly got here first.',
+    art:'flag',
+    reward:150
+  },
+
+  {
+    id:'cosmos_helmet',
+    world:'cosmos',
+    x:1920,
+    y:450,
+    name:'Lost Space Helmet',
+    msg:'The visor reflects a star that is not in the sky.',
+    art:'helmet',
+    reward:175
+  },
+
+  {
+    id:'cosmos_sat',
+    world:'cosmos',
+    x:3360,
+    y:605,
+    name:'Pocket Satellite',
+    msg:'It is broadcasting one message: HELLO, RIFTWALKER.',
+    art:'satellite',
+    reward:200
+  },
+
+  {
+    id:'cosmos_whale',
+    world:'cosmos',
+    x:4690,
+    y:450,
+    name:'Star Whale Toy',
+    msg:'A tiny carved whale drifts as if gravity forgot about it.',
+    art:'whale',
+    reward:225
+  },
+
+  // WAR ZONE
+
+  {
+    id:'war_sword',
+    world:'war',
+    x:730,
+    y:610,
+    name:'Cardboard Sword',
+    msg:'A legendary weapon made from extremely non-legendary cardboard.',
+    art:'sword',
+    reward:150
+  },
+
+  {
+    id:'war_duck',
+    world:'war',
+    x:1850,
+    y:445,
+    name:'Armored Bath Duck',
+    msg:'Its tiny helmet has three confirmed scratches and zero fear.',
+    art:'duck',
+    reward:175
+  },
+
+  {
+    id:'war_radio',
+    world:'war',
+    x:3260,
+    y:610,
+    name:'Old Field Radio',
+    msg:'Static... then a voice says: You found me.',
+    art:'radio',
+    reward:200
+  },
+
+  {
+    id:'war_flower',
+    world:'war',
+    x:4540,
+    y:450,
+    name:'Impossible Flower',
+    msg:'A single flower growing where nothing else survived.',
+    art:'flower',
+    reward:250
+  },
+
+  // THE VOID
+
+  {
+    id:'void_eye',
+    world:'void',
+    x:720,
+    y:610,
+    name:'The Eye That Blinked',
+    msg:'You looked at it. It looked back. That seems bad.',
+    art:'eye',
+    reward:175
+  },
+
+  {
+    id:'void_candle',
+    world:'void',
+    x:1740,
+    y:445,
+    name:'Unending Candle',
+    msg:'A flame burns here without heat, fuel or explanation.',
+    art:'candle',
+    reward:200
+  },
+
+  {
+    id:'void_door',
+    world:'void',
+    x:3110,
+    y:610,
+    name:'Tiny Door',
+    msg:'It is far too small for you. Something knocked from the other side.',
+    art:'door',
+    reward:250
+  },
+
+  {
+    id:'void_star',
+    world:'void',
+    x:4420,
+    y:450,
+    name:'Lost Star',
+    msg:'A star fell into the Void and apparently decided to stay.',
+    art:'star',
+    reward:300
+  },
+
+  // PERFECT MATRIX
+
+  {
+    id:'matrix_bug',
+    world:'matrix',
+    x:750,
+    y:610,
+    name:'Actual Bug',
+    msg:'Not a software bug. An actual tiny bug. The Matrix is confused.',
+    art:'bug',
+    reward:250
+  },
+
+  {
+    id:'matrix_floppy',
+    world:'matrix',
+    x:1890,
+    y:445,
+    name:'Ancient Save Icon',
+    msg:'A physical copy of the symbol everyone keeps pressing to save.',
+    art:'floppy',
+    reward:300
+  },
+
+  {
+    id:'matrix_cube',
+    world:'matrix',
+    x:3290,
+    y:610,
+    name:'Developer Cube',
+    msg:'Perfectly square. Completely unexplained. Probably important.',
+    art:'cube',
+    reward:350
+  },
+
+  {
+    id:'matrix_zero',
+    world:'matrix',
+    x:4700,
+    y:450,
+    name:'Zero Division',
+    msg:'The display reads 1 / 0. Reality flickers politely.',
+    art:'zero',
+    reward:500
+  },
+
+  // THE HUB
+
+  {
+    id:'hub_mug',
+    world:'hub',
+    x:180,
+    y:585,
+    name:'Forgotten Hub Mug',
+    msg:'Property of A.R. The coffee inside is somehow still warm.',
+    art:'coffee',
+    reward:100
+  },
+
+  {
+    id:'hub_helmet',
+    world:'hub',
+    x:650,
+    y:615,
+    name:'First Riftwalker Helmet',
+    msg:'An older Riftwalker visor. The cyan eyes flicker when you approach.',
+    art:'helmet',
+    reward:200
+  },
+
+  {
+    id:'hub_ship',
+    world:'hub',
+    x:1130,
+    y:585,
+    name:'Miniature Ship',
+    msg:'It looks exactly like your ship, including the crash damage.',
+    art:'ship',
+    reward:300
+  }
+];
+
+
+const EASTER_TOTAL = EASTER_EGGS.length + 1;
+
+const SECRET_CODE = [
+  'arrowup',
+  'arrowup',
+  'arrowdown',
+  'arrowdown',
+  'arrowleft',
+  'arrowright',
+  'arrowleft',
+  'arrowright',
+  'b',
+  'a'
+];
+
+let secretCodeIndex = 0;
+
+
+function eggById(id){
+  return EASTER_EGGS.find(e => e.id === id);
+}
+
+
+function collectEasterEgg(egg){
+
+  if(!egg || G.easterEggs.has(egg.id)) return;
+
+  G.easterEggs.add(egg.id);
+
+  addCredits(
+    egg.reward || 100,
+    egg.x,
+    egg.y
+  );
+
+  SFX.core();
+
+  burst(
+    egg.x,
+    egg.y - 35,
+    '#ffe98a',
+    18
+  );
+
+  G.screenShake = Math.max(
+    G.screenShake,
+    5
+  );
+
+  toast(
+    'SECRET FOUND · ' +
+    G.easterEggs.size +
+    '/' +
+    EASTER_TOTAL,
+
+    egg.name +
+    ' — ' +
+    egg.msg,
+
+    4.2
+  );
+
+  if(G.easterEggs.size === EASTER_TOTAL){
+
+    P.secretHunter = true;
+
+    addCredits(2000);
+
+    toast(
+      'SECRET HUNTER',
+      'You found every hidden secret in the Multiverse. Bonus: 2,000 Rift Credits.',
+      5
+    );
+  }
+
+  renderJournal();
+}
+
+
+function checkSecretCode(k){
+
+  if(k === SECRET_CODE[secretCodeIndex]){
+    secretCodeIndex++;
+  }
+  else{
+    secretCodeIndex =
+      k === SECRET_CODE[0]
+        ? 1
+        : 0;
+  }
+
+  if(secretCodeIndex >= SECRET_CODE.length){
+
+    secretCodeIndex = 0;
+
+    if(!G.easterEggs.has('rift_code')){
+
+      G.easterEggs.add('rift_code');
+
+      addCredits(777);
+
+      SFX.core();
+
+      toast(
+        'RIFT CODE ACCEPTED',
+        'An ancient sequence unlocked 777 Rift Credits. Secret ' +
+        G.easterEggs.size +
+        '/' +
+        EASTER_TOTAL +
+        '.',
+        4.5
+      );
+
+      if(G.easterEggs.size === EASTER_TOTAL){
+
+        P.secretHunter = true;
+
+        addCredits(2000);
+
+        toast(
+          'SECRET HUNTER',
+          'You found every hidden secret in the Multiverse. Bonus: 2,000 Rift Credits.',
+          5
+        );
+      }
+    }
+  }
+}
+
+
+/* =========================================================
+   MAIN GAME STATE
+   ========================================================= */
 
 const G = {
+  scene:'menu',
+  time:0,
+  sceneTime:0,
+  paused:false,
+  worldId:null,
+  camera:0,
 
-  scene: 'menu',
+  hubFound:false,
 
-  time: 0,
-  sceneTime: 0,
+  unlocked:new Set([
+    'earth'
+  ]),
 
-  paused: false,
+  completed:new Set(),
 
-  worldId: null,
+  cores:0,
 
-  camera: 0,
+  easterEggs:new Set(),
 
-  hubFound: false,
+  tutorialDone:false,
+  tutorialActive:false,
+  tutorialStep:0,
 
-  unlocked: new Set(['earth']),
-  completed: new Set(),
+  messageTime:0,
+  screenShake:0,
+  flash:0,
 
-  cores: 0,
+  particles:[],
+  pickups:[],
+  enemies:[],
+  props:[],
 
-  messageTime: 0,
+  progress:{},
 
-  screenShake: 0,
-  flash: 0,
-
-  particles: [],
-  pickups: [],
-  enemies: [],
-  props: [],
-
-  progress: {},
-
-  arena: null
+  arena:null
 };
 
 
 /* =========================================================
    PLAYER
-========================================================= */
+   ========================================================= */
 
 const P = {
 
-  x: 460,
-  y: 530,
+  x:460,
+  y:530,
 
-  vx: 0,
-  vy: 0,
+  vx:0,
+  vy:0,
+  depthV:0,
 
-  jump: 0,
+  jump:0,
+  onGround:true,
 
-  onGround: true,
+  facing:1,
 
-  facing: 1,
+  dashDirX:1,
+  dashDirY:0,
 
-  level: 1,
-  xp: 0,
+  level:1,
+  xp:0,
 
-  hp: 500,
+  hp:1000,
+  baseMaxHP:1000,
 
-  baseMaxHP: 500,
-  baseAtk: 25,
-  baseDef: 10,
-  baseSpeed: 250,
+  baseAtk:25,
+  baseDef:10,
+  baseSpeed:250,
 
-  weapon: null,
+  baseCritChance:.10,
+  baseCritDamage:2,
 
-  weaponLevel: 1,
+  weapon:null,
+  weaponLevel:1,
 
-  armor: 'none',
+  armor:'none',
 
-  credits: 250,
+  credits:250,
 
-  attackCooldown: 0,
+  attackCooldown:0,
+  baseAttackCooldown:.45,
 
-  baseAttackCooldown: .45,
+  attackTimer:0,
+  attackIndex:0,
+  comboTimer:0,
 
-  attackTimer: 0,
+  invuln:0,
+  hitFlash:0,
 
-  attackIndex: 0,
+  dashTimer:0,
+  dashCooldown:0,
 
-  comboTimer: 0,
-
-  invuln: 0,
-
-  hitFlash: 0,
-
-  dashTimer: 0,
-
-  dashCooldown: 0,
-
-  anim: {
-    state: 'idle',
-    time: 0
+  anim:{
+    state:'idle',
+    time:0
   },
 
   materials:
     Object.fromEntries(
-      MATERIALS.map(x => [x, 0])
+      MATERIALS.map(x => [x,0])
     )
 };
 
 
 const PET_STATE = {
-
-  owned: {},
-
-  active: null
+  owned:{},
+  active:null
 };
 
 
-const keys = Object.create(null);
+/* =========================================================
+   ONE-LIFE STAGE SYSTEM
+   ========================================================= */
 
-let justPressed = new Set();
+const STAGE_RUN = {
+  worldId:null,
+  life:1,
+  snapshot:null,
+  restarting:false
+};
 
 
-for (const id of WORLD_ORDER) {
+function cloneData(value){
+  return JSON.parse(
+    JSON.stringify(value)
+  );
+}
+
+
+function captureStageSnapshot(id){
+
+  STAGE_RUN.worldId = id;
+  STAGE_RUN.life = 1;
+  STAGE_RUN.restarting = false;
+
+  STAGE_RUN.snapshot = {
+
+    P:cloneData({
+      ...P,
+      anim:{
+        state:'idle',
+        time:0
+      }
+    }),
+
+    pets:cloneData(PET_STATE),
+
+    progress:cloneData(G.progress),
+
+    unlocked:[
+      ...G.unlocked
+    ],
+
+    completed:[
+      ...G.completed
+    ],
+
+    cores:G.cores,
+
+    easterEggs:[
+      ...G.easterEggs
+    ],
+
+    armors:
+      Object.fromEntries(
+        Object.entries(ARMORS).map(
+          ([k,v]) => [
+            k,
+            {
+              unlocked:!!v.unlocked,
+              owned:!!v.owned
+            }
+          ]
+        )
+      )
+  };
+}
+
+
+function restoreStageSnapshot(id){
+
+  const snap = STAGE_RUN.snapshot;
+
+  if(
+    !snap ||
+    STAGE_RUN.worldId !== id
+  ){
+    return;
+  }
+
+  Object.assign(
+    P,
+    cloneData(snap.P)
+  );
+
+  P.anim = {
+    state:'idle',
+    time:0
+  };
+
+  PET_STATE.owned =
+    cloneData(
+      snap.pets.owned || {}
+    );
+
+  PET_STATE.active =
+    snap.pets.active || null;
+
+  G.progress =
+    cloneData(
+      snap.progress
+    );
+
+  G.unlocked =
+    new Set(
+      snap.unlocked
+    );
+
+  G.completed =
+    new Set(
+      snap.completed
+    );
+
+  G.cores = snap.cores;
+
+  G.easterEggs =
+    new Set(
+      snap.easterEggs || []
+    );
+
+  for(
+    const [k,v]
+    of Object.entries(
+      snap.armors || {}
+    )
+  ){
+    if(ARMORS[k]){
+      ARMORS[k].unlocked =
+        !!v.unlocked;
+
+      ARMORS[k].owned =
+        !!v.owned;
+    }
+  }
+
+  STAGE_RUN.life = 1;
+}
+
+
+const keys =
+  Object.create(null);
+
+let justPressed =
+  new Set();
+
+
+for(const id of WORLD_ORDER){
 
   G.progress[id] = {
 
-    fragments: 0,
+    fragments:0,
 
-    bossDefeated: false,
+    bossDefeated:false,
 
-    petFound: [],
+    petFound:[],
 
-    beacons: 0,
+    beacons:0,
 
-    storyStage: 0,
+    storyStage:0,
 
-    shipParts: 0
+    shipParts:0
   };
 }
 
 
 /* =========================================================
-   SOUND EFFECTS
-========================================================= */
+   AUDIO
+   ========================================================= */
 
 const SFX = {
 
-  ctx: null,
+  ctx:null,
+  master:null,
+  muted:false,
 
-  master: null,
+  init(){
 
-  muted: false,
-
-
-  init() {
-
-    if (this.ctx) return;
+    if(this.ctx) return;
 
     const AC =
       window.AudioContext ||
       window.webkitAudioContext;
 
-    if (!AC) return;
+    if(!AC) return;
 
-
-    this.ctx = new AC();
-
+    this.ctx =
+      new AC();
 
     this.master =
       this.ctx.createGain();
 
-
-    this.master.gain.value = .48;
-
+    this.master.gain.value =
+      .48;
 
     this.master.connect(
       this.ctx.destination
@@ -884,55 +1492,49 @@ const SFX = {
   },
 
 
-  resume() {
+  resume(){
 
     this.init();
 
-
-    if (
-      this.ctx &&
-      this.ctx.state === 'suspended'
-    ) {
-
+    if(
+      this.ctx?.state ===
+      'suspended'
+    ){
       this.ctx.resume();
     }
   },
 
 
   tone(
-    freq = 100,
-    dur = .1,
-    type = 'sine',
-    vol = .08,
-    slide = 1
-  ) {
+    freq=.1,
+    dur=.1,
+    type='sine',
+    vol=.08,
+    slide=1
+  ){
 
-    if (
+    if(
       !this.ctx ||
       this.muted
-    ) return;
-
+    ){
+      return;
+    }
 
     const o =
       this.ctx.createOscillator();
 
-
     const g =
       this.ctx.createGain();
-
 
     const t =
       this.ctx.currentTime;
 
-
     o.type = type;
-
 
     o.frequency.setValueAtTime(
       freq,
       t
     );
-
 
     o.frequency.exponentialRampToValueAtTime(
       Math.max(
@@ -942,31 +1544,26 @@ const SFX = {
       t + dur
     );
 
-
     g.gain.setValueAtTime(
       .0001,
       t
     );
-
 
     g.gain.exponentialRampToValueAtTime(
       vol,
       t + .01
     );
 
-
     g.gain.exponentialRampToValueAtTime(
       .0001,
       t + dur
     );
-
 
     o.connect(g);
 
     g.connect(
       this.master
     );
-
 
     o.start(t);
 
@@ -977,22 +1574,23 @@ const SFX = {
 
 
   noise(
-    dur = .08,
-    vol = .05,
-    cut = 1000
-  ) {
+    dur=.08,
+    vol=.05,
+    cut=1000
+  ){
 
-    if (
+    if(
       !this.ctx ||
       this.muted
-    ) return;
-
+    ){
+      return;
+    }
 
     const n =
       Math.floor(
-        this.ctx.sampleRate * dur
+        this.ctx.sampleRate *
+        dur
       );
-
 
     const b =
       this.ctx.createBuffer(
@@ -1001,45 +1599,38 @@ const SFX = {
         this.ctx.sampleRate
       );
 
-
     const d =
       b.getChannelData(0);
 
-
-    for (
-      let i = 0;
-      i < n;
+    for(
+      let i=0;
+      i<n;
       i++
-    ) {
-
+    ){
       d[i] =
-        (Math.random() * 2 - 1) *
-        (1 - i / n);
+        (Math.random()*2-1) *
+        (1-i/n);
     }
-
 
     const s =
       this.ctx.createBufferSource();
 
-
     const f =
       this.ctx.createBiquadFilter();
-
 
     const g =
       this.ctx.createGain();
 
-
     s.buffer = b;
 
+    f.type =
+      'lowpass';
 
-    f.type = 'lowpass';
+    f.frequency.value =
+      cut;
 
-    f.frequency.value = cut;
-
-
-    g.gain.value = vol;
-
+    g.gain.value =
+      vol;
 
     s.connect(f);
 
@@ -1049,13 +1640,11 @@ const SFX = {
       this.master
     );
 
-
     s.start();
   },
 
 
-  click() {
-
+  click(){
     this.tone(
       520,
       .05,
@@ -1066,8 +1655,37 @@ const SFX = {
   },
 
 
-  jump() {
+  crit(){
 
+    this.noise(
+      .12,
+      .09,
+      1500
+    );
+
+    this.tone(
+      180,
+      .13,
+      'sawtooth',
+      .07,
+      2.5
+    );
+
+    setTimeout(
+      () =>
+        this.tone(
+          920,
+          .1,
+          'triangle',
+          .05,
+          1.25
+        ),
+      35
+    );
+  },
+
+
+  jump(){
     this.tone(
       230,
       .12,
@@ -1078,8 +1696,7 @@ const SFX = {
   },
 
 
-  land() {
-
+  land(){
     this.noise(
       .07,
       .035,
@@ -1088,14 +1705,13 @@ const SFX = {
   },
 
 
-  swing() {
+  swing(){
 
     this.noise(
       .08,
       .05,
       1800
     );
-
 
     this.tone(
       330,
@@ -1107,14 +1723,13 @@ const SFX = {
   },
 
 
-  hit() {
+  hit(){
 
     this.noise(
       .09,
       .07,
       900
     );
-
 
     this.tone(
       130,
@@ -1126,7 +1741,7 @@ const SFX = {
   },
 
 
-  hurt() {
+  hurt(){
 
     this.tone(
       110,
@@ -1138,7 +1753,7 @@ const SFX = {
   },
 
 
-  coin() {
+  coin(){
 
     this.tone(
       780,
@@ -1148,25 +1763,21 @@ const SFX = {
       1.35
     );
 
-
     setTimeout(
-      () => {
-
+      () =>
         this.tone(
           1050,
           .08,
           'sine',
           .04,
           1.2
-        );
-
-      },
+        ),
       55
     );
   },
 
 
-  pet() {
+  pet(){
 
     this.tone(
       480,
@@ -1176,25 +1787,21 @@ const SFX = {
       1.5
     );
 
-
     setTimeout(
-      () => {
-
+      () =>
         this.tone(
           720,
           .12,
           'sine',
           .04,
           1.3
-        );
-
-      },
+        ),
       80
     );
   },
 
 
-  core() {
+  core(){
 
     this.tone(
       110,
@@ -1204,26 +1811,21 @@ const SFX = {
       1.4
     );
 
-
     setTimeout(
-      () => {
-
+      () =>
         this.tone(
           440,
           .35,
           'triangle',
           .06,
           1.5
-        );
-
-      },
+        ),
       120
     );
   },
 
 
-  portal() {
-
+  portal(){
     this.tone(
       160,
       .5,
@@ -1234,8 +1836,7 @@ const SFX = {
   },
 
 
-  boss() {
-
+  boss(){
     this.tone(
       70,
       .45,
@@ -1246,13 +1847,12 @@ const SFX = {
   },
 
 
-  toggle() {
+  toggle(){
 
     this.muted =
       !this.muted;
 
-
-    if (this.master) {
+    if(this.master){
 
       this.master.gain.value =
         this.muted
@@ -1264,200 +1864,138 @@ const SFX = {
 
 
 /* =========================================================
-   MUSIC
-   ACROSS THE RIFT
-========================================================= */
+   BACKGROUND MUSIC
+   ========================================================= */
 
 const MUSIC = {
 
-  ctx: null,
+  ctx:null,
+  master:null,
 
-  master: null,
+  started:false,
+  muted:false,
 
-  started: false,
+  timer:null,
+  step:0,
 
-  muted: false,
+  bpm:92,
 
-  timer: null,
+  world:'earth',
 
-  step: 0,
+  boss:false,
 
-  bpm: 92,
+  volume:.34,
 
-  world: 'earth',
+  notes:{
+    C2:65.41,
+    D2:73.42,
+    F2:87.31,
+    G2:98,
+    A2:110,
+    Bb2:116.54,
 
-  boss: false,
+    C3:130.81,
+    D3:146.83,
+    F3:174.61,
+    G3:196,
+    A3:220,
+    Bb3:233.08,
 
-  volume: .18,
+    C4:261.63,
+    D4:293.66,
+    F4:349.23,
+    G4:392,
+    A4:440,
+    Bb4:466.16,
 
-
-  notes: {
-
-    C2: 65.41,
-
-    D2: 73.42,
-
-    F2: 87.31,
-
-    G2: 98,
-
-    A2: 110,
-
-    Bb2: 116.54,
-
-    C3: 130.81,
-
-    D3: 146.83,
-
-    F3: 174.61,
-
-    G3: 196,
-
-    A3: 220,
-
-    Bb3: 233.08,
-
-    C4: 261.63,
-
-    D4: 293.66,
-
-    F4: 349.23,
-
-    G4: 392,
-
-    A4: 440,
-
-    Bb4: 466.16,
-
-    C5: 523.25,
-
-    D5: 587.33
+    C5:523.25,
+    D5:587.33
   },
 
+  melody:[
+    'D4',null,
+    'F4','A4',
+    null,'G4',
+    'F4',null,
 
-  melody: [
+    'D4',null,
+    'F4','C5',
+    'A4',null,
+    'G4',null,
 
-    'D4',
-    null,
-    'F4',
-    'A4',
+    'F4',null,
+    'A4','C5',
+    null,'A4',
+    'G4','F4',
 
-    null,
-    'G4',
-    'F4',
-    null,
-
-    'D4',
-    null,
-    'F4',
-    'C5',
-
-    'A4',
-    null,
-    'G4',
-    null,
-
-    'F4',
-    null,
-    'A4',
-    'C5',
-
-    null,
-    'A4',
-    'G4',
-    'F4',
-
-    'G4',
-    null,
-    'A4',
-    'D5',
-
-    'C5',
-    'A4',
-    'F4',
-    null
+    'G4',null,
+    'A4','D5',
+    'C5','A4',
+    'F4',null
   ],
 
+  bass:[
+    'D2',null,
+    'D2','A2',
+    'Bb2',null,
+    'F2',null,
 
-  bass: [
-
-    'D2',
-    null,
-
-    'D2',
-    'A2',
-
-    'Bb2',
-    null,
-
-    'F2',
-    null,
-
-    'F2',
-    null,
-
-    'C3',
-    null,
-
-    'C2',
-    null,
-
-    'G2',
-    null
+    'F2',null,
+    'C3',null,
+    'C2',null,
+    'G2',null
   ],
 
-
-  styles: {
-
-    hub: [
+  styles:{
+    hub:[
       82,
       'sine',
       .42
     ],
 
-    earth: [
+    earth:[
       92,
       'triangle',
       .55
     ],
 
-    music: [
+    music:[
       118,
       'square',
       .72
     ],
 
-    money: [
+    money:[
       104,
       'triangle',
       .62
     ],
 
-    cosmos: [
+    cosmos:[
       72,
       'sine',
       .34
     ],
 
-    war: [
+    war:[
       128,
       'sawtooth',
       .68
     ],
 
-    void: [
+    void:[
       58,
       'sine',
       .24
     ],
 
-    matrix: [
+    matrix:[
       110,
       'square',
       .56
     ],
 
-    arena: [
+    arena:[
       132,
       'sawtooth',
       .7
@@ -1465,27 +2003,26 @@ const MUSIC = {
   },
 
 
-  init() {
+  init(){
 
     SFX.resume();
 
+    if(!SFX.ctx){
+      return;
+    }
 
-    if (!SFX.ctx) return;
+    this.ctx =
+      SFX.ctx;
 
-
-    this.ctx = SFX.ctx;
-
-
-    if (this.master) return;
-
+    if(this.master){
+      return;
+    }
 
     this.master =
       this.ctx.createGain();
 
-
     this.master.gain.value =
       this.volume;
-
 
     this.master.connect(
       this.ctx.destination
@@ -1493,27 +2030,25 @@ const MUSIC = {
   },
 
 
-  start() {
+  start(){
 
     this.init();
 
-
-    if (this.started) return;
-
+    if(this.started){
+      return;
+    }
 
     this.started = true;
 
     this.step = 0;
 
-
     this.schedule();
   },
 
 
-  setWorld(w) {
+  setWorld(w){
 
     this.world = w;
-
 
     this.bpm =
       (
@@ -1532,69 +2067,61 @@ const MUSIC = {
   tone(
     freq,
     dur,
-    type = 'sine',
-    vol = .02,
-    delay = 0
-  ) {
+    type='sine',
+    vol=.02,
+    delay=0
+  ){
 
-    if (
+    if(
       !this.ctx ||
       this.muted ||
       !freq
-    ) return;
-
+    ){
+      return;
+    }
 
     const t =
       this.ctx.currentTime +
       delay;
 
-
     const o =
       this.ctx.createOscillator();
-
 
     const g =
       this.ctx.createGain();
 
-
     const f =
       this.ctx.createBiquadFilter();
 
-
     o.type = type;
 
-    o.frequency.value = freq;
+    o.frequency.value =
+      freq;
 
-
-    f.type = 'lowpass';
-
+    f.type =
+      'lowpass';
 
     f.frequency.value =
       800 +
       (
         this.styles[this.world] ||
         this.styles.earth
-      )[2] *
-      2600;
-
+      )[2] * 2600;
 
     g.gain.setValueAtTime(
       .0001,
       t
     );
 
-
     g.gain.exponentialRampToValueAtTime(
       vol,
       t + .025
     );
 
-
     g.gain.exponentialRampToValueAtTime(
       .0001,
       t + dur
     );
-
 
     o.connect(f);
 
@@ -1604,7 +2131,6 @@ const MUSIC = {
       this.master
     );
 
-
     o.start(t);
 
     o.stop(
@@ -1613,58 +2139,33 @@ const MUSIC = {
   },
 
 
-  chord() {
+  chord(){
 
     const chords = [
-
-      [
-        'D3',
-        'F3',
-        'A3'
-      ],
-
-      [
-        'Bb2',
-        'D3',
-        'F3'
-      ],
-
-      [
-        'F3',
-        'A3',
-        'C4'
-      ],
-
-      [
-        'C3',
-        'G3',
-        'C4'
-      ]
+      ['D3','F3','A3'],
+      ['Bb2','D3','F3'],
+      ['F3','A3','C4'],
+      ['C3','G3','C4']
     ];
 
-
-    const chord =
+    const c =
       chords[
         Math.floor(
           this.step / 8
         ) % 4
       ];
 
-
-    for (
-      const note of chord
-    ) {
+    for(const n of c){
 
       this.tone(
-        this.notes[note],
+        this.notes[n],
         1.6,
         'sine',
         .012
       );
 
-
       this.tone(
-        this.notes[note] * 2,
+        this.notes[n] * 2,
         1.2,
         'triangle',
         .004
@@ -1673,42 +2174,37 @@ const MUSIC = {
   },
 
 
-  melodyStep() {
+  melodyStep(){
 
-    let note =
+    let n =
       this.melody[
         this.step %
         this.melody.length
       ];
 
-
-    if (!note) return;
-
-
-    if (
-      this.world === 'void' &&
-      this.step % 5 === 0
-    ) {
-
+    if(!n){
       return;
     }
 
+    if(
+      this.world === 'void' &&
+      this.step % 5 === 0
+    ){
+      return;
+    }
 
-    let freq =
-      this.notes[note];
+    let f =
+      this.notes[n];
 
-
-    if (
+    if(
       this.world === 'matrix' &&
       Math.random() < .12
-    ) {
-
-      freq *=
+    ){
+      f *=
         Math.random() > .5
           ? 1.06
           : .94;
     }
-
 
     const wave =
       (
@@ -1716,9 +2212,8 @@ const MUSIC = {
         this.styles.earth
       )[1];
 
-
     this.tone(
-      freq,
+      f,
       .28,
       wave,
       this.boss
@@ -1726,26 +2221,22 @@ const MUSIC = {
         : .025
     );
 
-
-    if (
+    if(
       this.world === 'music'
-    ) {
-
+    ){
       this.tone(
-        freq * 1.5,
+        f * 1.5,
         .18,
         'sine',
         .009
       );
     }
 
-
-    if (
+    if(
       this.world === 'cosmos'
-    ) {
-
+    ){
       this.tone(
-        freq * 2,
+        f * 2,
         .65,
         'sine',
         .006,
@@ -1755,19 +2246,18 @@ const MUSIC = {
   },
 
 
-  bassStep() {
+  bassStep(){
 
-    const note =
+    const n =
       this.bass[
         this.step %
         this.bass.length
       ];
 
-
-    if (note) {
+    if(n){
 
       this.tone(
-        this.notes[note],
+        this.notes[n],
         .34,
         'sine',
         this.boss
@@ -1778,20 +2268,20 @@ const MUSIC = {
   },
 
 
-  drum(power = 1) {
+  drum(power=1){
 
-    if (
+    if(
       !this.ctx ||
       this.muted
-    ) return;
-
+    ){
+      return;
+    }
 
     const n =
       Math.floor(
         this.ctx.sampleRate *
         .07
       );
-
 
     const b =
       this.ctx.createBuffer(
@@ -1800,43 +2290,34 @@ const MUSIC = {
         this.ctx.sampleRate
       );
 
-
     const d =
       b.getChannelData(0);
 
-
-    for (
-      let i = 0;
-      i < n;
+    for(
+      let i=0;
+      i<n;
       i++
-    ) {
-
+    ){
       d[i] =
-        (Math.random() * 2 - 1) *
-        (1 - i / n) ** 2;
+        (Math.random()*2-1) *
+        (1-i/n) ** 2;
     }
 
-
-    const source =
+    const s =
       this.ctx.createBufferSource();
 
-
-    const filter =
+    const f =
       this.ctx.createBiquadFilter();
 
-
-    const gain =
+    const g =
       this.ctx.createGain();
 
+    s.buffer = b;
 
-    source.buffer = b;
-
-
-    filter.type =
+    f.type =
       'lowpass';
 
-
-    filter.frequency.value =
+    f.frequency.value =
       (
         this.world === 'war' ||
         this.world === 'arena'
@@ -1844,101 +2325,84 @@ const MUSIC = {
         ? 520
         : 1000;
 
+    g.gain.value =
+      .012 * power;
 
-    gain.gain.value =
-      .012 *
-      power;
+    s.connect(f);
 
+    f.connect(g);
 
-    source.connect(filter);
-
-    filter.connect(gain);
-
-    gain.connect(
+    g.connect(
       this.master
     );
 
-
-    source.start();
+    s.start();
   },
 
 
-  rhythm() {
+  rhythm(){
 
-    if (
+    if(
       this.world === 'war' ||
       this.world === 'arena'
-    ) {
+    ){
 
-      if (
+      if(
         this.step % 2 === 0
-      ) {
-
+      ){
         this.drum(1.9);
       }
-
     }
 
-    else if (
+    else if(
       this.world === 'music'
-    ) {
+    ){
 
-      if (
+      if(
         this.step % 2 === 0
-      ) {
-
+      ){
         this.drum(1);
       }
-
     }
 
-    else if (
+    else if(
       this.step % 8 === 0
-    ) {
-
+    ){
       this.drum(.3);
     }
   },
 
 
-  schedule() {
+  schedule(){
 
-    if (!this.started) return;
+    if(!this.started){
+      return;
+    }
 
-
-    if (
+    if(
       this.step % 8 === 0
-    ) {
-
+    ){
       this.chord();
     }
 
-
     this.melodyStep();
 
-
-    if (
+    if(
       this.step % 2 === 0
-    ) {
-
+    ){
       this.bassStep();
     }
 
-
     this.rhythm();
 
-
-    if (
+    if(
       this.boss &&
       this.step % 2 === 0
-    ) {
-
+    ){
       this.drum(1.2);
     }
 
-
     this.step++;
-
 
     this.timer =
       setTimeout(
@@ -1947,16 +2411,16 @@ const MUSIC = {
           60 /
           this.bpm /
           2
-        ) *
-        1000
+        ) * 1000
       );
   },
 
 
-  startBoss() {
+  startBoss(){
 
-    if (this.boss) return;
-
+    if(this.boss){
+      return;
+    }
 
     this.boss = true;
 
@@ -1964,12 +2428,11 @@ const MUSIC = {
       this.world
     );
 
-
     SFX.boss();
   },
 
 
-  endBoss() {
+  endBoss(){
 
     this.boss = false;
 
@@ -1979,13 +2442,12 @@ const MUSIC = {
   },
 
 
-  toggle() {
+  toggle(){
 
     this.muted =
       !this.muted;
 
-
-    if (this.master) {
+    if(this.master){
 
       this.master.gain.value =
         this.muted
@@ -1997,10 +2459,10 @@ const MUSIC = {
 
 
 /* =========================================================
-   PLAYER STATS
-========================================================= */
+   STATS / ECONOMY
+   ========================================================= */
 
-function activePet() {
+function activePet(){
 
   return PET_STATE.active
     ? PET_STATE.owned[
@@ -2010,16 +2472,14 @@ function activePet() {
 }
 
 
-function getStats() {
+function getStats(){
 
   const armor =
     ARMORS[P.armor] ||
     ARMORS.none;
 
-
   const pet =
     activePet();
-
 
   const pb =
     pet
@@ -2029,20 +2489,15 @@ function getStats() {
         )
       : {};
 
-
   const level =
     P.level - 1;
-
 
   const evoBoost =
     pet
       ? 1 +
-        (
-          pet.level - 1
-        ) *
+        (pet.level - 1) *
         .015
       : 1;
-
 
   return {
 
@@ -2055,7 +2510,6 @@ function getStats() {
         evoBoost
       ),
 
-
     atk:
       Math.round(
         P.baseAtk +
@@ -2066,14 +2520,11 @@ function getStats() {
         (
           P.weapon
             ? 20 +
-              (
-                P.weaponLevel - 1
-              ) *
+              (P.weaponLevel - 1) *
               4
             : 0
         )
       ),
-
 
     def:
       Math.round(
@@ -2085,7 +2536,6 @@ function getStats() {
         (pb.def || 0) *
         evoBoost
       ),
-
 
     speed:
       clamp(
@@ -2099,654 +2549,357 @@ function getStats() {
         390
       ),
 
+    critChance:
+      clamp(
+        (P.baseCritChance ?? .10) +
+        (pb.critChance || 0),
+        .02,
+        .65
+      ),
+
+    critDamage:
+      Math.max(
+        1.5,
+        (P.baseCritDamage ?? 2) +
+        (pb.critDamage || 0)
+      ),
 
     cooldown:
       Math.max(
         .18,
         P.baseAttackCooldown *
-        (
-          pb.cooldown ||
-          1
-        )
+        (pb.cooldown || 1)
       )
   };
 }
-
+function preserveHealthForStatChange(oldMax,newMax){
+  const ratio=oldMax>0?P.hp/oldMax:1;
+  P.hp=clamp(Math.round(newMax*ratio),1,newMax)
+}
 
 /* =========================================================
-   RIFT CREDITS
-========================================================= */
+   GAME SETUP / STORY
+   ========================================================= */
 
-function addCredits(
-  amount,
-  x = P.x,
-  y = P.y
-) {
+function resetGame(){
+  STAGE_RUN.worldId=null;
+  STAGE_RUN.life=1;
+  STAGE_RUN.snapshot=null;
+  STAGE_RUN.restarting=false;
 
-  amount =
-    Math.max(
-      0,
-      Math.round(amount)
-    );
+  G.scene='flight';
+  G.sceneTime=0;
+  G.worldId=null;
+  G.camera=0;
+  G.hubFound=false;
+  G.unlocked=new Set(['earth']);
+  G.completed=new Set();
+  G.cores=0;
+  G.easterEggs=new Set();
+  G.tutorialDone=false;
+  G.tutorialActive=false;
+  G.tutorialStep=0;
+  G.enemies=[];
+  G.pickups=[];
+  G.particles=[];
+  G.progress={};
 
-
-  P.credits += amount;
-
-
-  floatingText(
-    '+' +
-    amount +
-    ' CREDITS',
-    x,
-    y - 70,
-    '#8ff5ff'
-  );
-
-
-  SFX.coin();
-
-  syncHUD();
-}
-
-
-function spendCredits(amount) {
-
-  if (
-    P.credits <
-    amount
-  ) {
-
-    toast(
-      'RIFT MARKET',
-      'Not enough Rift Credits.'
-    );
-
-    return false;
-  }
-
-
-  P.credits -= amount;
-
-
-  SFX.click();
-
-  syncHUD();
-
-
-  return true;
-}
-
-
-function addMaterial(
-  name,
-  amount = 1
-) {
-
-  P.materials[name] =
-    (
-      P.materials[name] ||
-      0
-    )
-    +
-    amount;
-
-
-  floatingText(
-    '+' +
-    amount +
-    ' ' +
-    name,
-    P.x,
-    P.y - 70,
-    '#d8c7ff'
-  );
-}
-
-
-function preserveHealthForStatChange(
-  oldMax,
-  newMax
-) {
-
-  const ratio =
-    oldMax > 0
-      ? P.hp / oldMax
-      : 1;
-
-
-  P.hp =
-    clamp(
-      Math.round(
-        newMax * ratio
-      ),
-      1,
-      newMax
-    );
-}
-
-
-/* =========================================================
-   RESET / NEW GAME
-========================================================= */
-
-function resetGame() {
-
-  G.scene = 'flight';
-
-  G.sceneTime = 0;
-
-  G.worldId = null;
-
-  G.camera = 0;
-
-  G.hubFound = false;
-
-  G.unlocked =
-    new Set([
-      'earth'
-    ]);
-
-  G.completed =
-    new Set();
-
-  G.cores = 0;
-
-  G.enemies = [];
-
-  G.pickups = [];
-
-  G.particles = [];
-
-  G.progress = {};
-
-
-  for (
-    const id of
-    WORLD_ORDER
-  ) {
-
-    G.progress[id] = {
-
-      fragments: 0,
-
-      bossDefeated: false,
-
-      petFound: [],
-
-      beacons: 0,
-
-      storyStage: 0,
-
-      shipParts: 0
+  for(const id of WORLD_ORDER){
+    G.progress[id]={
+      fragments:0,
+      bossDefeated:false,
+      petFound:[],
+      beacons:0,
+      storyStage:0,
+      shipParts:0
     };
   }
 
+  Object.assign(P,{
+    x:460,
+    y:530,
+    vx:0,
+    vy:0,
+    depthV:0,
+    jump:0,
+    onGround:true,
+    facing:1,
 
-  Object.assign(
-    P,
-    {
+    dashDirX:1,
+    dashDirY:0,
 
-      x: 460,
+    level:1,
+    xp:0,
 
-      y: 530,
+    hp:1000,
 
-      vx: 0,
+    baseCritChance:.10,
+    baseCritDamage:2,
 
-      vy: 0,
+    secretHunter:false,
 
-      jump: 0,
+    weapon:null,
+    weaponLevel:1,
 
-      onGround: true,
+    armor:'none',
 
-      facing: 1,
+    credits:250,
 
-      level: 1,
+    attackCooldown:0,
+    attackTimer:0,
+    attackIndex:0,
+    comboTimer:0,
 
-      xp: 0,
+    invuln:0,
+    hitFlash:0,
 
-      hp: 500,
+    dashTimer:0,
+    dashCooldown:0,
 
-      weapon: null,
+    materials:
+      Object.fromEntries(
+        MATERIALS.map(x=>[x,0])
+      )
+  });
 
-      weaponLevel: 1,
+  PET_STATE.owned={};
+  PET_STATE.active=null;
 
-      armor: 'none',
-
-      credits: 250,
-
-      attackCooldown: 0,
-
-      attackTimer: 0,
-
-      attackIndex: 0,
-
-      comboTimer: 0,
-
-      invuln: 0,
-
-      hitFlash: 0,
-
-      dashTimer: 0,
-
-      dashCooldown: 0,
-
-      materials:
-        Object.fromEntries(
-          MATERIALS.map(
-            x => [
-              x,
-              0
-            ]
-          )
-        )
-    }
-  );
-
-
-  PET_STATE.owned = {};
-
-  PET_STATE.active = null;
-
-
-  $('startScreen')
-    .classList
-    .add('hidden');
-
-
-  $('hud')
-    .classList
-    .remove('hidden');
-
+  $('startScreen').classList.add('hidden');
+  $('hud').classList.remove('hidden');
 
   MUSIC.start();
-
-  MUSIC.setWorld(
-    'earth'
-  );
-
-
+  MUSIC.setWorld('earth');
   SFX.resume();
 }
 
 
-/* =========================================================
-   BEGIN WORLD
-========================================================= */
+function beginWorld(id){
 
-function beginWorld(id) {
+  const w=WORLDS[id];
 
-  const world =
-    WORLDS[id];
+  if(!w)return;
 
+  G.scene='world';
+  G.worldId=id;
+  G.camera=0;
+  G.sceneTime=0;
 
-  if (!world) return;
+  P.x=430;
+  P.y=530;
 
+  P.vx=0;
+  P.vy=0;
+  P.depthV=0;
 
-  G.scene =
-    'world';
+  P.jump=0;
+  P.onGround=true;
 
+  // Every stage starts with exactly one life and full health.
 
-  G.worldId =
-    id;
+  P.hp=getStats().maxHP;
 
+  P.invuln=0;
+  P.hitFlash=0;
 
-  G.camera =
-    0;
+  P.attackCooldown=0;
+  P.attackTimer=0;
 
+  P.dashTimer=0;
+  P.dashCooldown=0;
 
-  G.sceneTime =
-    0;
+  captureStageSnapshot(id);
 
-
-  P.x =
-    430;
-
-
-  P.y =
-    530;
-
-
-  P.vx =
-    0;
-
-
-  P.jump =
-    0;
-
-
-  P.onGround =
-    true;
-
-
-  G.enemies =
+  G.enemies=
     G.enemies.filter(
-      enemy =>
-        enemy.world !== id
+      e=>e.world!==id
     );
 
+  G.pickups=[];
 
-  G.pickups =
-    [];
+  spawnWorldContent(id);
 
-
-  spawnWorldContent(
-    id
-  );
-
-
-  MUSIC.setWorld(
-    id
-  );
-
-
+  MUSIC.setWorld(id);
   MUSIC.endBoss();
 
-
-  if (
-    id === 'earth'
-  ) {
-
+  if(id==='earth'){
     updateEarthQuest();
-
   }
-
-  else {
-
+  else{
     quest(
-      world.mechanic,
-      'Collect 5 Rift Fragments and find the ' +
-      world.boss +
-      '.'
+      w.mechanic,
+      'Collect 5 Rift Fragments and find the '+w.boss+'.'
     );
   }
 
+  toast(
+    'ONE LIFE STAGE',
+    'You have 1 life. If you fall, this stage restarts.'
+  );
 
   syncHUD();
+
+  if(
+    id==='earth' &&
+    !G.tutorialDone &&
+    !G.tutorialActive
+  ){
+    setTimeout(()=>{
+      if(
+        G.scene==='world' &&
+        G.worldId==='earth'
+      ){
+        startTutorial(false);
+      }
+    },250);
+  }
 }
 
 
-/* =========================================================
-   THE HUB
-========================================================= */
+function beginHub(){
 
-function beginHub() {
+  STAGE_RUN.worldId=null;
+  STAGE_RUN.life=1;
+  STAGE_RUN.snapshot=null;
+  STAGE_RUN.restarting=false;
 
-  G.scene =
-    'hub';
+  G.scene='hub';
+  G.worldId=null;
+  G.camera=0;
 
+  G.hubFound=true;
 
-  G.worldId =
-    null;
+  P.x=640;
+  P.y=535;
 
+  P.vx=0;
+  P.depthV=0;
+  P.jump=0;
 
-  G.camera =
-    0;
-
-
-  G.hubFound =
-    true;
-
-
-  P.x =
-    640;
-
-
-  P.y =
-    535;
-
-
-  P.vx =
-    0;
-
-
-  P.jump =
-    0;
-
-
-  MUSIC.setWorld(
-    'hub'
-  );
-
-
+  MUSIC.setWorld('hub');
   MUSIC.endBoss();
-
 
   quest(
     'THE HUB',
     'Prepare your gear, train pets and choose your next world.'
   );
 
-
   syncHUD();
 }
 
 
-/* =========================================================
-   WORLD TRAVEL
-========================================================= */
+function travelTo(id){
 
-function travelTo(id) {
-
-  if (
-    !G.unlocked.has(id)
-  ) return;
-
+  if(!G.unlocked.has(id)){
+    return;
+  }
 
   closeAllOverlays();
 
-
-  G.scene =
-    'travel';
-
-
-  G.travelTarget =
-    id;
-
-
-  G.sceneTime =
-    0;
-
+  G.scene='travel';
+  G.travelTarget=id;
+  G.sceneTime=0;
 
   SFX.portal();
 
-
-  MUSIC.setWorld(
-    id
-  );
+  MUSIC.setWorld(id);
 }
 
 
-/* =========================================================
-   SPAWN WORLD CONTENT
-========================================================= */
+function spawnWorldContent(id){
 
-function spawnWorldContent(id) {
+  const w=WORLDS[id];
+  const pr=G.progress[id];
 
-  const world =
-    WORLDS[id];
+  if(id!=='earth'){
 
+    for(let i=0;i<5;i++){
 
-  const progress =
-    G.progress[id];
-
-
-  if (
-    id !== 'earth'
-  ) {
-
-    for (
-      let i = 0;
-      i < 5;
-      i++
-    ) {
-
-      if (
-        i >=
-        progress.fragments
-      ) {
+      if(i>=pr.fragments){
 
         G.pickups.push({
-
-          kind:
-            'fragment',
-
-          x:
-            950 +
-            i * 720,
-
-          y:
-            510 +
-            (
-              i % 2
-            ) *
-            30,
-
-          taken:
-            false
+          kind:'fragment',
+          x:950+i*720,
+          y:510+((i%2)*30),
+          taken:false
         });
       }
     }
   }
 
+  const roster=PET_ROSTERS[id];
 
-  const roster =
-    PET_ROSTERS[id];
+  roster.forEach((name,i)=>{
 
+    if(!pr.petFound.includes(name)){
 
-  roster.forEach(
-    (
-      name,
-      i
-    ) => {
-
-      if (
-        !progress.petFound.includes(
-          name
-        )
-      ) {
-
-        G.pickups.push({
-
-          kind:
-            'pet',
-
-          name,
-
-          x:
-            720 +
-            i * 540,
-
-          y:
-            520 -
-            (
-              i % 3
-            ) *
-            18,
-
-          taken:
-            false
-        });
-      }
+      G.pickups.push({
+        kind:'pet',
+        name,
+        x:720+i*540,
+        y:520-((i%3)*18),
+        taken:false
+      });
     }
-  );
+  });
 
+  const count=
+    id==='earth'
+      ?8
+      :10;
 
-  const count =
-    id === 'earth'
-      ? 8
-      : 10;
-
-
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
+  for(let i=0;i<count;i++){
 
     spawnEnemy(
       id,
-
-      1050 +
-      i * 430,
-
-      520 +
-      (
-        i % 3
-      ) *
-      20,
-
+      1050+i*430,
+      520+(i%3)*20,
       false
     );
   }
 
+  if(
+    id==='war' &&
+    pr.beacons<3
+  ){
 
-  if (
-    id === 'war' &&
-    progress.beacons < 3
-  ) {
-
-    for (
-      let i =
-        progress.beacons;
-
-      i < 3;
-
+    for(
+      let i=pr.beacons;
+      i<3;
       i++
-    ) {
+    ){
 
       G.pickups.push({
-
-        kind:
-          'beacon',
-
-        x:
-          1700 +
-          i * 1050,
-
-        y:
-          520,
-
-        taken:
-          false
+        kind:'beacon',
+        x:1700+i*1050,
+        y:520,
+        taken:false
       });
     }
   }
 
-
-  if (
-    progress.bossDefeated
-  ) {
+  if(pr.bossDefeated){
 
     G.pickups.push({
-
-      kind:
-        'portal',
-
-      x:
-        world.width -
-        420,
-
-      y:
-        500,
-
-      taken:
-        false
+      kind:'portal',
+      x:w.width-420,
+      y:500,
+      taken:false
     });
-
   }
 
-  else if (
-    id !== 'earth' &&
-    progress.fragments >= 5 &&
+  else if(
+    id!=='earth' &&
+    pr.fragments>=5 &&
     (
-      id !== 'war' ||
-      progress.beacons >= 3
+      id!=='war' ||
+      pr.beacons>=3
     )
-  ) {
+  ){
 
     spawnEnemy(
       id,
-      world.width - 650,
+      w.width-650,
       500,
       true
     );
@@ -2754,110 +2907,135 @@ function spawnWorldContent(id) {
 }
 
 
-/* =========================================================
-   ENEMIES
-========================================================= */
+function enemyName(world,v=0){
 
-function spawnEnemy(
-  world,
-  x,
-  y,
-  boss = false
-) {
+  const names={
 
-  const data =
-    WORLDS[world];
+    earth:[
+      'Moss Stalker',
+      'Crystal Beetle',
+      'Ruin Crawler'
+    ],
+
+    music:[
+      'Amp Spider',
+      'Beat Brute',
+      'Sound Phantom'
+    ],
+
+    money:[
+      'Coin Mimic',
+      'Vault Gremlin',
+      'Goldback Bandit'
+    ],
+
+    cosmos:[
+      'Star Crawler',
+      'Meteor Crab',
+      'Nebula Wisp'
+    ],
+
+    war:[
+      'Battle Droid',
+      'Siege Hound',
+      'Razor Drone'
+    ],
+
+    void:[
+      'Shadow Stalker',
+      'Rift Spider',
+      'Abyss Wraith'
+    ],
+
+    matrix:[
+      'Glitch Beast',
+      'Data Serpent',
+      'Fragment Bot'
+    ]
+  };
+
+  return(
+    names[world] ||
+    ['Rift Creature']
+  )[v%3];
+}
 
 
-  const worldIndex =
-    WORLD_ORDER.indexOf(
-      world
-    );
+function spawnEnemy(world,x,y,boss=false){
 
+  const w=WORLDS[world];
 
-  const normalHP =
-    110 +
-    worldIndex *
-    25;
-
-
-  const bossHP =
-    650 +
-    worldIndex *
-    120;
-
+  const variant=
+    randi(0,2);
 
   G.enemies.push({
 
-    id:
-      cryptoId(),
+    id:cryptoId(),
 
     world,
 
     x,
-
     y,
 
-    vx:
-      0,
+    vx:0,
 
     hp:
       boss
-        ? bossHP
-        : normalHP,
+        ?650+
+          WORLD_ORDER.indexOf(world)*120
+        :110+
+          WORLD_ORDER.indexOf(world)*25,
 
     maxHP:
       boss
-        ? bossHP
-        : normalHP,
+        ?650+
+          WORLD_ORDER.indexOf(world)*120
+        :110+
+          WORLD_ORDER.indexOf(world)*25,
 
     damage:
       boss
-        ? 55
-        : 24 +
-          worldIndex *
-          4,
+        ?55
+        :24+
+          WORLD_ORDER.indexOf(world)*4,
 
     boss,
 
-    alive:
-      true,
+    alive:true,
 
-    hit:
-      0,
+    hit:0,
 
     attackCd:
-      rand(
-        .2,
-        1.2
-      ),
+      rand(.2,1.2),
 
-    phase:
-      0,
+    phase:0,
+
+    variant,
 
     name:
       boss
-        ? data.boss
-        : 'Rift Creature'
+        ?w.boss
+        :enemyName(
+          world,
+          variant
+        )
   });
 
-
-  if (boss) {
+  if(boss){
 
     MUSIC.startBoss();
 
-
     toast(
       'BOSS DETECTED',
-      data.boss
+      w.boss
     );
   }
 }
 
 
-function cryptoId() {
+function cryptoId(){
 
-  return (
+  return(
     Math.random()
       .toString(36)
       .slice(2)
@@ -2869,103 +3047,64 @@ function cryptoId() {
 }
 
 
-/* =========================================================
-   EARTH 2.0 STORY
-========================================================= */
+function updateEarthQuest(){
 
-function updateEarthQuest() {
+  const p=G.progress.earth;
 
-  const progress =
-    G.progress.earth;
+  const s=p.storyStage;
 
-
-  const stage =
-    progress.storyStage;
-
-
-  if (
-    stage === 0
-  ) {
-
+  if(s===0){
     quest(
       'STRANDED',
       'Inspect the crashed ship.'
     );
   }
 
-
-  if (
-    stage === 1
-  ) {
-
+  if(s===1){
     quest(
       'FIRST WEAPON',
       'Find the energy signature east of the wreck.'
     );
   }
 
-
-  if (
-    stage === 2
-  ) {
-
+  if(s===2){
     quest(
       'SHIP PARTS',
-      'Recover 3 ship components. ' +
-      progress.shipParts +
+      'Recover 3 ship components. '+
+      p.shipParts+
       '/3'
     );
   }
 
-
-  if (
-    stage === 3
-  ) {
-
+  if(s===3){
     quest(
       'SIGNAL PEAK',
       'Activate the ancient signal tower.'
     );
   }
 
-
-  if (
-    stage === 4
-  ) {
-
+  if(s===4){
     quest(
       'ANCIENT GATE',
       'Open the gate and face what is protecting it.'
     );
   }
 
-
-  if (
-    stage === 5
-  ) {
-
+  if(s===5){
     quest(
       'RUIN GUARDIAN',
       'Defeat the Ruin Guardian.'
     );
   }
 
-
-  if (
-    stage === 6
-  ) {
-
+  if(s===6){
     quest(
       'REPAIR THE SHIP',
       'Return to the wreck and repair your ship.'
     );
   }
 
-
-  if (
-    stage >= 7
-  ) {
-
+  if(s>=7){
     quest(
       'THE SIGNAL',
       'Launch toward the mysterious Hub signal.'
@@ -2974,100 +3113,59 @@ function updateEarthQuest() {
 }
 
 
-/* =========================================================
-   WORLD COMPLETION
-========================================================= */
+function completeWorld(id){
 
-function completeWorld(id) {
+  if(G.completed.has(id)){
+    return;
+  }
 
-  if (
-    G.completed.has(id)
-  ) return;
+  G.completed.add(id);
 
-
-  G.completed.add(
-    id
-  );
-
-
-  G.progress[id]
-    .bossDefeated =
-    true;
-
+  G.progress[id].bossDefeated=true;
 
   G.cores++;
-
 
   addMaterial(
     'Boss Core',
     1
   );
 
-
   addCredits(
-    350 +
-    WORLD_ORDER.indexOf(id) *
-    100
+    350+
+    WORLD_ORDER.indexOf(id)*100
   );
-
 
   SFX.core();
 
-
   MUSIC.endBoss();
 
+  const idx=
+    WORLD_ORDER.indexOf(id);
 
-  const index =
-    WORLD_ORDER.indexOf(
-      id
-    );
-
-
-  if (
-    index >= 0 &&
-    index <
-    WORLD_ORDER.length - 1
-  ) {
-
+  if(
+    idx>=0 &&
+    idx<WORLD_ORDER.length-1
+  ){
     G.unlocked.add(
-      WORLD_ORDER[
-        index + 1
-      ]
+      WORLD_ORDER[idx+1]
     );
   }
 
+  if(id==='earth'){
 
-  if (
-    id === 'earth'
-  ) {
-
-    G.progress.earth
-      .storyStage =
-      6;
-
+    G.progress.earth.storyStage=6;
 
     updateEarthQuest();
-
   }
 
-  else {
+  else{
 
     G.pickups.push({
-
-      kind:
-        'portal',
-
-      x:
-        WORLDS[id].width -
-        420,
-
-      y:
-        500,
-
-      taken:
-        false
+      kind:'portal',
+      x:WORLDS[id].width-420,
+      y:500,
+      taken:false
     });
-
 
     quest(
       'CORE RECOVERED',
@@ -3078,112 +3176,329 @@ function completeWorld(id) {
 
 
 /* =========================================================
-   KEYBOARD INPUT
-========================================================= */
+   INPUT / MOVEMENT / COMBAT
+   ========================================================= */
+
+const TUTORIAL_STEPS=[
+
+  {
+    title:'Move Through the World',
+
+    text:
+      'Use WASD or the Arrow Keys. You can move forward, backward, left, right and diagonally.',
+
+    keys:[
+      'W',
+      'A',
+      'S',
+      'D'
+    ],
+
+    accept:k=>
+      [
+        'w',
+        'a',
+        's',
+        'd',
+        'arrowup',
+        'arrowdown',
+        'arrowleft',
+        'arrowright'
+      ].includes(k)
+  },
+
+  {
+    title:'Jump',
+
+    text:
+      'Press Space to jump. You can keep moving while you are in the air.',
+
+    keys:[
+      'SPACE'
+    ],
+
+    accept:k=>
+      k===' '
+  },
+
+  {
+    title:'Rift Dash',
+
+    text:
+      'Press Shift to dash. Hold a movement direction first to dash that way.',
+
+    keys:[
+      'SHIFT'
+    ],
+
+    accept:k=>
+      k==='shift'
+  },
+
+  {
+    title:'Interact',
+
+    text:
+      'Press E when the interaction prompt appears to inspect, collect or activate something.',
+
+    keys:[
+      'E'
+    ],
+
+    accept:k=>
+      k==='e'
+  },
+
+  {
+    title:'Attack',
+
+    text:
+      'Press F to attack with your equipped weapon. Critical hits can deal double damage.',
+
+    keys:[
+      'F'
+    ],
+
+    accept:k=>
+      k==='f'
+  },
+
+  {
+    title:'Rift Interface',
+
+    text:
+      'Use I for inventory, J for pets and V to toggle audio. You can replay this tutorial from Pause.',
+
+    keys:[
+      'I',
+      'J',
+      'V'
+    ],
+
+    accept:k=>
+      [
+        'i',
+        'j',
+        'v'
+      ].includes(k)
+  }
+];
+
+
+function startTutorial(force=false){
+
+  if(
+    !force &&
+    G.tutorialDone
+  ){
+    return;
+  }
+
+  G.tutorialActive=true;
+
+  G.tutorialStep=0;
+
+  const panel=
+    $('tutorialPanel');
+
+  if(panel){
+    panel.classList.remove(
+      'hidden'
+    );
+  }
+
+  renderTutorialStep();
+}
+
+
+function renderTutorialStep(){
+
+  if(!G.tutorialActive){
+    return;
+  }
+
+  const step=
+    TUTORIAL_STEPS[
+      G.tutorialStep
+    ];
+
+  if(!step){
+    return finishTutorial();
+  }
+
+  $('tutorialTitle').textContent=
+    step.title;
+
+  $('tutorialText').textContent=
+    step.text;
+
+  $('tutorialProgress').textContent=
+    (G.tutorialStep+1)+
+    ' / '+
+    TUTORIAL_STEPS.length;
+
+  $('tutorialBarFill').style.width=
+    (
+      (G.tutorialStep+1) /
+      TUTORIAL_STEPS.length *
+      100
+    )+'%';
+
+  $('tutorialKeys').innerHTML=
+    step.keys
+      .map(
+        k=>'<kbd>'+k+'</kbd>'
+      )
+      .join('');
+}
+
+
+function handleTutorialKey(k){
+
+  if(!G.tutorialActive){
+    return;
+  }
+
+  const step=
+    TUTORIAL_STEPS[
+      G.tutorialStep
+    ];
+
+  if(
+    step &&
+    step.accept(k)
+  ){
+
+    G.tutorialStep++;
+
+    SFX.click();
+
+    if(
+      G.tutorialStep>=
+      TUTORIAL_STEPS.length
+    ){
+      finishTutorial();
+    }
+
+    else{
+      renderTutorialStep();
+    }
+  }
+}
+
+
+function finishTutorial(){
+
+  G.tutorialActive=false;
+
+  G.tutorialDone=true;
+
+  G.tutorialStep=0;
+
+  if($('tutorialPanel')){
+
+    $('tutorialPanel')
+      .classList
+      .add('hidden');
+  }
+
+  toast(
+    'TRAINING COMPLETE',
+    'Controls unlocked. Explore Earth 2.0 and find the Nova Sword.',
+    3
+  );
+}
+
+
+if($('tutorialSkipBtn')){
+
+  $('tutorialSkipBtn').onclick=
+    ()=>finishTutorial();
+}
+
+
+if($('tutorialNextBtn')){
+
+  $('tutorialNextBtn').onclick=
+    ()=>finishTutorial();
+}
+
 
 window.addEventListener(
   'keydown',
-  event => {
+  e=>{
 
-    if (
+    if(
       [
         'ArrowUp',
         'ArrowDown',
         'ArrowLeft',
         'ArrowRight',
         ' '
-      ].includes(
-        event.key
-      )
-    ) {
-
-      event.preventDefault();
+      ].includes(e.key)
+    ){
+      e.preventDefault();
     }
 
+    const k=
+      e.key.toLowerCase();
 
-    const key =
-      event.key.toLowerCase();
-
-
-    if (
-      !keys[key]
-    ) {
-
-      justPressed.add(
-        key
-      );
+    if(!keys[k]){
+      justPressed.add(k);
     }
 
+    keys[k]=true;
 
-    keys[key] =
-      true;
+    checkSecretCode(k);
 
+    handleTutorialKey(k);
 
-    if (
-      key === 'f' &&
+    if(
+      k==='f' &&
       !G.paused
-    ) {
-
+    ){
       tryAttack();
     }
 
-
-    if (
-      key === 'v'
-    ) {
+    if(k==='v'){
 
       SFX.toggle();
 
       MUSIC.toggle();
 
-
       toast(
         'AUDIO',
         MUSIC.muted
-          ? 'Music and effects muted.'
-          : 'Music and effects on.'
+          ?'Music and effects muted.'
+          :'Music and effects on.'
       );
     }
 
-
-    if (
-      key === 'i'
-    ) {
-
+    if(k==='i'){
       toggleOverlay(
         'inventoryOverlay',
         renderInventory
       );
     }
 
-
-    if (
-      key === 'j'
-    ) {
-
+    if(k==='j'){
       toggleOverlay(
         'petsOverlay',
         renderPets
       );
     }
 
-
-    if (
-      key === 'm' &&
-      G.scene === 'hub'
-    ) {
-
+    if(
+      k==='m' &&
+      G.scene==='hub'
+    ){
       toggleOverlay(
         'mapOverlay',
         renderWorldMap
       );
     }
 
-
-    if (
-      key === 'escape'
-    ) {
-
+    if(k==='escape'){
       togglePause();
     }
   }
@@ -3192,145 +3507,162 @@ window.addEventListener(
 
 window.addEventListener(
   'keyup',
-  event => {
-
+  e=>
     keys[
-      event.key.toLowerCase()
-    ] = false;
-  }
+      e.key.toLowerCase()
+    ]=false
 );
 
 
-/* =========================================================
-   PLAYER ANIMATION
-========================================================= */
+function setAnim(state){
 
-function setAnim(
-  state
-) {
+  if(P.anim.state===state){
+    return;
+  }
 
-  if (
-    P.anim.state ===
-    state
-  ) return;
+  P.anim.state=state;
 
-
-  P.anim.state =
-    state;
-
-
-  P.anim.time =
-    0;
+  P.anim.time=0;
 }
 
 
-/* =========================================================
-   PLAYER MOVEMENT
-========================================================= */
+function updatePlayer(dt,bounds){
 
-function updatePlayer(
-  dt,
-  bounds
-) {
+  const s=getStats();
 
-  const stats =
-    getStats();
-
-
-  P.attackCooldown =
+  P.attackCooldown=
     Math.max(
       0,
-      P.attackCooldown - dt
+      P.attackCooldown-dt
     );
 
-
-  P.attackTimer =
+  P.attackTimer=
     Math.max(
       0,
-      P.attackTimer - dt
+      P.attackTimer-dt
     );
 
-
-  P.comboTimer =
+  P.comboTimer=
     Math.max(
       0,
-      P.comboTimer - dt
+      P.comboTimer-dt
     );
 
-
-  P.invuln =
+  P.invuln=
     Math.max(
       0,
-      P.invuln - dt
+      P.invuln-dt
     );
 
-
-  P.hitFlash =
+  P.hitFlash=
     Math.max(
       0,
-      P.hitFlash - dt
+      P.hitFlash-dt
     );
 
-
-  P.dashCooldown =
+  P.dashCooldown=
     Math.max(
       0,
-      P.dashCooldown - dt
+      P.dashCooldown-dt
     );
 
-
-  P.dashTimer =
+  P.dashTimer=
     Math.max(
       0,
-      P.dashTimer - dt
+      P.dashTimer-dt
     );
 
+  P.anim.time+=dt;
 
-  P.anim.time +=
-    dt;
+  /*
+     2.5D MOVEMENT
 
+     A / D = left / right
+     W / S = forward / backward
+     Space = jump
+  */
 
-  let move =
-
+  let moveX=
     (
       keys['a'] ||
       keys['arrowleft']
-        ? -1
-        : 0
+        ?-1
+        :0
     )
-
     +
-
     (
       keys['d'] ||
       keys['arrowright']
-        ? 1
-        : 0
+        ?1
+        :0
+    );
+
+  let moveY=
+    (
+      keys['w'] ||
+      keys['arrowup']
+        ?-1
+        :0
+    )
+    +
+    (
+      keys['s'] ||
+      keys['arrowdown']
+        ?1
+        :0
     );
 
 
-  if (move) {
+  // Prevent diagonal movement from being faster.
 
-    P.facing =
-      Math.sign(move);
+  const moveLength=
+    Math.hypot(
+      moveX,
+      moveY
+    );
+
+  if(moveLength>1){
+
+    moveX/=moveLength;
+
+    moveY/=moveLength;
   }
 
 
-  if (
-    justPressed.has(
-      'shift'
-    )
-    &&
-    P.dashCooldown <= 0
-  ) {
+  if(moveX!==0){
 
-    P.dashTimer =
-      .16;
+    P.facing=
+      Math.sign(moveX);
+  }
 
 
-    P.dashCooldown =
-      .75;
+  // DASH
 
+  if(
+    justPressed.has('shift') &&
+    P.dashCooldown<=0
+  ){
+
+    if(
+      moveX===0 &&
+      moveY===0
+    ){
+
+      P.dashDirX=P.facing;
+
+      P.dashDirY=0;
+    }
+
+    else{
+
+      P.dashDirX=moveX;
+
+      P.dashDirY=moveY;
+    }
+
+    P.dashTimer=.16;
+
+    P.dashCooldown=.75;
 
     SFX.tone(
       180,
@@ -3340,48 +3672,80 @@ function updatePlayer(
       2
     );
 
-
     burst(
       P.x,
-      P.y - 40,
+      P.y-40,
       '#75e9ff',
       10
     );
   }
 
 
-  const target =
-    move *
-    stats.speed *
-    (
-      P.dashTimer > 0
-        ? 2.6
-        : 1
-    );
+  const dash=
+    P.dashTimer>0
+      ?2.6
+      :1;
 
 
-  P.vx =
-    lerp(
-      P.vx,
-      target,
-      Math.min(
-        1,
-        dt *
-        (
-          P.dashTimer > 0
-            ? 18
-            : 10
-        )
+  const dirX=
+    P.dashTimer>0
+      ?P.dashDirX
+      :moveX;
+
+
+  const dirY=
+    P.dashTimer>0
+      ?P.dashDirY
+      :moveY;
+
+
+  const targetX=
+    dirX*
+    s.speed*
+    dash;
+
+
+  const targetDepth=
+    dirY*
+    s.speed*
+    .72*
+    dash;
+
+
+  const smooth=
+    Math.min(
+      1,
+      dt*
+      (
+        P.dashTimer>0
+          ?18
+          :10
       )
     );
 
 
-  if (
-    !move &&
-    P.dashTimer <= 0
-  ) {
+  P.vx=
+    lerp(
+      P.vx,
+      targetX,
+      smooth
+    );
 
-    P.vx *=
+
+  P.depthV=
+    lerp(
+      P.depthV,
+      targetDepth,
+      smooth
+    );
+
+
+  if(
+    moveX===0 &&
+    P.dashTimer<=0
+  ){
+
+    P.vx*=
       Math.pow(
         .001,
         dt
@@ -3389,73 +3753,92 @@ function updatePlayer(
   }
 
 
-  P.x =
+  if(
+    moveY===0 &&
+    P.dashTimer<=0
+  ){
+
+    P.depthV*=
+      Math.pow(
+        .001,
+        dt
+      );
+  }
+
+
+  P.x=
     clamp(
-      P.x +
-      P.vx *
-      dt,
-
+      P.x+
+      P.vx*dt,
       80,
-
-      bounds - 80
+      bounds-80
     );
 
 
-  if (
-    (
-      justPressed.has(' ') ||
-      justPressed.has('w') ||
-      justPressed.has('arrowup')
-    )
-    &&
+  // WALKABLE 2.5D FLOOR
+
+  const minY=
+    G.scene==='arena'
+      ?435
+      :G.scene==='hub'
+        ?440
+        :445;
+
+
+  const maxY=
+    G.scene==='arena'
+      ?620
+      :G.scene==='hub'
+        ?605
+        :615;
+
+
+  P.y=
+    clamp(
+      P.y+
+      P.depthV*dt,
+      minY,
+      maxY
+    );
+
+
+  // JUMP
+
+  if(
+    justPressed.has(' ') &&
     P.onGround
-  ) {
+  ){
 
-    P.vy =
-      -520;
+    P.vy=-520;
 
-
-    P.onGround =
-      false;
-
+    P.onGround=false;
 
     SFX.jump();
   }
 
 
-  if (
-    !P.onGround
-  ) {
+  if(!P.onGround){
 
-    P.vy +=
-      1250 *
-      dt;
+    P.vy+=
+      1250*dt;
 
 
-    P.jump -=
-      P.vy *
-      dt;
+    P.jump-=
+      P.vy*dt;
 
 
-    if (
-      P.jump <= 0 &&
-      P.vy > 0
-    ) {
+    if(
+      P.jump<=0 &&
+      P.vy>0
+    ){
 
-      P.jump =
-        0;
+      P.jump=0;
 
+      P.vy=0;
 
-      P.vy =
-        0;
-
-
-      P.onGround =
-        true;
-
+      P.onGround=true;
 
       SFX.land();
-
 
       burst(
         P.x,
@@ -3467,320 +3850,360 @@ function updatePlayer(
   }
 
 
-  if (
-    P.attackTimer > 0
-  ) {
+  // PLAYER ANIMATION
+
+  if(P.attackTimer>0){
+
+    setAnim('attack');
+  }
+
+  else if(P.dashTimer>0){
+
+    setAnim('dash');
+  }
+
+  else if(!P.onGround){
 
     setAnim(
-      'attack'
+      P.vy<0
+        ?'jump'
+        :'fall'
     );
   }
 
-  else if (
-    P.dashTimer > 0
-  ) {
+  else if(
+    Math.abs(P.vx)>35 ||
+    Math.abs(P.depthV)>25
+  ){
 
-    setAnim(
-      'dash'
-    );
+    setAnim('run');
   }
 
-  else if (
-    !P.onGround
-  ) {
+  else{
 
-    setAnim(
-      P.vy < 0
-        ? 'jump'
-        : 'fall'
-    );
-  }
-
-  else if (
-    Math.abs(P.vx) >
-    35
-  ) {
-
-    setAnim(
-      'run'
-    );
-  }
-
-  else {
-
-    setAnim(
-      'idle'
-    );
+    setAnim('idle');
   }
 }
 
 
 /* =========================================================
-   NOVA SWORD ATTACK
-========================================================= */
+   CRITICAL HITS
+   ========================================================= */
 
-function tryAttack() {
+function rollCritical(
+  stats,
+  comboIndex=P.attackIndex
+){
 
-  if (
+  // Third Nova Sword combo attack has
+  // an additional 8% critical chance.
+
+  const bonus=
+    comboIndex===2
+      ?.08
+      :0;
+
+
+  return(
+    Math.random() <
+    clamp(
+      stats.critChance+bonus,
+      0,
+      .8
+    )
+  );
+}
+
+
+/* =========================================================
+   PLAYER ATTACK
+   ========================================================= */
+
+function tryAttack(){
+
+  if(
     G.paused ||
     isOverlayOpen() ||
     ![
       'world',
       'hub',
       'arena'
-    ].includes(
-      G.scene
-    ) ||
+    ].includes(G.scene) ||
     !P.weapon ||
-    P.attackCooldown > 0
-  ) {
-
+    P.attackCooldown>0
+  ){
     return;
   }
 
 
-  const stats =
-    getStats();
+  const s=getStats();
 
 
-  P.attackCooldown =
-    stats.cooldown;
+  P.attackCooldown=
+    s.cooldown;
 
 
-  P.attackTimer =
-    .25;
+  P.attackTimer=.25;
 
 
-  if (
-    P.comboTimer > 0
-  ) {
+  if(P.comboTimer>0){
 
-    P.attackIndex =
-      (
-        P.attackIndex + 1
-      ) %
-      3;
-
+    P.attackIndex=
+      (P.attackIndex+1)%3;
   }
 
-  else {
+  else{
 
-    P.attackIndex =
-      0;
+    P.attackIndex=0;
   }
 
 
-  P.comboTimer =
-    .8;
+  P.comboTimer=.8;
 
 
   SFX.swing();
 
 
-  const range =
-    P.attackIndex === 2
-      ? 125
-      : 92;
+  const range=
+    P.attackIndex===2
+      ?125
+      :92;
 
 
-  const damage =
+  const baseDamage=
     Math.round(
-      stats.atk *
+      s.atk*
       (
-        P.attackIndex === 2
-          ? 1.45
-          : 1
-      )
-      *
-      rand(
-        .9,
-        1.1
-      )
+        P.attackIndex===2
+          ?1.45
+          :1
+      )*
+      rand(.9,1.1)
     );
 
 
-  if (
-    G.scene === 'arena'
-  ) {
+  // ARENA ATTACK
+
+  if(G.scene==='arena'){
+
+    const critical=
+      rollCritical(s);
+
+
+    const damage=
+      Math.round(
+        baseDamage*
+        (
+          critical
+            ?s.critDamage
+            :1
+        )
+      );
+
 
     arenaLocalAttack(
       range,
-      damage
+      damage,
+      critical
     );
+
 
     return;
   }
 
 
-  let hit =
-    false;
+  let hit=false;
 
 
-  for (
-    const enemy of
-    G.enemies
-  ) {
+  for(const e of G.enemies){
 
-    if (
-      !enemy.alive ||
-      enemy.world !==
-      G.worldId
-    ) {
-
+    if(
+      !e.alive ||
+      e.world!==G.worldId
+    ){
       continue;
     }
 
 
-    const dx =
-      (
-        enemy.x -
-        P.x
-      )
-      *
+    const dx=
+      (e.x-P.x)*
       P.facing;
 
 
-    if (
-      dx > -35 &&
-      dx < range &&
-      Math.abs(
-        enemy.y -
-        P.y
-      ) <
-      85
-    ) {
+    if(
+      dx>-35 &&
+      dx<range &&
+      Math.abs(e.y-P.y)<85
+    ){
+
+      const critical=
+        rollCritical(s);
+
+
+      const damage=
+        Math.round(
+          baseDamage*
+          (
+            critical
+              ?s.critDamage
+              :1
+          )
+        );
+
 
       hurtEnemy(
-        enemy,
-        damage
+        e,
+        damage,
+        critical
       );
 
 
-      hit =
-        true;
+      hit=true;
     }
   }
 
 
-  if (hit) {
+  if(hit){
 
-    G.screenShake =
+    G.screenShake=
       Math.max(
         G.screenShake,
-        P.attackIndex === 2
-          ? 8
-          : 4
+        P.attackIndex===2
+          ?8
+          :4
       );
   }
 }
 
 
 /* =========================================================
-   DAMAGE ENEMY
-========================================================= */
+   ENEMY DAMAGE
+   ========================================================= */
 
 function hurtEnemy(
-  enemy,
-  damage
-) {
+  e,
+  dmg,
+  critical=false
+){
 
-  enemy.hp -=
-    damage;
-
-
-  enemy.hit =
-    .15;
+  e.hp-=dmg;
 
 
-  SFX.hit();
+  e.hit=
+    critical
+      ?.24
+      :.15;
 
 
-  burst(
-    enemy.x,
-    enemy.y - 40,
+  if(critical){
 
-    enemy.boss
-      ? '#ff6e87'
-      : '#7ff4ca',
-
-    8
-  );
+    SFX.crit();
 
 
-  floatingText(
-    '-' + damage,
-    enemy.x,
-    enemy.y - 80,
-    '#ffffff'
-  );
+    G.screenShake=
+      Math.max(
+        G.screenShake,
+        11
+      );
 
 
-  if (
-    enemy.hp <= 0
-  ) {
+    G.flash=
+      Math.max(
+        G.flash,
+        .06
+      );
 
-    killEnemy(
-      enemy
+
+    burst(
+      e.x,
+      e.y-42,
+      '#ffe88b',
+      16
     );
+
+
+    burst(
+      e.x,
+      e.y-42,
+      '#c5a3ff',
+      12
+    );
+
+
+    floatingText(
+      'CRITICAL! '+dmg,
+      e.x,
+      e.y-92,
+      '#ffe88b'
+    );
+  }
+
+  else{
+
+    SFX.hit();
+
+
+    burst(
+      e.x,
+      e.y-40,
+      e.boss
+        ?'#ff6e87'
+        :'#7ff4ca',
+      8
+    );
+
+
+    floatingText(
+      '-'+dmg,
+      e.x,
+      e.y-80,
+      '#ffffff'
+    );
+  }
+
+
+  if(e.hp<=0){
+
+    killEnemy(e);
   }
 }
 
 
-/* =========================================================
-   ENEMY DEFEAT
-========================================================= */
+function killEnemy(e){
 
-function killEnemy(
-  enemy
-) {
-
-  enemy.alive =
-    false;
+  e.alive=false;
 
 
   burst(
-    enemy.x,
-    enemy.y - 45,
-
-    enemy.boss
-      ? '#ff6e87'
-      : '#72e6ff',
-
+    e.x,
+    e.y-45,
+    e.boss
+      ?'#ff6e87'
+      :'#72e6ff',
     22
   );
 
 
-  if (
-    enemy.boss
-  ) {
+  if(e.boss){
 
     completeWorld(
-      enemy.world
+      e.world
     );
-
   }
 
-  else {
+  else{
 
     addCredits(
-      randi(
-        6,
-        18
-      ),
-      enemy.x,
-      enemy.y
+      randi(6,18),
+      e.x,
+      e.y
     );
 
 
-    if (
-      Math.random() <
-      .28
-    ) {
+    if(Math.random()<.28){
 
       addMaterial(
-        worldMaterial(
-          enemy.world
-        ),
+        worldMaterial(e.world),
         1
       );
     }
@@ -3788,103 +4211,78 @@ function killEnemy(
 }
 
 
-/* =========================================================
-   WORLD MATERIALS
-========================================================= */
+function worldMaterial(id){
 
-function worldMaterial(id) {
+  return{
 
-  return {
+    earth:'Ancient Metal',
 
-    earth:
-      'Ancient Metal',
+    music:'Sound Crystal',
 
-    music:
-      'Sound Crystal',
+    money:'Golden Ore',
 
-    money:
-      'Golden Ore',
+    cosmos:'Star Dust',
 
-    cosmos:
-      'Star Dust',
+    war:'Titan Scrap',
 
-    war:
-      'Titan Scrap',
+    void:'Void Essence',
 
-    void:
-      'Void Essence',
+    matrix:'Glitch Fragment'
 
-    matrix:
-      'Glitch Fragment'
-
-  }[id]
-  ||
-  'Rift Dust';
+  }[id] || 'Rift Dust';
 }
 
 
 /* =========================================================
    PLAYER DAMAGE
-========================================================= */
+   ========================================================= */
 
 function hurtPlayer(
   amount,
   sourceX
-) {
+){
 
-  if (
-    P.invuln > 0
-  ) return;
-
-
-  const stats =
-    getStats();
+  if(P.invuln>0){
+    return;
+  }
 
 
-  const finalDamage =
+  const s=getStats();
+
+
+  const final=
     Math.max(
       1,
       Math.round(
-        amount -
-        stats.def *
-        .55
+        amount-
+        s.def*.55
       )
     );
 
 
-  P.hp =
+  P.hp=
     Math.max(
       0,
-      P.hp -
-      finalDamage
+      P.hp-final
     );
 
 
-  P.invuln =
-    .72;
+  P.invuln=.72;
+
+  P.hitFlash=.18;
 
 
-  P.hitFlash =
-    .18;
-
-
-  P.vx =
+  P.vx=
     (
-      P.x <
-      sourceX
-        ? -1
-        : 1
-    )
-    *
-    210;
+      P.x<sourceX
+        ?-1
+        :1
+    )*210;
 
 
-  G.screenShake =
-    8;
+  G.screenShake=8;
 
-
-  G.flash =
-    .08;
+  G.flash=.08;
 
 
   SFX.hurt();
@@ -3892,39 +4290,21 @@ function hurtPlayer(
 
   burst(
     P.x,
-    P.y - 65,
+    P.y-65,
     '#ff6c7c',
     9
   );
 
 
   floatingText(
-    '-' +
-    finalDamage,
-
+    '-'+final,
     P.x,
-
-    P.y - 110,
-
+    P.y-110,
     '#ff8290'
   );
 
 
-  /*
-     IMPORTANT:
-     No "Impact taken" dialogue here.
-     Damage is communicated through:
-     HP loss
-     flash
-     particles
-     knockback
-     sound
-  */
-
-
-  if (
-    P.hp <= 0
-  ) {
+  if(P.hp<=0){
 
     playerDefeated();
   }
@@ -3935,258 +4315,305 @@ function hurtPlayer(
 
 
 /* =========================================================
-   PLAYER DEFEATED
-========================================================= */
+   ONE LIFE DEFEAT
+   ========================================================= */
 
-function playerDefeated() {
+function playerDefeated(){
 
-  const stats =
+  if(
+    G.scene==='world' &&
+    G.worldId &&
+    !STAGE_RUN.restarting
+  ){
+
+    const failedWorld=
+      G.worldId;
+
+
+    STAGE_RUN.life=0;
+
+    STAGE_RUN.restarting=true;
+
+
+    syncHUD();
+
+
+    G.paused=true;
+
+    G.screenShake=14;
+
+    G.flash=.16;
+
+
+    $('cinematic')
+      .classList
+      .remove('hidden');
+
+
+    $('cinematic').textContent=
+      'STAGE FAILED';
+
+
+    SFX.noise(
+      .32,
+      .1,
+      520
+    );
+
+
+    setTimeout(()=>{
+
+      restoreStageSnapshot(
+        failedWorld
+      );
+
+
+      beginWorld(
+        failedWorld
+      );
+
+
+      $('cinematic')
+        .classList
+        .add('hidden');
+
+
+      G.paused=false;
+
+      STAGE_RUN.restarting=false;
+
+
+      toast(
+        'STAGE RESTARTED',
+        'Your one life was used. The stage has restarted from the beginning.',
+        3.2
+      );
+
+
+      syncHUD();
+
+    },1200);
+
+
+    return;
+  }
+
+
+  const stats=
     getStats();
 
 
-  P.hp =
+  P.hp=
     stats.maxHP;
 
 
-  P.x =
-    G.scene === 'hub'
-      ? 640
-      : 430;
+  P.x=
+    G.scene==='hub'
+      ?640
+      :430;
 
 
-  P.jump =
-    0;
+  P.jump=0;
 
-
-  P.vy =
-    0;
+  P.vy=0;
 
 
   toast(
     'RIFT STABILIZED',
-    'You were pulled back to the last safe point.'
+    'You were returned to safety.'
   );
-
-
-  P.credits =
-    Math.max(
-      0,
-      P.credits - 50
-    );
 }
 
 
 /* =========================================================
-   ENEMY AI + PET COMBAT
-========================================================= */
+   ENEMY AI
+   ========================================================= */
 
-function updateEnemies(dt) {
+function updateEnemies(dt){
 
-  for (
-    const enemy of
-    G.enemies
-  ) {
+  for(const e of G.enemies){
 
-    if (
-      !enemy.alive ||
-      enemy.world !==
-      G.worldId
-    ) {
-
+    if(
+      !e.alive ||
+      e.world!==G.worldId
+    ){
       continue;
     }
 
 
-    enemy.hit =
+    e.hit=
       Math.max(
         0,
-        enemy.hit - dt
+        e.hit-dt
       );
 
 
-    enemy.attackCd -=
-      dt;
+    e.attackCd-=dt;
 
 
-    const dx =
-      P.x -
-      enemy.x;
+    const dx=
+      P.x-e.x;
 
 
-    const distance =
-      Math.abs(dx);
+    const dy=
+      P.y-e.y;
 
 
-    if (
-      distance < 620 &&
-      !enemy.boss
-    ) {
-
-      enemy.vx =
-        clamp(
-          dx * 1.4,
-          -85,
-          85
-        );
+    const distance=
+      Math.hypot(
+        dx,
+        dy
+      );
 
 
-      enemy.x +=
-        enemy.vx *
-        dt;
+    // Monsters chase the player in both
+    // horizontal and depth directions.
 
+    if(distance<620){
+
+      const speed=
+        e.boss
+          ?110
+          :85;
+
+
+      if(distance>1){
+
+        e.x+=
+          dx/
+          distance*
+          speed*
+          dt;
+
+
+        e.y+=
+          dy/
+          distance*
+          speed*
+          .72*
+          dt;
+
+
+        e.y=
+          clamp(
+            e.y,
+            445,
+            615
+          );
+      }
+
+
+      if(e.boss){
+
+        e.phase=
+          e.hp/e.maxHP<.45
+            ?2
+            :1;
+      }
     }
 
-    else if (
-      enemy.boss
-    ) {
 
-      enemy.vx =
-        clamp(
-          dx * 1.1,
-          -110,
-          110
-        );
+    const range=
+      e.boss
+        ?100
+        :62;
 
 
-      enemy.x +=
-        enemy.vx *
-        dt;
+    if(
+      distance<range &&
+      e.attackCd<=0
+    ){
 
-
-      enemy.phase =
-        enemy.hp /
-        enemy.maxHP <
-        .45
-          ? 2
-          : 1;
-    }
-
-
-    const range =
-      enemy.boss
-        ? 95
-        : 58;
-
-
-    if (
-      distance < range &&
-      enemy.attackCd <= 0
-    ) {
-
-      enemy.attackCd =
-        enemy.boss
-          ? (
-              enemy.phase === 2
-                ? .65
-                : .9
-            )
-          : 1.15;
+      e.attackCd=
+        e.boss
+          ?(
+            e.phase===2
+              ?.65
+              :.9
+          )
+          :1.15;
 
 
       hurtPlayer(
-        enemy.damage,
-        enemy.x
+        e.damage,
+        e.x
       );
     }
   }
 
 
-  /* PET AUTO ATTACK */
+  // ACTIVE PET ATTACK
 
-  const pet =
+  const ap=
     activePet();
 
 
-  if (pet) {
+  if(ap){
 
-    pet.attackCd =
-      (
-        pet.attackCd ||
-        0
-      )
-      -
-      dt;
+    ap.attackCd=
+      (ap.attackCd||0)-dt;
 
 
-    if (
-      pet.attackCd <= 0
-    ) {
+    if(ap.attackCd<=0){
 
-      const targets =
+      const targets=
         G.enemies
           .filter(
-            enemy =>
-              enemy.alive &&
-              enemy.world ===
-              G.worldId
+            e=>
+              e.alive &&
+              e.world===G.worldId
           )
           .sort(
-            (
-              a,
-              b
-            ) =>
-              Math.abs(
-                a.x -
-                P.x
+            (a,b)=>
+              Math.hypot(
+                a.x-P.x,
+                a.y-P.y
               )
               -
-              Math.abs(
-                b.x -
-                P.x
+              Math.hypot(
+                b.x-P.x,
+                b.y-P.y
               )
           );
 
 
-      const target =
+      const target=
         targets[0];
 
 
-      if (
+      if(
         target &&
-        Math.abs(
-          target.x -
-          P.x
-        )
-        <
-        360
-      ) {
+        Math.hypot(
+          target.x-P.x,
+          target.y-P.y
+        )<360
+      ){
 
-        const bonus =
-          PET_BONUS[
-            pet.name
-          ]
-          ||
+        const pb=
+          PET_BONUS[ap.name]||
           {};
 
 
-        const damage =
+        const d=
           Math.round(
-            8 +
-            (
-              bonus.atk ||
-              5
-            )
-            *
-            .45
-            +
-            pet.level *
-            1.5
+            8+
+            (pb.atk||5)*.45+
+            ap.level*1.5
           );
 
 
         hurtEnemy(
           target,
-          damage
+          d
         );
 
 
-        pet.attackCd =
-          1.25;
+        ap.attackCd=1.25;
 
 
         burst(
           target.x,
-          target.y - 30,
+          target.y-30,
           '#b6f8ff',
           4
         );
@@ -4194,1194 +4621,225 @@ function updateEnemies(dt) {
     }
   }
 }
-/* =========================================================
-   PART 2 OF 3
-   - World interaction system
-   - Earth 2.0 story progression
-   - Collectibles
-   - Rift Credits pickups
-   - Pet collection
-   - Pet training
-   - Inventory
-   - Armor
-   - Pet Journal
-   - World map
-   - HUD
-   - Notifications
-   - Particles
-   - Saving / loading
-   - Overlay system
-========================================================= */
 
 
 /* =========================================================
-   QUEST UI
-========================================================= */
+   INTERACTIONS
+   ========================================================= */
 
-function quest(
-  title,
-  text
-) {
+function nearestInteraction(){
 
-  const titleEl =
-    $('questTitle');
-
-  const textEl =
-    $('questText');
+  const distanceTo=
+    (x,y)=>
+      Math.hypot(
+        P.x-x,
+        P.y-y
+      );
 
 
-  if (titleEl) {
+  /* -------------------------
+     HUB INTERACTIONS
+     ------------------------- */
 
-    titleEl.textContent =
-      title;
-  }
+  if(G.scene==='hub'){
 
+    const spots=[
 
-  if (textEl) {
+      {
+        x:340,
+        y:500,
+        label:'PET SANCTUARY',
 
-    textEl.textContent =
-      text;
-  }
-}
-
-
-/* =========================================================
-   TOAST MESSAGE
-========================================================= */
-
-let toastTimer = null;
-
-
-function toast(
-  title,
-  text,
-  duration = 2600
-) {
-
-  const box =
-    $('toast');
-
-
-  if (!box) return;
-
-
-  $('toastTitle').textContent =
-    title;
-
-
-  $('toastText').textContent =
-    text;
-
-
-  box.classList.remove(
-    'hidden'
-  );
-
-
-  clearTimeout(
-    toastTimer
-  );
-
-
-  toastTimer =
-    setTimeout(
-      () => {
-
-        box.classList.add(
-          'hidden'
-        );
-
+        fn:()=>
+          openOverlay(
+            'petsOverlay',
+            renderPets
+          )
       },
-      duration
-    );
-}
 
+      {
+        x:650,
+        y:500,
+        label:'ARMOR WORKSHOP',
 
-/* =========================================================
-   FLOATING TEXT
-========================================================= */
-
-function floatingText(
-  text,
-  x,
-  y,
-  color = '#ffffff'
-) {
-
-  G.particles.push({
-
-    type:
-      'text',
-
-    text,
-
-    x,
-
-    y,
-
-    vx:
-      rand(
-        -8,
-        8
-      ),
-
-    vy:
-      -35,
-
-    life:
-      1,
-
-    maxLife:
-      1,
-
-    color,
-
-    size:
-      15
-  });
-}
-
-
-/* =========================================================
-   PARTICLE BURST
-========================================================= */
-
-function burst(
-  x,
-  y,
-  color,
-  count = 8
-) {
-
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
-
-    const angle =
-      rand(
-        0,
-        Math.PI * 2
-      );
-
-
-    const speed =
-      rand(
-        40,
-        190
-      );
-
-
-    G.particles.push({
-
-      type:
-        'spark',
-
-      x,
-
-      y,
-
-      vx:
-        Math.cos(angle) *
-        speed,
-
-      vy:
-        Math.sin(angle) *
-        speed,
-
-      gravity:
-        rand(
-          60,
-          220
-        ),
-
-      life:
-        rand(
-          .35,
-          .8
-        ),
-
-      maxLife:
-        .8,
-
-      size:
-        rand(
-          2,
-          7
-        ),
-
-      color
-    });
-  }
-}
-
-
-/* =========================================================
-   RIFT PARTICLES
-========================================================= */
-
-function riftBurst(
-  x,
-  y,
-  count = 14
-) {
-
-  const colors = [
-
-    '#73eaff',
-
-    '#9c75ff',
-
-    '#ffffff',
-
-    '#6751df'
-  ];
-
-
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
-
-    const angle =
-      rand(
-        0,
-        Math.PI * 2
-      );
-
-
-    const speed =
-      rand(
-        25,
-        140
-      );
-
-
-    G.particles.push({
-
-      type:
-        'rift',
-
-      x,
-
-      y,
-
-      vx:
-        Math.cos(angle) *
-        speed,
-
-      vy:
-        Math.sin(angle) *
-        speed,
-
-      life:
-        rand(
-          .5,
-          1.1
-        ),
-
-      maxLife:
-        1.1,
-
-      size:
-        rand(
-          2,
-          6
-        ),
-
-      color:
-        colors[
-          randi(
-            0,
-            colors.length - 1
+        fn:()=>
+          openOverlay(
+            'inventoryOverlay',
+            renderInventory
           )
-        ]
-    });
-  }
-}
+      },
+
+      {
+        x:980,
+        y:500,
+        label:'WORLD TERMINAL',
+
+        fn:()=>
+          openOverlay(
+            'mapOverlay',
+            renderWorldMap
+          )
+      }
+    ];
 
 
-/* =========================================================
-   PARTICLE UPDATE
-========================================================= */
+    // Hidden Hub Easter eggs.
 
-function updateParticles(dt) {
+    for(const egg of EASTER_EGGS){
 
-  for (
-    const particle of
-    G.particles
-  ) {
+      if(
+        egg.world==='hub' &&
+        !G.easterEggs.has(egg.id)
+      ){
 
-    particle.life -=
-      dt;
+        spots.push({
 
+          x:egg.x,
+          y:egg.y,
 
-    particle.x +=
-      particle.vx *
-      dt;
+          label:'INVESTIGATE ???',
 
-
-    particle.y +=
-      particle.vy *
-      dt;
-
-
-    if (
-      particle.gravity
-    ) {
-
-      particle.vy +=
-        particle.gravity *
-        dt;
-    }
-  }
-
-
-  G.particles =
-    G.particles.filter(
-      particle =>
-        particle.life > 0
-    );
-}
-
-
-/* =========================================================
-   CREATE PHYSICAL RIFT CREDIT PICKUPS
-========================================================= */
-
-function spawnCreditDrops(
-  x,
-  y,
-  amount
-) {
-
-  const number =
-    clamp(
-      Math.ceil(
-        amount / 10
-      ),
-      1,
-      10
-    );
-
-
-  let remaining =
-    amount;
-
-
-  for (
-    let i = 0;
-    i < number;
-    i++
-  ) {
-
-    const value =
-      i === number - 1
-        ? remaining
-        : Math.max(
-            1,
-            Math.floor(
-              amount /
-              number
+          fn:()=>
+            collectEasterEgg(
+              egg
             )
-          );
-
-
-    remaining -=
-      value;
-
-
-    G.pickups.push({
-
-      kind:
-        'credit',
-
-      x:
-        x +
-        rand(
-          -35,
-          35
-        ),
-
-      y:
-        y -
-        rand(
-          20,
-          70
-        ),
-
-      baseY:
-        y,
-
-      vx:
-        rand(
-          -80,
-          80
-        ),
-
-      vy:
-        rand(
-          -180,
-          -80
-        ),
-
-      value,
-
-      age:
-        0,
-
-      taken:
-        false
-    });
-  }
-}
-
-
-/* =========================================================
-   UPDATE PHYSICAL PICKUPS
-========================================================= */
-
-function updatePickups(dt) {
-
-  for (
-    const item of
-    G.pickups
-  ) {
-
-    if (
-      item.taken
-    ) continue;
-
-
-    if (
-      item.kind ===
-      'credit'
-    ) {
-
-      item.age +=
-        dt;
-
-
-      item.vy +=
-        620 *
-        dt;
-
-
-      item.x +=
-        item.vx *
-        dt;
-
-
-      item.y +=
-        item.vy *
-        dt;
-
-
-      if (
-        item.y >
-        item.baseY
-      ) {
-
-        item.y =
-          item.baseY;
-
-
-        item.vy *=
-          -.35;
-
-
-        item.vx *=
-          .75;
+        });
       }
+    }
 
 
-      const distance =
-        dist(
-          item.x,
-          item.y,
-          P.x,
-          P.y
-        );
-
-
-      if (
-        distance < 150
-      ) {
-
-        const pull =
-          clamp(
-            1 -
-            distance /
-            150,
-            0,
-            1
-          );
-
-
-        item.x +=
-          (
-            P.x -
-            item.x
+    return spots
+      .map(
+        s=>({
+          ...s,
+          d:distanceTo(
+            s.x,
+            s.y
           )
-          *
-          pull *
-          dt *
-          9;
-
-
-        item.y +=
-          (
-            P.y -
-            35 -
-            item.y
-          )
-          *
-          pull *
-          dt *
-          9;
-      }
-
-
-      if (
-        distance < 32
-      ) {
-
-        item.taken =
-          true;
-
-
-        addCredits(
-          item.value,
-          item.x,
-          item.y
-        );
-      }
-    }
+        })
+      )
+      .sort(
+        (a,b)=>a.d-b.d
+      )[0];
   }
 
 
-  G.pickups =
-    G.pickups.filter(
-      item =>
-        !item.taken ||
-        item.kind !==
-        'credit'
-    );
-}
-
-
-/* =========================================================
-   INTERACTION PROMPT
-========================================================= */
-
-let currentInteraction = null;
-
-
-function setInteraction(
-  text,
-  action,
-  distanceValue = 80
-) {
-
-  currentInteraction = {
-
-    text,
-
-    action,
-
-    distance:
-      distanceValue
-  };
-
-
-  const prompt =
-    $('interactPrompt');
-
-
-  const label =
-    $('interactText');
-
-
-  if (prompt) {
-
-    prompt.classList.remove(
-      'hidden'
-    );
+  if(G.scene!=='world'){
+    return null;
   }
 
 
-  if (label) {
-
-    label.textContent =
-      text;
-  }
-}
-
-
-function clearInteraction() {
-
-  currentInteraction =
-    null;
-
-
-  const prompt =
-    $('interactPrompt');
-
-
-  if (prompt) {
-
-    prompt.classList.add(
-      'hidden'
-    );
-  }
-}
-
-
-/* =========================================================
-   HANDLE INTERACTION BUTTON
-========================================================= */
-
-function handleInteraction() {
-
-  if (
-    !currentInteraction
-  ) return;
-
-
-  if (
-    justPressed.has('e')
-  ) {
-
-    SFX.click();
-
-
-    currentInteraction
-      .action();
-  }
-}
-
-
-/* =========================================================
-   WORLD INTERACTIONS
-========================================================= */
-
-function updateInteractions() {
-
-  clearInteraction();
-
-
-  if (
-    G.scene === 'hub'
-  ) {
-
-    updateHubInteractions();
-
-    handleInteraction();
-
-    return;
-  }
-
-
-  if (
-    G.scene !== 'world'
-  ) {
-
-    return;
-  }
-
-
-  if (
-    G.worldId === 'earth'
-  ) {
-
-    updateEarthInteractions();
-
-
-    if (
-      currentInteraction
-    ) {
-
-      handleInteraction();
-
-      return;
-    }
-  }
-
-
-  updatePickupInteractions();
-
-
-  handleInteraction();
-}
-
-
-/* =========================================================
-   GENERIC PICKUP INTERACTIONS
-========================================================= */
-
-function updatePickupInteractions() {
-
-  let nearest =
-    null;
-
-
-  let nearestDistance =
-    Infinity;
-
-
-  for (
-    const item of
-    G.pickups
-  ) {
-
-    if (
-      item.taken ||
-      item.kind ===
-      'credit'
-    ) {
-
-      continue;
-    }
-
-
-    const d =
-      dist(
-        P.x,
-        P.y,
-        item.x,
-        item.y
-      );
-
-
-    if (
-      d <
-      nearestDistance
-    ) {
-
-      nearest =
-        item;
-
-
-      nearestDistance =
-        d;
-    }
-  }
-
-
-  if (
-    !nearest ||
-    nearestDistance > 100
-  ) {
-
-    return;
-  }
-
-
-  if (
-    nearest.kind ===
-    'fragment'
-  ) {
-
-    setInteraction(
-      'COLLECT RIFT FRAGMENT',
-
-      () =>
-        collectFragment(
-          nearest
-        )
-    );
-  }
-
-
-  else if (
-    nearest.kind ===
-    'pet'
-  ) {
-
-    setInteraction(
-      'APPROACH ' +
-      nearest.name.toUpperCase(),
-
-      () =>
-        collectPet(
-          nearest
-        )
-    );
-  }
-
-
-  else if (
-    nearest.kind ===
-    'beacon'
-  ) {
-
-    setInteraction(
-      'DESTROY WAR BEACON',
-
-      () =>
-        destroyBeacon(
-          nearest
-        )
-    );
-  }
-
-
-  else if (
-    nearest.kind ===
-    'portal'
-  ) {
-
-    setInteraction(
-      'RETURN TO THE HUB',
-
-      () => {
-
-        nearest.taken =
-          true;
-
-
-        riftBurst(
-          P.x,
-          P.y - 50,
-          28
-        );
-
-
-        SFX.portal();
-
-
-        beginHub();
-      }
-    );
-  }
-}
-
-
-/* =========================================================
-   COLLECT RIFT FRAGMENT
-========================================================= */
-
-function collectFragment(
-  item
-) {
-
-  if (
-    item.taken
-  ) return;
-
-
-  item.taken =
-    true;
-
-
-  const progress =
+  const pr=
     G.progress[
       G.worldId
     ];
 
 
-  progress.fragments =
-    Math.min(
-      5,
-      progress.fragments + 1
-    );
+  const list=[];
 
 
-  riftBurst(
-    item.x,
-    item.y - 20,
-    16
-  );
+  /* -------------------------
+     WORLD EASTER EGGS
+     ------------------------- */
 
+  for(const egg of EASTER_EGGS){
 
-  SFX.tone(
-    400,
-    .2,
-    'triangle',
-    .05,
-    1.8
-  );
+    if(
+      egg.world===G.worldId &&
+      !G.easterEggs.has(egg.id)
+    ){
 
+      list.push({
 
-  addCredits(
-    35,
-    item.x,
-    item.y
-  );
+        x:egg.x,
+        y:egg.y,
 
+        label:'INVESTIGATE ???',
 
-  toast(
-    'RIFT FRAGMENT',
-    progress.fragments +
-    ' / 5 recovered.'
-  );
+        fn:()=>
+          collectEasterEgg(
+            egg
+          ),
 
-
-  if (
-    progress.fragments >= 5
-  ) {
-
-    if (
-      G.worldId === 'war' &&
-      progress.beacons < 3
-    ) {
-
-      quest(
-        'WAR BEACONS',
-        'Destroy all 3 War Beacons before confronting the War Machine.'
-      );
-
+        d:distanceTo(
+          egg.x,
+          egg.y
+        )
+      });
     }
-
-    else {
-
-      quest(
-        'BOSS SIGNAL',
-        WORLDS[
-          G.worldId
-        ].boss +
-        ' has appeared.'
-      );
+  }
 
 
-      const existingBoss =
-        G.enemies.find(
-          enemy =>
-            enemy.alive &&
-            enemy.world ===
-            G.worldId &&
-            enemy.boss
-        );
+  /* -------------------------
+     NORMAL PICKUPS
+     ------------------------- */
 
+  for(const p of G.pickups){
 
-      if (
-        !existingBoss
-      ) {
+    if(!p.taken){
 
-        spawnEnemy(
-          G.worldId,
+      list.push({
 
-          WORLDS[
-            G.worldId
-          ].width -
-          650,
+        x:p.x,
+        y:p.y,
 
-          500,
+        label:
+          interactionLabel(p),
 
-          true
-        );
-      }
+        obj:p,
+
+        fn:()=>
+          interactPickup(p),
+
+        d:distanceTo(
+          p.x,
+          p.y
+        )
+      });
     }
-
-  }
-
-  else {
-
-    quest(
-      WORLDS[
-        G.worldId
-      ].mechanic,
-
-      'Recover Rift Fragments. ' +
-      progress.fragments +
-      '/5'
-    );
-  }
-}
-
-
-/* =========================================================
-   DESTROY WAR BEACON
-========================================================= */
-
-function destroyBeacon(
-  beacon
-) {
-
-  if (
-    beacon.taken
-  ) return;
-
-
-  beacon.taken =
-    true;
-
-
-  const progress =
-    G.progress.war;
-
-
-  progress.beacons =
-    Math.min(
-      3,
-      progress.beacons + 1
-    );
-
-
-  G.screenShake =
-    10;
-
-
-  burst(
-    beacon.x,
-    beacon.y - 70,
-    '#ff7b62',
-    25
-  );
-
-
-  SFX.noise(
-    .25,
-    .1,
-    700
-  );
-
-
-  addCredits(
-    75,
-    beacon.x,
-    beacon.y
-  );
-
-
-  toast(
-    'WAR BEACON DESTROYED',
-    progress.beacons +
-    ' / 3 disabled.'
-  );
-
-
-  if (
-    progress.beacons >= 3 &&
-    progress.fragments >= 5
-  ) {
-
-    const existingBoss =
-      G.enemies.find(
-        enemy =>
-          enemy.alive &&
-          enemy.world ===
-          'war' &&
-          enemy.boss
-      );
-
-
-    if (
-      !existingBoss
-    ) {
-
-      spawnEnemy(
-        'war',
-
-        WORLDS.war.width -
-        650,
-
-        500,
-
-        true
-      );
-    }
-
-
-    quest(
-      'WAR MACHINE',
-      'The Titan Factory is exposed. Defeat the War Machine.'
-    );
-
-  }
-
-  else {
-
-    quest(
-      'WAR BEACONS',
-      'Destroy War Beacons. ' +
-      progress.beacons +
-      '/3'
-    );
-  }
-}
-
-
-/* =========================================================
-   EARTH 2.0 STORY OBJECTS
-========================================================= */
-
-function earthStoryData() {
-
-  const progress =
-    G.progress.earth;
-
-
-  if (
-    !progress.collectedParts
-  ) {
-
-    progress.collectedParts =
-      [];
   }
 
 
-  return progress;
-}
+  /* -------------------------
+     EARTH 2.0 STORY
+     ------------------------- */
+
+  if(G.worldId==='earth'){
+
+    const stage=
+      pr.storyStage;
 
 
-/* =========================================================
-   EARTH INTERACTIONS
-========================================================= */
-
-function updateEarthInteractions() {
-
-  const progress =
-    earthStoryData();
-
-
-  const stage =
-    progress.storyStage;
-
-
-  /* -----------------------------------------
-     STAGE 0
-     INSPECT CRASH
-  ----------------------------------------- */
-
-  if (
-    stage === 0
-  ) {
-
-    const crashX =
-      310;
+    const addStory=
+      (
+        x,
+        y,
+        label,
+        fn
+      )=>
+        list.push({
+          x,
+          y,
+          label,
+          fn,
+          d:distanceTo(x,y)
+        });
 
 
-    if (
-      Math.abs(
-        P.x -
-        crashX
-      )
-      <
-      115
-    ) {
+    if(stage===0){
 
-      setInteraction(
-        'INSPECT CRASHED SHIP',
+      addStory(
+        480,
+        510,
+        'INSPECT WRECK',
+        ()=>{
 
-        () => {
-
-          progress.storyStage =
-            1;
+          pr.storyStage=1;
 
 
           toast(
-            'SHIP SYSTEM',
-            'Main drive offline. Emergency weapon signal detected nearby.'
-          );
-
-
-          riftBurst(
-            crashX,
-            480,
-            10
+            'RIFTWALKER',
+            'The ship is badly damaged. A strange energy signal is nearby.'
           );
 
 
@@ -5391,272 +4849,97 @@ function updateEarthInteractions() {
     }
 
 
-    return;
-  }
+    if(stage===1){
 
-
-  /* -----------------------------------------
-     STAGE 1
-     FIND NOVA SWORD
-  ----------------------------------------- */
-
-  if (
-    stage === 1
-  ) {
-
-    const swordX =
-      950;
-
-
-    if (
-      Math.abs(
-        P.x -
-        swordX
-      )
-      <
-      90
-    ) {
-
-      setInteraction(
+      addStory(
+        1180,
+        505,
         'TAKE NOVA SWORD',
+        ()=>{
 
-        () => {
-
-          P.weapon =
+          P.weapon=
             'Nova Sword';
 
 
-          P.weaponLevel =
-            1;
+          pr.storyStage=2;
 
 
-          progress.storyStage =
-            2;
-
-
-          riftBurst(
-            swordX,
-            455,
-            30
+          addMaterial(
+            'Rift Dust',
+            2
           );
 
 
-          SFX.tone(
-            220,
-            .35,
-            'sine',
-            .08,
-            2.5
-          );
+          SFX.core();
 
 
           toast(
-            'NOVA SWORD ACQUIRED',
-            'A Rift-forged energy blade. Attack with F.'
+            'NOVA SWORD',
+            'A Rift-powered blade responds to your Core.'
           );
 
 
           updateEarthQuest();
-
-          syncHUD();
         }
       );
     }
 
 
-    return;
-  }
+    if(stage===2){
+
+      [
+        [1550,505],
+        [2200,535],
+        [2750,505]
+      ].forEach(
+        ([x,y],i)=>{
+
+          if(i>=pr.shipParts){
+
+            addStory(
+              x,
+              y,
+              'RECOVER SHIP COMPONENT',
+              ()=>{
+
+                pr.shipParts++;
 
 
-  /* -----------------------------------------
-     STAGE 2
-     FIND 3 SHIP COMPONENTS
-  ----------------------------------------- */
-
-  if (
-    stage === 2
-  ) {
-
-    const parts = [
-
-      {
-        id:
-          'drive',
-
-        x:
-          1480,
-
-        name:
-          'RIFT DRIVE COIL'
-      },
-
-      {
-        id:
-          'stabilizer',
-
-        x:
-          2350,
-
-        name:
-          'FLIGHT STABILIZER'
-      },
-
-      {
-        id:
-          'core',
-
-        x:
-          3250,
-
-        name:
-          'POWER CORE'
-      }
-    ];
+                addMaterial(
+                  'Ancient Metal',
+                  1
+                );
 
 
-    for (
-      const part of parts
-    ) {
-
-      if (
-        progress.collectedParts
-          .includes(
-            part.id
-          )
-      ) {
-
-        continue;
-      }
+                SFX.coin();
 
 
-      if (
-        Math.abs(
-          P.x -
-          part.x
-        )
-        <
-        85
-      ) {
+                if(
+                  pr.shipParts>=3
+                ){
 
-        setInteraction(
-          'RECOVER ' +
-          part.name,
-
-          () => {
-
-            progress.collectedParts
-              .push(
-                part.id
-              );
+                  pr.storyStage=3;
+                }
 
 
-            progress.shipParts =
-              progress
-                .collectedParts
-                .length;
-
-
-            burst(
-              part.x,
-              470,
-              '#72e6ff',
-              14
+                updateEarthQuest();
+              }
             );
-
-
-            SFX.tone(
-              520,
-              .12,
-              'triangle',
-              .05,
-              1.5
-            );
-
-
-            addMaterial(
-              'Ancient Metal',
-              2
-            );
-
-
-            addCredits(
-              40,
-              part.x,
-              500
-            );
-
-
-            toast(
-              'SHIP COMPONENT',
-              progress.shipParts +
-              ' / 3 recovered.'
-            );
-
-
-            if (
-              progress.shipParts >=
-              3
-            ) {
-
-              progress.storyStage =
-                3;
-            }
-
-
-            updateEarthQuest();
           }
-        );
-
-
-        return;
-      }
+        }
+      );
     }
 
 
-    return;
-  }
+    if(stage===3){
 
-
-  /* -----------------------------------------
-     STAGE 3
-     SIGNAL TOWER
-  ----------------------------------------- */
-
-  if (
-    stage === 3
-  ) {
-
-    const towerX =
-      3920;
-
-
-    if (
-      Math.abs(
-        P.x -
-        towerX
-      )
-      <
-      120
-    ) {
-
-      setInteraction(
+      addStory(
+        3350,
+        525,
         'ACTIVATE SIGNAL TOWER',
+        ()=>{
 
-        () => {
-
-          progress.storyStage =
-            4;
-
-
-          G.screenShake =
-            5;
-
-
-          riftBurst(
-            towerX,
-            360,
-            32
-          );
+          pr.storyStage=4;
 
 
           SFX.portal();
@@ -5664,7 +4947,7 @@ function updateEarthInteractions() {
 
           toast(
             'UNKNOWN SIGNAL',
-            'A structure beyond the ruins is responding.'
+            'A structure called THE HUB is responding.'
           );
 
 
@@ -5674,81 +4957,22 @@ function updateEarthInteractions() {
     }
 
 
-    return;
-  }
+    if(stage===4){
 
-
-  /* -----------------------------------------
-     STAGE 4
-     ANCIENT GATE
-  ----------------------------------------- */
-
-  if (
-    stage === 4
-  ) {
-
-    const gateX =
-      4520;
-
-
-    if (
-      Math.abs(
-        P.x -
-        gateX
-      )
-      <
-      120
-    ) {
-
-      setInteraction(
+      addStory(
+        4050,
+        525,
         'OPEN ANCIENT GATE',
+        ()=>{
 
-        () => {
-
-          progress.storyStage =
-            5;
+          pr.storyStage=5;
 
 
-          riftBurst(
-            gateX,
-            430,
-            40
-          );
-
-
-          G.screenShake =
-            10;
-
-
-          const existing =
-            G.enemies.find(
-              enemy =>
-                enemy.alive &&
-                enemy.world ===
-                'earth' &&
-                enemy.boss
-            );
-
-
-          if (
-            !existing
-          ) {
-
-            spawnEnemy(
-              'earth',
-
-              4920,
-
-              500,
-
-              true
-            );
-          }
-
-
-          toast(
-            'ANCIENT GUARDIAN',
-            'Something has awakened beyond the gate.'
+          spawnEnemy(
+            'earth',
+            4650,
+            500,
+            true
           );
 
 
@@ -5758,98 +4982,20 @@ function updateEarthInteractions() {
     }
 
 
-    return;
-  }
+    if(stage===6){
 
+      addStory(
+        480,
+        510,
+        'REPAIR SHIP',
+        ()=>{
 
-  /* -----------------------------------------
-     STAGE 5
-     BOSS ACTIVE
-  ----------------------------------------- */
-
-  if (
-    stage === 5
-  ) {
-
-    const bossAlive =
-      G.enemies.some(
-        enemy =>
-          enemy.alive &&
-          enemy.world ===
-          'earth' &&
-          enemy.boss
-      );
-
-
-    if (
-      !bossAlive &&
-      !progress.bossDefeated
-    ) {
-
-      spawnEnemy(
-        'earth',
-
-        4920,
-
-        500,
-
-        true
-      );
-    }
-
-
-    return;
-  }
-
-
-  /* -----------------------------------------
-     STAGE 6
-     RETURN TO SHIP
-  ----------------------------------------- */
-
-  if (
-    stage === 6
-  ) {
-
-    const crashX =
-      310;
-
-
-    if (
-      Math.abs(
-        P.x -
-        crashX
-      )
-      <
-      120
-    ) {
-
-      setInteraction(
-        'REPAIR CRASHED SHIP',
-
-        () => {
-
-          progress.storyStage =
-            7;
-
-
-          addCredits(
-            250,
-            crashX,
-            500
-          );
-
-
-          riftBurst(
-            crashX,
-            450,
-            35
-          );
+          pr.storyStage=7;
 
 
           toast(
-            'SHIP REPAIRED',
-            'Navigation has locked onto the mysterious signal.'
+            'SHIP ONLINE',
+            'Navigation has locked onto the mysterious Hub signal.'
           );
 
 
@@ -5859,1254 +5005,1312 @@ function updateEarthInteractions() {
     }
 
 
-    return;
-  }
+    if(stage>=7){
 
+      addStory(
+        480,
+        510,
+        'LAUNCH TO THE HUB',
+        ()=>{
 
-  /* -----------------------------------------
-     STAGE 7
-     LAUNCH TO HUB
-  ----------------------------------------- */
-
-  if (
-    stage >= 7
-  ) {
-
-    const crashX =
-      310;
-
-
-    if (
-      Math.abs(
-        P.x -
-        crashX
-      )
-      <
-      120
-    ) {
-
-      setInteraction(
-        'LAUNCH SHIP',
-
-        () => {
-
-          G.scene =
-            'hubFlight';
-
-
-          G.sceneTime =
-            0;
-
-
-          SFX.portal();
-
-
-          MUSIC.setWorld(
-            'hub'
+          G.unlocked.add(
+            'music'
           );
 
 
+          beginHub();
+
+
           toast(
-            'NAVIGATION',
-            'Following unknown Rift signal...'
+            'THE HUB',
+            'You have discovered the Riftwalker base.'
           );
         }
       );
     }
   }
+
+
+  return(
+    list
+      .sort(
+        (a,b)=>a.d-b.d
+      )[0]
+    ||
+    null
+  );
 }
 
 
-/* =========================================================
-   HUB INTERACTIONS
-========================================================= */
+function interactionLabel(p){
 
-function updateHubInteractions() {
+  return{
 
-  /* PET SANCTUARY */
+    pet:
+      'BEFRIEND '+p.name,
 
-  if (
-    Math.abs(
-      P.x -
-      350
-    )
-    <
-    100
-  ) {
+    fragment:
+      'COLLECT RIFT FRAGMENT',
 
-    setInteraction(
-      'ENTER PET SANCTUARY',
+    beacon:
+      'DESTROY WAR BEACON',
 
-      () => {
+    portal:
+      'RETURN TO THE HUB'
 
-        openOverlay(
-          'petsOverlay'
-        );
-
-
-        renderPets();
-      }
-    );
-
-
-    return;
-  }
-
-
-  /* ARMOR WORKSHOP */
-
-  if (
-    Math.abs(
-      P.x -
-      620
-    )
-    <
-    95
-  ) {
-
-    setInteraction(
-      'OPEN ARMOR WORKSHOP',
-
-      () => {
-
-        openOverlay(
-          'inventoryOverlay'
-        );
-
-
-        renderInventory();
-      }
-    );
-
-
-    return;
-  }
-
-
-  /* RIFT MAP TERMINAL */
-
-  if (
-    Math.abs(
-      P.x -
-      980
-    )
-    <
-    110
-  ) {
-
-    setInteraction(
-      'OPEN WORLD MAP',
-
-      () => {
-
-        openOverlay(
-          'mapOverlay'
-        );
-
-
-        renderWorldMap();
-      }
-    );
-
-
-    return;
-  }
-
-
-  /* ASTRA NPC */
-
-  if (
-    Math.abs(
-      P.x -
-      760
-    )
-    <
-    70
-  ) {
-
-    setInteraction(
-      'TALK TO ASTRA',
-
-      () => {
-
-        if (
-          G.cores === 0
-        ) {
-
-          toast(
-            'ASTRA',
-            'The Multiverse is breaking apart. Each world is holding a fragment of the Rift Core.'
-          );
-
-        }
-
-        else if (
-          G.cores <
-          6
-        ) {
-
-          toast(
-            'ASTRA',
-            'You have recovered ' +
-            G.cores +
-            ' Core Shard' +
-            (
-              G.cores === 1
-                ? ''
-                : 's'
-            ) +
-            '. Keep going.'
-          );
-
-        }
-
-        else if (
-          !G.completed.has(
-            'matrix'
-          )
-        ) {
-
-          toast(
-            'ASTRA',
-            'The corrupted coordinates are stabilizing. Something is waiting beyond the Void.'
-          );
-
-        }
-
-        else {
-
-          toast(
-            'ASTRA',
-            'The Rift is stable again. But the Multiverse still has secrets left to find.'
-          );
-        }
-      }
-    );
-  }
+  }[p.kind]
+  ||
+  'INTERACT';
 }
 
 
-/* =========================================================
-   PET COLLECTION
-========================================================= */
+function interactPickup(p){
 
-function collectPet(
-  pickup
-) {
-
-  if (
-    pickup.taken
-  ) return;
-
-
-  pickup.taken =
-    true;
-
-
-  const name =
-    pickup.name;
-
-
-  if (
-    !PET_STATE.owned[
-      name
-    ]
-  ) {
-
-    PET_STATE.owned[
-      name
-    ] = {
-
-      name,
-
-      world:
-        G.worldId,
-
-      level:
-        1,
-
-      xp:
-        0,
-
-      form:
-        name,
-
-      nickname:
-        name,
-
-      attackCd:
-        0
-    };
-  }
-
-
-  const progress =
+  const pr=
     G.progress[
       G.worldId
     ];
 
 
-  if (
-    !progress.petFound
-      .includes(
-        name
-      )
-  ) {
+  /* PET */
 
-    progress.petFound.push(
-      name
-    );
-  }
+  if(p.kind==='pet'){
+
+    p.taken=true;
 
 
-  if (
-    !PET_STATE.active
-  ) {
-
-    PET_STATE.active =
-      name;
-  }
-
-
-  riftBurst(
-    pickup.x,
-    pickup.y - 35,
-    22
-  );
-
-
-  SFX.pet();
-
-
-  toast(
-    'NEW PET DISCOVERED',
-    name +
-    ' joined your collection.'
-  );
-
-
-  floatingText(
-    'PET FOUND',
-    pickup.x,
-    pickup.y - 80,
-    '#bff7ff'
-  );
-
-
-  addCredits(
-    50,
-    pickup.x,
-    pickup.y
-  );
-
-
-  syncHUD();
-}
-
-
-/* =========================================================
-   PET TRAINING
-========================================================= */
-
-function trainActivePet() {
-
-  const pet =
-    activePet();
-
-
-  if (!pet) {
-
-    toast(
-      'PET SANCTUARY',
-      'Choose an active pet first.'
+    pr.petFound.push(
+      p.name
     );
 
-    return;
-  }
+
+    PET_STATE.owned[p.name]={
+
+      name:p.name,
+
+      level:1,
+
+      x:P.x-60,
+
+      y:P.y,
+
+      attackCd:0
+    };
 
 
-  const cost =
-    300 +
-    Math.max(
-      0,
-      pet.level - 1
-    ) *
-    75;
+    if(!PET_STATE.active){
 
-
-  if (
-    !spendCredits(
-      cost
-    )
-  ) {
-
-    return;
-  }
-
-
-  pet.level++;
-
-
-  SFX.pet();
-
-
-  riftBurst(
-    P.x,
-    P.y - 50,
-    18
-  );
-
-
-  toast(
-    'PET TRAINING',
-    pet.name +
-    ' reached Level ' +
-    pet.level +
-    '.'
-  );
-
-
-  renderPets();
-
-  syncHUD();
-}
-
-
-/* =========================================================
-   EQUIP PET
-========================================================= */
-
-function equipPet(
-  name
-) {
-
-  if (
-    !PET_STATE.owned[
-      name
-    ]
-  ) {
-
-    return;
-  }
-
-
-  const oldStats =
-    getStats();
-
-
-  PET_STATE.active =
-    name;
-
-
-  const newStats =
-    getStats();
-
-
-  preserveHealthForStatChange(
-    oldStats.maxHP,
-    newStats.maxHP
-  );
-
-
-  SFX.pet();
-
-
-  toast(
-    'ACTIVE PET',
-    name +
-    ' will now travel with you.'
-  );
-
-
-  renderPets();
-
-  syncHUD();
-}
-
-
-/* =========================================================
-   BUY / EQUIP ARMOR
-========================================================= */
-
-function selectArmor(
-  id
-) {
-
-  const armor =
-    ARMORS[id];
-
-
-  if (!armor) return;
-
-
-  if (
-    !armor.unlocked
-  ) {
-
-    if (
-      !spendCredits(
-        armor.price
-      )
-    ) {
-
-      return;
+      PET_STATE.active=
+        p.name;
     }
 
 
-    armor.unlocked =
-      true;
+    SFX.pet();
 
 
     toast(
-      'ARMOR UNLOCKED',
-      armor.name +
-      ' has been added to your loadout.'
+      'NEW PET',
+      p.name+
+      ' joined your collection.'
     );
+
+
+    renderPets();
+
+    syncHUD();
   }
 
 
-  const oldStats =
-    getStats();
+  /* RIFT FRAGMENT */
+
+  if(p.kind==='fragment'){
+
+    p.taken=true;
 
 
-  P.armor =
-    id;
+    pr.fragments++;
 
 
-  const newStats =
-    getStats();
+    addMaterial(
+      worldMaterial(
+        G.worldId
+      ),
+      1
+    );
 
 
-  preserveHealthForStatChange(
-    oldStats.maxHP,
-    newStats.maxHP
+    SFX.core();
+
+
+    toast(
+      'RIFT FRAGMENT',
+      pr.fragments+
+      ' / 5 recovered.'
+    );
+
+
+    if(
+      pr.fragments>=5 &&
+      (
+        G.worldId!=='war' ||
+        pr.beacons>=3
+      )
+    ){
+
+      spawnEnemy(
+        G.worldId,
+        WORLDS[G.worldId].width-650,
+        500,
+        true
+      );
+
+
+      quest(
+        'WORLD BOSS',
+        'Defeat '+
+        WORLDS[G.worldId].boss+
+        '.'
+      );
+    }
+  }
+
+
+  /* WAR BEACON */
+
+  if(p.kind==='beacon'){
+
+    p.taken=true;
+
+
+    pr.beacons++;
+
+
+    SFX.noise?.();
+
+
+    toast(
+      'WAR BEACON DESTROYED',
+      pr.beacons+
+      ' / 3 offline.'
+    );
+
+
+    if(
+      pr.beacons>=3 &&
+      pr.fragments>=5
+    ){
+
+      spawnEnemy(
+        'war',
+        WORLDS.war.width-650,
+        500,
+        true
+      );
+    }
+  }
+
+
+  /* RETURN PORTAL */
+
+  if(p.kind==='portal'){
+
+    beginHub();
+  }
+}
+
+
+function updateInteraction(){
+
+  const n=
+    nearestInteraction();
+
+
+  if(
+    n &&
+    n.d<115
+  ){
+
+    $('interactPrompt')
+      .classList
+      .remove('hidden');
+
+
+    $('interactText').textContent=
+      n.label;
+
+
+    if(
+      justPressed.has('e')
+    ){
+
+      n.fn();
+    }
+  }
+
+  else{
+
+    $('interactPrompt')
+      .classList
+      .add('hidden');
+  }
+}
+/* =========================================================
+   ECONOMY HELPERS
+   ========================================================= */
+
+function addCredits(n,x=P.x,y=P.y){
+  n=Math.max(0,Math.round(n));
+  P.credits+=n;
+
+  floatingText(
+    '+'+n+' CREDITS',
+    x,
+    y-70,
+    '#8ff5ff'
   );
 
-
-  SFX.click();
-
-
-  renderInventory();
-
+  SFX.coin();
   syncHUD();
 }
 
 
+function spendCredits(n){
+
+  if(P.credits<n){
+
+    toast(
+      'RIFT MARKET',
+      'Not enough Rift Credits.'
+    );
+
+    return false;
+  }
+
+  P.credits-=n;
+
+  SFX.click();
+
+  syncHUD();
+
+  return true;
+}
+
+
+function addMaterial(name,n=1){
+
+  P.materials[name]=
+    (P.materials[name]||0)+n;
+
+  floatingText(
+    '+'+n+' '+name,
+    P.x,
+    P.y-70,
+    '#d8c7ff'
+  );
+}
+
+
 /* =========================================================
-   RENDER INVENTORY
-========================================================= */
+   UI / OVERLAYS
+   ========================================================= */
 
-function renderInventory() {
-
-  const armorGrid =
-    $('armorGrid');
-
-
-  const materialGrid =
-    $('materialGrid');
+function quest(title,text){
+  $('questTitle').textContent=title;
+  $('questText').textContent=text;
+}
 
 
-  if (
-    !armorGrid ||
-    !materialGrid
-  ) {
+function toast(title,text,time=2.5){
 
+  $('toastTitle').textContent=title;
+
+  $('toastText').textContent=text;
+
+  $('toast')
+    .classList
+    .remove('hidden');
+
+  G.messageTime=time;
+}
+
+
+function syncHUD(){
+
+  const s=getStats();
+
+  if($('lifeText')){
+    $('lifeText').textContent=
+      G.scene==='world'
+        ?STAGE_RUN.life
+        :'SAFE';
+  }
+
+  P.hp=
+    clamp(
+      P.hp,
+      0,
+      s.maxHP
+    );
+
+  $('levelText').textContent=
+    P.level;
+
+  $('hpText').textContent=
+    P.hp+
+    ' / '+
+    s.maxHP;
+
+  $('hpFill').style.width=
+    (
+      P.hp/
+      s.maxHP*
+      100
+    )+'%';
+
+  $('hpFill').className=
+    P.hp/s.maxHP<.25
+      ?'critical'
+      :P.hp/s.maxHP<.5
+        ?'warning'
+        :'';
+
+  $('atkText').textContent=
+    s.atk;
+
+  $('defText').textContent=
+    s.def;
+
+  $('spdText').textContent=
+    s.speed;
+
+  if($('critText')){
+    $('critText').textContent=
+      Math.round(
+        s.critChance*100
+      )+'%';
+  }
+
+  $('armorText').textContent=
+    ARMORS[P.armor]
+      .name
+      .toUpperCase();
+
+  $('creditText').textContent=
+    P.credits
+      .toLocaleString();
+
+  $('coreText').textContent=
+    G.cores;
+
+  $('weaponText').textContent=
+    (
+      P.weapon||
+      'Fists'
+    ).toUpperCase();
+
+  $('petText').textContent=
+    (
+      PET_STATE.active||
+      'No Pet'
+    ).toUpperCase();
+
+  $('locationText').textContent=
+    G.scene==='hub'
+      ?'THE HUB'
+      :G.scene==='arena'
+        ?'RIFT ARENA'
+        :(
+          WORLDS[G.worldId]?.name||
+          'DEEP SPACE'
+        ).toUpperCase();
+
+
+  const cd=
+    s.cooldown;
+
+  const ready=
+    1-
+    clamp(
+      P.attackCooldown/cd,
+      0,
+      1
+    );
+
+  $('cooldownFill').style.width=
+    (
+      ready*100
+    )+'%';
+
+  $('cooldownText').textContent=
+    P.attackCooldown<=0
+      ?'READY'
+      :P.attackCooldown
+        .toFixed(1)+'s';
+
+  drawSmallIcons();
+}
+
+
+function drawSmallIcons(){
+
+  const a=
+    $('hudAvatar')
+      .getContext('2d');
+
+  a.clearRect(
+    0,
+    0,
+    58,
+    58
+  );
+
+  drawMiniRiftwalker(
+    a,
+    29,
+    45,
+    .32
+  );
+
+
+  const c=
+    $('creditIcon')
+      .getContext('2d');
+
+  c.clearRect(
+    0,
+    0,
+    34,
+    34
+  );
+
+  c.save();
+
+  c.translate(
+    17,
+    17
+  );
+
+  let g=
+    c.createRadialGradient(
+      -4,
+      -5,
+      1,
+      0,
+      0,
+      14
+    );
+
+  g.addColorStop(
+    0,
+    '#fff'
+  );
+
+  g.addColorStop(
+    .38,
+    '#69e7ff'
+  );
+
+  g.addColorStop(
+    1,
+    '#4937b6'
+  );
+
+  c.fillStyle=g;
+
+  c.strokeStyle=
+    '#bdf7ff';
+
+  c.lineWidth=2;
+
+  c.beginPath();
+
+  c.arc(
+    0,
+    0,
+    13,
+    0,
+    Math.PI*2
+  );
+
+  c.fill();
+  c.stroke();
+
+  c.rotate(
+    Math.PI/4
+  );
+
+  c.fillStyle=
+    '#fff';
+
+  c.fillRect(
+    -4,
+    -4,
+    8,
+    8
+  );
+
+  c.restore();
+}
+
+
+/* =========================================================
+   OVERLAY CONTROLS
+   ========================================================= */
+
+function openOverlay(id,render){
+
+  if(G.scene==='arena'){
     return;
   }
 
+  document
+    .querySelectorAll('.overlay')
+    .forEach(
+      o=>
+        o.classList.add(
+          'hidden'
+        )
+    );
 
-  armorGrid.innerHTML =
-    '';
+  $(id)
+    .classList
+    .remove('hidden');
+
+  G.paused=true;
+
+  if(render){
+    render();
+  }
+
+  SFX.click();
+}
 
 
-  for (
-    const [
+function closeOverlay(id){
+
+  $(id)
+    .classList
+    .add('hidden');
+
+  G.paused=false;
+
+  SFX.click();
+}
+
+
+function toggleOverlay(id,render){
+
+  if(
+    G.scene==='menu' ||
+    G.scene==='flight' ||
+    G.scene==='crash' ||
+    G.scene==='travel' ||
+    G.scene==='arena'
+  ){
+    return;
+  }
+
+  if(
+    $(id)
+      .classList
+      .contains('hidden')
+  ){
+    openOverlay(
       id,
-      armor
-    ]
-    of
-    Object.entries(
-      ARMORS
-    )
-  ) {
-
-    const card =
-      document.createElement(
-        'article'
-      );
-
-
-    card.className =
-      'itemCard' +
-      (
-        P.armor === id
-          ? ' selected'
-          : ''
-      );
-
-
-    const status =
-      armor.unlocked
-        ? (
-            P.armor === id
-              ? 'EQUIPPED'
-              : 'EQUIP'
-          )
-        : (
-            'BUY · ' +
-            armor.price.toLocaleString() +
-            ' CREDITS'
-          );
-
-
-    card.innerHTML = `
-
-      <div class="armorIcon"></div>
-
-      <h4>
-        ${armor.name}
-      </h4>
-
-      <p>
-        HP ${signed(armor.hp)}
-        · ATK ${signed(armor.atk)}
-        · DEF ${signed(armor.def)}
-        · SPD ${signed(armor.speed)}
-      </p>
-
-      <button
-        data-armor="${id}"
-        ${P.armor === id ? 'disabled' : ''}
-      >
-        ${status}
-      </button>
-
-    `;
-
-
-    armorGrid.appendChild(
-      card
+      render
     );
   }
 
+  else{
+    closeOverlay(id);
+  }
+}
 
-  armorGrid
-    .querySelectorAll(
-      '[data-armor]'
-    )
+
+function closeAllOverlays(){
+
+  document
+    .querySelectorAll('.overlay')
     .forEach(
-      button => {
+      o=>
+        o.classList.add(
+          'hidden'
+        )
+    );
 
-        button.addEventListener(
-          'click',
-          () => {
+  G.paused=false;
+}
 
-            selectArmor(
-              button.dataset.armor
-            );
-          }
-        );
-      }
+
+function isOverlayOpen(){
+
+  return[
+    ...document
+      .querySelectorAll('.overlay')
+  ].some(
+    o=>
+      !o.classList
+        .contains('hidden')
+  );
+}
+
+
+function togglePause(){
+
+  if(
+    [
+      'menu',
+      'flight',
+      'crash',
+      'travel',
+      'arena'
+    ].includes(G.scene)
+  ){
+    return;
+  }
+
+  if(
+    !$('pauseOverlay')
+      .classList
+      .contains('hidden')
+  ){
+    closeOverlay(
+      'pauseOverlay'
+    );
+  }
+
+  else{
+    openOverlay(
+      'pauseOverlay'
+    );
+  }
+}
+
+
+document
+  .querySelectorAll(
+    '[data-close]'
+  )
+  .forEach(
+    b=>
+      b.addEventListener(
+        'click',
+        ()=>
+          closeOverlay(
+            b.dataset.close
+          )
+      )
+  );
+
+
+$('resumeBtn').onclick=
+  ()=>
+    closeOverlay(
+      'pauseOverlay'
     );
 
 
-  materialGrid.innerHTML =
-    '';
+$('saveBtn').onclick=
+  saveGame;
 
 
-  for (
-    const material of
-    MATERIALS
-  ) {
+if($('tutorialReplayBtn')){
 
-    const card =
-      document.createElement(
-        'article'
+  $('tutorialReplayBtn').onclick=
+    ()=>{
+
+      closeOverlay(
+        'pauseOverlay'
+      );
+
+      startTutorial(true);
+    };
+}
+
+
+$('pauseLoadBtn').onclick=
+  loadGame;
+
+
+$('quitBtn').onclick=
+  ()=>{
+
+    closeAllOverlays();
+
+    G.scene='menu';
+
+    $('hud')
+      .classList
+      .add('hidden');
+
+    $('startScreen')
+      .classList
+      .remove('hidden');
+
+    MUSIC.setWorld('hub');
+  };
+
+
+/* =========================================================
+   INVENTORY
+   ========================================================= */
+
+function renderInventory(){
+
+  const grid=
+    $('armorGrid');
+
+  grid.innerHTML='';
+
+
+  for(
+    const [id,a]
+    of Object.entries(ARMORS)
+  ){
+
+    const unlocked=
+      a.unlocked ||
+      G.completed.has(id) ||
+      id==='none' ||
+      (
+        id==='scout' &&
+        G.hubFound
+      ) ||
+      (
+        id==='rift' &&
+        G.completed.has('music')
+      ) ||
+      (
+        id==='titan' &&
+        G.completed.has('war')
+      ) ||
+      (
+        id==='void' &&
+        G.completed.has('void')
+      ) ||
+      (
+        id==='matrix' &&
+        G.completed.has('matrix')
       );
 
 
-    card.className =
+    const owned=
+      a.unlocked ||
+      a.owned ||
+      id==='none';
+
+
+    const card=
+      document.createElement(
+        'div'
+      );
+
+
+    card.className=
+      'itemCard '+
+      (
+        P.armor===id
+          ?'selected'
+          :''
+      );
+
+
+    card.innerHTML=
+      `
+      <div class="armorIcon"></div>
+
+      <h4>
+        ${a.name}
+      </h4>
+
+      <p>
+        HP +${a.hp}
+        · ATK +${a.atk}
+        · DEF +${a.def}
+        · SPD ${a.speed>=0?'+':''}${a.speed}
+      </p>
+      `;
+
+
+    const btn=
+      document.createElement(
+        'button'
+      );
+
+
+    if(owned){
+
+      btn.textContent=
+        P.armor===id
+          ?'EQUIPPED'
+          :'EQUIP';
+
+
+      btn.disabled=
+        P.armor===id;
+
+
+      btn.onclick=
+        ()=>{
+
+          const old=
+            getStats()
+              .maxHP;
+
+          P.armor=id;
+
+          preserveHealthForStatChange(
+            old,
+            getStats().maxHP
+          );
+
+          renderInventory();
+
+          syncHUD();
+        };
+    }
+
+    else{
+
+      btn.textContent=
+        unlocked
+          ?'BUY · '+
+            a.price
+              .toLocaleString()
+          :'LOCKED';
+
+
+      btn.disabled=
+        !unlocked;
+
+
+      btn.onclick=
+        ()=>{
+
+          if(
+            spendCredits(
+              a.price
+            )
+          ){
+
+            a.owned=true;
+
+            renderInventory();
+          }
+        };
+    }
+
+
+    card.appendChild(btn);
+
+    grid.appendChild(card);
+  }
+
+
+  const mg=
+    $('materialGrid');
+
+  mg.innerHTML='';
+
+
+  for(
+    const name
+    of MATERIALS
+  ){
+
+    const card=
+      document.createElement(
+        'div'
+      );
+
+
+    card.className=
       'itemCard';
 
 
-    card.innerHTML = `
-
+    card.innerHTML=
+      `
       <div class="materialIcon"></div>
 
       <h4>
-        ${material}
+        ${name}
       </h4>
 
       <p>
         Owned:
-        <strong>
-          ${P.materials[material] || 0}
-        </strong>
+        <b>
+          ${P.materials[name]||0}
+        </b>
       </p>
+      `;
 
-    `;
 
-
-    materialGrid.appendChild(
-      card
-    );
+    mg.appendChild(card);
   }
 }
 
 
 /* =========================================================
-   SIGNED NUMBER
-========================================================= */
+   PET SANCTUARY
+   ========================================================= */
 
-function signed(
-  value
-) {
+function renderPets(){
 
-  if (
-    value > 0
-  ) {
-
-    return (
-      '+' +
-      value
-    );
-  }
-
-
-  return String(
-    value
-  );
-}
-
-
-/* =========================================================
-   RENDER PET SANCTUARY
-========================================================= */
-
-function renderPets() {
-
-  renderPetCollection();
-
-  renderPetJournal();
-
-  renderPetTraining();
-}
-
-
-/* =========================================================
-   PET COLLECTION PAGE
-========================================================= */
-
-function renderPetCollection() {
-
-  const grid =
+  const grid=
     $('petGrid');
 
-
-  if (!grid) return;
-
-
-  grid.innerHTML =
-    '';
+  grid.innerHTML='';
 
 
-  const allPets =
-    Object.values(
+  const names=
+    Object.keys(
       PET_STATE.owned
     );
 
 
-  if (
-    allPets.length === 0
-  ) {
+  if(!names.length){
 
-    const empty =
-      document.createElement(
-        'article'
-      );
-
-
-    empty.className =
-      'petCard';
-
-
-    empty.innerHTML = `
-
-      <h4>
-        No pets discovered yet
-      </h4>
-
-      <p>
-        Explore the worlds and approach wild pets to add them to your Sanctuary.
-      </p>
-
-    `;
-
-
-    grid.appendChild(
-      empty
-    );
-
-
-    return;
+    grid.innerHTML=
+      '<p class="panelNote">You have not befriended a pet yet. Explore the worlds to find them.</p>';
   }
 
 
-  for (
-    const pet of
-    allPets
-  ) {
+  for(const name of names){
 
-    const card =
+    const o=
+      PET_STATE.owned[name];
+
+    const b=
+      PET_BONUS[name]||{};
+
+    const card=
       document.createElement(
-        'article'
+        'div'
       );
 
 
-    card.className =
-      'petCard' +
+    card.className=
+      'petCard '+
       (
-        PET_STATE.active ===
-        pet.name
-          ? ' selected'
-          : ''
+        PET_STATE.active===name
+          ?'selected'
+          :''
       );
 
 
-    const canvasId =
-      'pet-art-' +
-      safeId(
-        pet.name
+    const cv=
+      document.createElement(
+        'canvas'
       );
 
 
-    card.innerHTML = `
+    cv.width=70;
+    cv.height=58;
 
-      <canvas
-        class="petArt"
-        id="${canvasId}"
-        width="124"
-        height="104"
-      ></canvas>
+    cv.className=
+      'petArt';
 
+    card.appendChild(cv);
+
+
+    card.insertAdjacentHTML(
+      'beforeend',
+      `
       <h4>
-        ${pet.nickname || pet.name}
+        ${name}
       </h4>
 
       <p>
-        ${PET_TYPES[pet.name] || 'Unknown'}
-        <br>
-        Level ${pet.level}
+        ${PET_TYPES[name]}
+        · LV ${o.level}
       </p>
 
-      <button
-        data-pet="${pet.name}"
-        ${PET_STATE.active === pet.name ? 'disabled' : ''}
-      >
-        ${
-          PET_STATE.active === pet.name
-            ? 'ACTIVE'
-            : 'SET ACTIVE'
-        }
-      </button>
-
-    `;
-
-
-    grid.appendChild(
-      card
+      <p>
+        HP +${b.hp||0}
+        · ATK +${b.atk||0}
+        · DEF +${b.def||0}
+        · SPD ${b.speed||0}
+      </p>
+      `
     );
 
 
-    requestAnimationFrame(
-      () => {
+    const btn=
+      document.createElement(
+        'button'
+      );
 
-        const portrait =
-          $(canvasId);
+
+    btn.textContent=
+      PET_STATE.active===name
+        ?'ACTIVE'
+        :'SET ACTIVE';
 
 
-        if (portrait) {
+    btn.disabled=
+      PET_STATE.active===name;
 
-          drawPetPortrait(
-            portrait,
-            pet.name
-          );
-        }
-      }
+
+    btn.onclick=
+      ()=>{
+
+        const old=
+          getStats()
+            .maxHP;
+
+
+        PET_STATE.active=
+          name;
+
+
+        preserveHealthForStatChange(
+          old,
+          getStats().maxHP
+        );
+
+
+        renderPets();
+
+        syncHUD();
+      };
+
+
+    card.appendChild(btn);
+
+    grid.appendChild(card);
+
+
+    drawPetSprite(
+      cv.getContext('2d'),
+      35,
+      43,
+      name,
+      .55,
+      0
     );
   }
 
 
-  grid
-    .querySelectorAll(
-      '[data-pet]'
-    )
-    .forEach(
-      button => {
+  renderJournal();
 
-        button.addEventListener(
-          'click',
-          () => {
-
-            equipPet(
-              button.dataset.pet
-            );
-          }
-        );
-      }
-    );
+  renderTraining();
 }
 
 
-/* =========================================================
-   PET JOURNAL
-========================================================= */
+function renderJournal(){
 
-function renderPetJournal() {
-
-  const summary =
-    $('journalSummary');
-
-
-  const grid =
-    $('journalGrid');
-
-
-  if (
-    !summary ||
-    !grid
-  ) {
-
-    return;
-  }
-
-
-  const found =
+  let found=
     Object.keys(
       PET_STATE.owned
     ).length;
 
 
-  const total =
-    WORLD_ORDER.length *
-    8;
+  const total=56;
 
 
-  const percent =
-    Math.round(
-      found /
-      total *
-      100
-    );
+  $('journalSummary').textContent=
+    `BASE PET DISCOVERY: ${found} / ${total} · ${Math.round(found/total*100)}% · HIDDEN SECRETS: ${G.easterEggs.size} / ${EASTER_TOTAL} · Evolution forms will expand the journal beyond 100 discoveries.`;
 
 
-  summary.textContent =
-    'Base pets discovered: ' +
-    found +
-    ' / ' +
-    total +
-    ' · Overall discovery: ' +
-    percent +
-    '% · Evolution forms and secret forms will also appear here.';
+  $('journalGrid').innerHTML='';
 
 
-  grid.innerHTML =
-    '';
+  for(
+    const id
+    of WORLD_ORDER
+  ){
 
-
-  for (
-    const worldId of
-    WORLD_ORDER
-  ) {
-
-    const section =
+    const box=
       document.createElement(
-        'section'
+        'div'
       );
 
 
-    section.className =
+    box.className=
       'journalWorld';
 
 
-    const hiddenMatrix =
-      worldId === 'matrix' &&
-      !G.completed.has(
-        'void'
-      );
+    const display=
+      id==='matrix' &&
+      !G.completed.has('matrix')
+        ?'( ........ ...... )'
+        :WORLDS[id].name;
 
 
-    const title =
-      hiddenMatrix
-        ? '( ........ ...... )'
-        : WORLDS[
-            worldId
-          ].name;
-
-
-    section.innerHTML = `
-
+    box.innerHTML=
+      `
       <h3>
-        ${title}
+        ${display}
       </h3>
 
-      <div class="journalNames">
-
-        ${
-          PET_ROSTERS[
-            worldId
-          ]
-          .map(
-            name => {
-
-              const foundPet =
-                !!PET_STATE
-                  .owned[
-                    name
-                  ];
+      <div class="journalNames"></div>
+      `;
 
 
-              let display =
-                name;
-
-
-              if (
-                hiddenMatrix &&
-                !foundPet
-              ) {
-
-                display =
-                  '???';
-              }
-
-
-              return `
-
-                <span
-                  class="${foundPet ? 'found' : ''}"
-                >
-                  ${
-                    foundPet
-                      ? display
-                      : (
-                          hiddenMatrix
-                            ? '???'
-                            : '???'
-                        )
-                  }
-                </span>
-
-              `;
-            }
-          )
-          .join('')
-        }
-
-      </div>
-
-    `;
-
-
-    grid.appendChild(
-      section
-    );
-  }
-}
-
-
-/* =========================================================
-   PET TRAINING PAGE
-========================================================= */
-
-function renderPetTraining() {
-
-  const pet =
-    activePet();
-
-
-  const nameEl =
-    $('trainingName');
-
-
-  const statsEl =
-    $('trainingStats');
-
-
-  const button =
-    $('trainPetBtn');
-
-
-  if (
-    !nameEl ||
-    !statsEl ||
-    !button
-  ) {
-
-    return;
-  }
-
-
-  const trainingCanvas =
-    $('trainingPet');
-
-
-  if (!pet) {
-
-    nameEl.textContent =
-      'No active pet';
-
-
-    statsEl.textContent =
-      'Find and equip a pet first.';
-
-
-    button.disabled =
-      true;
-
-
-    if (
-      trainingCanvas
-    ) {
-
-      const c =
-        trainingCanvas
-          .getContext('2d');
-
-
-      c.clearRect(
-        0,
-        0,
-        trainingCanvas.width,
-        trainingCanvas.height
+    const row=
+      box.querySelector(
+        '.journalNames'
       );
+
+
+    for(
+      const name
+      of PET_ROSTERS[id]
+    ){
+
+      const s=
+        document.createElement(
+          'span'
+        );
+
+
+      const known=
+        !!PET_STATE.owned[name];
+
+
+      s.className=
+        known
+          ?'found'
+          :'';
+
+
+      s.textContent=
+        id==='matrix' &&
+        !G.completed.has('matrix') &&
+        !known
+          ?'???'
+          :known
+            ?name
+            :'Unknown Pet';
+
+
+      row.appendChild(s);
     }
 
 
+    $('journalGrid')
+      .appendChild(box);
+  }
+}
+
+
+function renderTraining(){
+
+  const ap=
+    activePet();
+
+
+  const c=
+    $('trainingPet')
+      .getContext('2d');
+
+
+  c.clearRect(
+    0,
+    0,
+    220,
+    180
+  );
+
+
+  if(!ap){
+
+    $('trainingName').textContent=
+      'No active pet';
+
+
+    $('trainingStats').textContent=
+      'Find and equip a pet first.';
+
+
+    $('trainPetBtn').disabled=
+      true;
+
+
     return;
   }
 
 
-  button.disabled =
+  drawPetSprite(
+    c,
+    110,
+    125,
+    ap.name,
+    1.45,
+    G.time
+  );
+
+
+  $('trainingName').textContent=
+    ap.name+
+    ' · LV '+
+    ap.level;
+
+
+  $('trainingStats').textContent=
+    'Training strengthens this pet’s stat bonuses and companion attack.';
+
+
+  $('trainPetBtn').disabled=
     false;
-
-
-  const bonus =
-    PET_BONUS[
-      pet.name
-    ] ||
-    {};
-
-
-  const cost =
-    300 +
-    Math.max(
-      0,
-      pet.level - 1
-    ) *
-    75;
-
-
-  nameEl.textContent =
-    pet.name +
-    ' · LV ' +
-    pet.level;
-
-
-  statsEl.textContent =
-    (
-      PET_TYPES[
-        pet.name
-      ] ||
-      'Unknown'
-    )
-    +
-    ' · HP ' +
-    signed(
-      bonus.hp ||
-      0
-    )
-    +
-    ' · ATK ' +
-    signed(
-      bonus.atk ||
-      0
-    )
-    +
-    ' · DEF ' +
-    signed(
-      bonus.def ||
-      0
-    )
-    +
-    ' · SPD ' +
-    signed(
-      bonus.speed ||
-      0
-    );
-
-
-  button.textContent =
-    'TRAIN PET · ' +
-    cost.toLocaleString() +
-    ' CREDITS';
-
-
-  if (
-    trainingCanvas
-  ) {
-
-    drawPetPortrait(
-      trainingCanvas,
-      pet.name,
-      true
-    );
-  }
 }
 
 
-/* =========================================================
-   SAFE DOM ID
-========================================================= */
+$('trainPetBtn').onclick=
+  ()=>{
 
-function safeId(
-  text
-) {
+    const ap=
+      activePet();
 
-  return text
-    .toLowerCase()
-    .replace(
-      /[^a-z0-9]+/g,
-      '-'
+
+    if(
+      !ap ||
+      !spendCredits(300)
+    ){
+      return;
+    }
+
+
+    const old=
+      getStats()
+        .maxHP;
+
+
+    ap.level++;
+
+
+    preserveHealthForStatChange(
+      old,
+      getStats().maxHP
     );
-}
 
 
-/* =========================================================
-   PET TABS
-========================================================= */
+    SFX.pet();
+
+    renderPets();
+
+    syncHUD();
+  };
+
 
 document
   .querySelectorAll(
     '[data-pet-tab]'
   )
   .forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        () => {
-
-          SFX.click();
-
+    b=>
+      b.onclick=
+        ()=>{
 
           document
             .querySelectorAll(
               '[data-pet-tab]'
             )
             .forEach(
-              tab =>
-                tab.classList.remove(
-                  'active'
+              x=>
+                x.classList.toggle(
+                  'active',
+                  x===b
                 )
             );
 
@@ -7116,2319 +6320,497 @@ document
               '.petPage'
             )
             .forEach(
-              page =>
-                page.classList.remove(
+              x=>
+                x.classList.remove(
                   'active'
                 )
             );
 
 
-          button.classList.add(
-            'active'
-          );
-
-
-          const tab =
-            button.dataset.petTab;
-
-
-          const page = {
-
-            collection:
-              $('petCollection'),
-
-            journal:
-              $('petJournal'),
-
-            training:
-              $('petTraining')
-
-          }[tab];
-
-
-          if (page) {
-
-            page.classList.add(
-              'active'
-            );
-          }
+          $({
+            collection:'petCollection',
+            journal:'petJournal',
+            training:'petTraining'
+          }[b.dataset.petTab])
+            .classList
+            .add('active');
         }
-      );
-    }
   );
-
-
-/* =========================================================
-   TRAIN PET BUTTON
-========================================================= */
-
-if (
-  $('trainPetBtn')
-) {
-
-  $('trainPetBtn')
-    .addEventListener(
-      'click',
-      trainActivePet
-    );
-}
 
 
 /* =========================================================
    WORLD MAP
-========================================================= */
+   ========================================================= */
 
-function renderWorldMap() {
+function renderWorldMap(){
 
-  const grid =
+  const grid=
     $('worldGrid');
 
-
-  if (!grid) return;
-
-
-  grid.innerHTML =
-    '';
+  grid.innerHTML='';
 
 
-  for (
-    const id of
-    WORLD_ORDER
-  ) {
+  for(
+    const id
+    of WORLD_ORDER
+  ){
 
-    const world =
+    const w=
       WORLDS[id];
 
 
-    const unlocked =
-      G.unlocked.has(
-        id
-      );
+    const unlocked=
+      G.unlocked.has(id);
 
 
-    const completed =
-      G.completed.has(
-        id
-      );
+    const hidden=
+      id==='matrix' &&
+      !G.completed.has('void');
 
 
-    const matrixHidden =
-      id === 'matrix' &&
-      !G.completed.has(
-        'void'
-      );
-
-
-    const card =
+    const card=
       document.createElement(
-        'article'
+        'div'
       );
 
 
-    card.className =
-      'worldCard' +
+    card.className=
+      'worldCard '+
       (
         !unlocked
-          ? ' locked'
-          : ''
-      )
-      +
+          ?'locked '
+          :''
+      )+
       (
-        completed
-          ? ' completed'
-          : ''
+        G.completed.has(id)
+          ?'completed'
+          :''
       );
 
 
-    const displayName =
-      matrixHidden
-        ? '( ........ ...... )'
-        : world.name;
+    card.dataset.world=id;
 
 
-    const description =
-      matrixHidden
-        ? 'Coordinates corrupted.'
-        : world.desc;
+    const orb=
+      document.createElement(
+        'div'
+      );
 
 
-    const buttonText =
-      completed
-        ? 'RETURN'
-        : (
-            unlocked
-              ? 'TRAVEL'
-              : 'LOCKED'
-          );
+    orb.className=
+      'worldOrb';
 
 
-    card.innerHTML = `
+    orb.style.background=
+      `radial-gradient(circle at 30% 25%,${w.accent},${w.skyB} 45%,${w.dark})`;
 
-      <div
-        class="worldOrb"
-        style="
-          background:
-          radial-gradient(
-            circle at 30% 25%,
-            ${world.accent},
-            ${world.ground} 45%,
-            ${world.dark}
-          );
-        "
-      ></div>
 
+    card.appendChild(orb);
+
+
+    card.insertAdjacentHTML(
+      'beforeend',
+      `
       <h4>
-        ${displayName}
+        ${hidden?'( ........ ...... )':w.name}
       </h4>
 
       <p>
-        ${description}
+        ${hidden?'Signal corrupted.':w.desc}
       </p>
-
-      <button
-        data-world="${id}"
-        ${!unlocked ? 'disabled' : ''}
-      >
-        ${buttonText}
-      </button>
-
-    `;
-
-
-    grid.appendChild(
-      card
+      `
     );
-  }
 
 
-  grid
-    .querySelectorAll(
-      '[data-world]'
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          'click',
-          () => {
-
-            const id =
-              button.dataset.world;
-
-
-            if (
-              G.unlocked.has(id)
-            ) {
-
-              travelTo(
-                id
-              );
-            }
-          }
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   MATRIX UNLOCK CHECK
-========================================================= */
-
-function checkMatrixUnlock() {
-
-  if (
-    G.completed.has(
-      'void'
-    )
-    &&
-    G.cores >= 6
-  ) {
-
-    if (
-      !G.unlocked.has(
-        'matrix'
-      )
-    ) {
-
-      G.unlocked.add(
-        'matrix'
+    const btn=
+      document.createElement(
+        'button'
       );
 
 
-      toast(
-        'CORRUPTED COORDINATES FOUND',
-        'A hidden world has appeared on the Rift Network.'
-      );
+    btn.textContent=
+      unlocked
+        ?'TRAVEL'
+        :'LOCKED';
 
 
-      SFX.portal();
-    }
+    btn.disabled=
+      !unlocked;
+
+
+    btn.onclick=
+      ()=>
+        travelTo(id);
+
+
+    card.appendChild(btn);
+
+    grid.appendChild(card);
   }
 }
 
 
 /* =========================================================
-   OVERLAY SYSTEM
-========================================================= */
+   SAVE / LOAD
+   ========================================================= */
 
-const OVERLAY_IDS = [
+function saveGame(){
 
-  'inventoryOverlay',
+  const data={
 
-  'petsOverlay',
+    G:{
+      hubFound:G.hubFound,
 
-  'mapOverlay',
+      unlocked:[
+        ...G.unlocked
+      ],
 
-  'bonusOverlay',
+      completed:[
+        ...G.completed
+      ],
 
-  'pauseOverlay'
-];
+      cores:G.cores,
 
+      easterEggs:[
+        ...G.easterEggs
+      ],
 
-function isOverlayOpen() {
+      tutorialDone:
+        G.tutorialDone,
 
-  return OVERLAY_IDS
-    .some(
-      id => {
+      progress:
+        G.progress,
 
-        const element =
-          $(id);
+      scene:
+        G.scene,
 
-
-        return (
-          element &&
-          !element.classList
-            .contains(
-              'hidden'
-            )
-        );
-      }
-    );
-}
-
-
-function openOverlay(
-  id
-) {
-
-  const overlay =
-    $(id);
-
-
-  if (!overlay) return;
-
-
-  if (
-    id !== 'pauseOverlay'
-  ) {
-
-    for (
-      const otherId of
-      OVERLAY_IDS
-    ) {
-
-      if (
-        otherId === id ||
-        otherId ===
-        'pauseOverlay'
-      ) {
-
-        continue;
-      }
-
-
-      const other =
-        $(otherId);
-
-
-      if (other) {
-
-        other.classList.add(
-          'hidden'
-        );
-      }
-    }
-  }
-
-
-  overlay.classList.remove(
-    'hidden'
-  );
-
-
-  SFX.click();
-}
-
-
-function closeOverlay(
-  id
-) {
-
-  const overlay =
-    $(id);
-
-
-  if (!overlay) return;
-
-
-  overlay.classList.add(
-    'hidden'
-  );
-
-
-  SFX.click();
-}
-
-
-function closeAllOverlays() {
-
-  for (
-    const id of
-    OVERLAY_IDS
-  ) {
-
-    const overlay =
-      $(id);
-
-
-    if (overlay) {
-
-      overlay.classList.add(
-        'hidden'
-      );
-    }
-  }
-}
-
-
-function toggleOverlay(
-  id,
-  renderFunction
-) {
-
-  if (
-    G.scene === 'menu' &&
-    id !== 'bonusOverlay'
-  ) {
-
-    return;
-  }
-
-
-  const overlay =
-    $(id);
-
-
-  if (!overlay) return;
-
-
-  const opening =
-    overlay.classList
-      .contains(
-        'hidden'
-      );
-
-
-  if (opening) {
-
-    closeAllOverlays();
-
-
-    overlay.classList.remove(
-      'hidden'
-    );
-
-
-    if (
-      renderFunction
-    ) {
-
-      renderFunction();
-    }
-
-
-    SFX.click();
-
-  }
-
-  else {
-
-    overlay.classList.add(
-      'hidden'
-    );
-
-
-    SFX.click();
-  }
-}
-
-
-/* =========================================================
-   GENERIC CLOSE BUTTONS
-========================================================= */
-
-document
-  .querySelectorAll(
-    '[data-close]'
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        () => {
-
-          closeOverlay(
-            button.dataset.close
-          );
-        }
-      );
-    }
-  );
-
-
-/* =========================================================
-   PAUSE
-========================================================= */
-
-function togglePause() {
-
-  if (
-    G.scene === 'menu'
-  ) {
-
-    return;
-  }
-
-
-  if (
-    !$('pauseOverlay')
-  ) {
-
-    return;
-  }
-
-
-  if (
-    !$('pauseOverlay')
-      .classList
-      .contains(
-        'hidden'
-      )
-  ) {
-
-    G.paused =
-      false;
-
-
-    closeOverlay(
-      'pauseOverlay'
-    );
-
-
-    return;
-  }
-
-
-  closeAllOverlays();
-
-
-  G.paused =
-    true;
-
-
-  openOverlay(
-    'pauseOverlay'
-  );
-}
-
-
-/* =========================================================
-   PAUSE BUTTONS
-========================================================= */
-
-if (
-  $('resumeBtn')
-) {
-
-  $('resumeBtn')
-    .addEventListener(
-      'click',
-      () => {
-
-        G.paused =
-          false;
-
-
-        closeOverlay(
-          'pauseOverlay'
-        );
-      }
-    );
-}
-
-
-if (
-  $('saveBtn')
-) {
-
-  $('saveBtn')
-    .addEventListener(
-      'click',
-      () => {
-
-        saveGame();
-
-        $('saveStatus')
-          .textContent =
-          'Game saved.';
-      }
-    );
-}
-
-
-if (
-  $('pauseLoadBtn')
-) {
-
-  $('pauseLoadBtn')
-    .addEventListener(
-      'click',
-      () => {
-
-        if (
-          loadGame()
-        ) {
-
-          G.paused =
-            false;
-
-
-          closeAllOverlays();
-        }
-      }
-    );
-}
-
-
-if (
-  $('quitBtn')
-) {
-
-  $('quitBtn')
-    .addEventListener(
-      'click',
-      () => {
-
-        saveGame();
-
-        G.paused =
-          false;
-
-
-        G.scene =
-          'menu';
-
-
-        closeAllOverlays();
-
-
-        $('hud')
-          .classList
-          .add(
-            'hidden'
-          );
-
-
-        $('arenaHud')
-          .classList
-          .add(
-            'hidden'
-          );
-
-
-        $('startScreen')
-          .classList
-          .remove(
-            'hidden'
-          );
-
-
-        MUSIC.setWorld(
-          'hub'
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   HUD
-========================================================= */
-
-function syncHUD() {
-
-  const stats =
-    getStats();
-
-
-  P.hp =
-    clamp(
-      P.hp,
-      0,
-      stats.maxHP
-    );
-
-
-  if (
-    $('levelText')
-  ) {
-
-    $('levelText')
-      .textContent =
-      P.level;
-  }
-
-
-  if (
-    $('hpText')
-  ) {
-
-    $('hpText')
-      .textContent =
-      Math.round(
-        P.hp
-      )
-      +
-      ' / ' +
-      stats.maxHP;
-  }
-
-
-  const hpFill =
-    $('hpFill');
-
-
-  if (hpFill) {
-
-    const ratio =
-      clamp(
-        P.hp /
-        stats.maxHP,
-        0,
-        1
-      );
-
-
-    hpFill.style.width =
-      ratio *
-      100 +
-      '%';
-
-
-    hpFill.classList.remove(
-      'warning',
-      'critical'
-    );
-
-
-    if (
-      ratio <= .25
-    ) {
-
-      hpFill.classList.add(
-        'critical'
-      );
-
-    }
-
-    else if (
-      ratio <= .5
-    ) {
-
-      hpFill.classList.add(
-        'warning'
-      );
-    }
-  }
-
-
-  if (
-    $('armorText')
-  ) {
-
-    $('armorText')
-      .textContent =
-      (
-        ARMORS[
-          P.armor
-        ] ||
-        ARMORS.none
-      )
-      .name
-      .toUpperCase();
-  }
-
-
-  if (
-    $('atkText')
-  ) {
-
-    $('atkText')
-      .textContent =
-      stats.atk;
-  }
-
-
-  if (
-    $('defText')
-  ) {
-
-    $('defText')
-      .textContent =
-      stats.def;
-  }
-
-
-  if (
-    $('spdText')
-  ) {
-
-    $('spdText')
-      .textContent =
-      stats.speed;
-  }
-
-
-  if (
-    $('creditText')
-  ) {
-
-    $('creditText')
-      .textContent =
-      P.credits
-        .toLocaleString();
-  }
-
-
-  if (
-    $('coreText')
-  ) {
-
-    $('coreText')
-      .textContent =
-      G.cores;
-  }
-
-
-  if (
-    $('weaponText')
-  ) {
-
-    $('weaponText')
-      .textContent =
-      P.weapon
-        ? (
-            P.weapon +
-            ' LV.' +
-            P.weaponLevel
-          )
-        : 'FISTS';
-  }
-
-
-  if (
-    $('petText')
-  ) {
-
-    $('petText')
-      .textContent =
-      PET_STATE.active ||
-      'NO PET';
-  }
-
-
-  if (
-    $('locationText')
-  ) {
-
-    let location =
-      'UNKNOWN';
-
-
-    if (
-      G.scene === 'hub'
-    ) {
-
-      location =
-        'THE HUB';
-
-    }
-
-    else if (
-      G.scene === 'arena'
-    ) {
-
-      location =
-        'RIFT ARENA';
-
-    }
-
-    else if (
-      G.worldId &&
-      WORLDS[
+      worldId:
         G.worldId
-      ]
-    ) {
-
-      location =
-        WORLDS[
-          G.worldId
-        ].name;
-    }
+    },
 
 
-    $('locationText')
-      .textContent =
-      location.toUpperCase();
-  }
+    P:{
+      ...P,
+      anim:undefined
+    },
 
 
-  const cooldownFill =
-    $('cooldownFill');
+    pets:
+      PET_STATE,
 
 
-  const cooldownText =
-    $('cooldownText');
-
-
-  if (
-    cooldownFill
-  ) {
-
-    const max =
-      Math.max(
-        .01,
-        stats.cooldown
-      );
-
-
-    const ready =
-      clamp(
-        1 -
-        P.attackCooldown /
-        max,
-        0,
-        1
-      );
-
-
-    cooldownFill
-      .style
-      .width =
-      ready *
-      100 +
-      '%';
-  }
-
-
-  if (
-    cooldownText
-  ) {
-
-    cooldownText.textContent =
-      P.attackCooldown <= 0
-        ? 'READY'
-        : (
-            P.attackCooldown
-              .toFixed(2) +
-            's'
-          );
-  }
-}
-
-
-/* =========================================================
-   SAVE GAME
-========================================================= */
-
-const SAVE_KEY =
-  'multiverse_riftwalker_v4';
-
-
-function saveGame() {
-
-  try {
-
-    const data = {
-
-      version:
-        4,
-
-      player: {
-
-        x:
-          P.x,
-
-        y:
-          P.y,
-
-        level:
-          P.level,
-
-        xp:
-          P.xp,
-
-        hp:
-          P.hp,
-
-        weapon:
-          P.weapon,
-
-        weaponLevel:
-          P.weaponLevel,
-
-        armor:
-          P.armor,
-
-        credits:
-          P.credits,
-
-        materials:
-          P.materials
-      },
-
-
-      game: {
-
-        scene:
-          G.scene,
-
-        worldId:
-          G.worldId,
-
-        hubFound:
-          G.hubFound,
-
-        unlocked:
-          [
-            ...G.unlocked
-          ],
-
-        completed:
-          [
-            ...G.completed
-          ],
-
-        cores:
-          G.cores,
-
-        progress:
-          G.progress
-      },
-
-
-      pets: {
-
-        owned:
-          PET_STATE.owned,
-
-        active:
-          PET_STATE.active
-      },
-
-
-      armors:
-        Object.fromEntries(
-          Object.entries(
-            ARMORS
-          )
-          .map(
-            (
-              [
-                id,
-                armor
-              ]
-            ) => [
-
-              id,
-
-              !!armor.unlocked
-            ]
-          )
+    armors:
+      Object.fromEntries(
+        Object.entries(
+          ARMORS
+        ).map(
+          ([k,v])=>[
+            k,
+            !!v.owned
+          ]
         )
-    };
-
-
-    localStorage.setItem(
-      SAVE_KEY,
-      JSON.stringify(
-        data
       )
-    );
-
-
-    return true;
-
-  }
-
-  catch (
-    error
-  ) {
-
-    console.error(
-      'Save failed:',
-      error
-    );
-
-
-    toast(
-      'SAVE ERROR',
-      'The game could not be saved.'
-    );
-
-
-    return false;
-  }
-}
-
-
-/* =========================================================
-   LOAD GAME
-========================================================= */
-
-function loadGame() {
-
-  let data;
-
-
-  try {
-
-    const raw =
-      localStorage.getItem(
-        SAVE_KEY
-      );
-
-
-    if (!raw) {
-
-      toast(
-        'NO SAVE FOUND',
-        'Start a New Game first.'
-      );
-
-
-      return false;
-    }
-
-
-    data =
-      JSON.parse(
-        raw
-      );
-
-  }
-
-  catch (
-    error
-  ) {
-
-    console.error(
-      'Load failed:',
-      error
-    );
-
-
-    toast(
-      'LOAD ERROR',
-      'The save file could not be read.'
-    );
-
-
-    return false;
-  }
-
-
-  SFX.resume();
-
-  MUSIC.start();
-
-
-  const player =
-    data.player ||
-    {};
-
-
-  const game =
-    data.game ||
-    {};
-
-
-  const pets =
-    data.pets ||
-    {};
-
-
-  P.level =
-    player.level ??
-    1;
-
-
-  P.xp =
-    player.xp ??
-    0;
-
-
-  P.weapon =
-    player.weapon ??
-    null;
-
-
-  P.weaponLevel =
-    player.weaponLevel ??
-    1;
-
-
-  P.armor =
-    player.armor ??
-    'none';
-
-
-  /*
-     Save migration:
-     Older builds may have "coins".
-  */
-
-  P.credits =
-    player.credits ??
-    player.coins ??
-    250;
-
-
-  P.materials = {
-
-    ...Object.fromEntries(
-      MATERIALS.map(
-        material => [
-          material,
-          0
-        ]
-      )
-    ),
-
-    ...(
-      player.materials ||
-      {}
-    )
   };
 
 
-  G.hubFound =
-    game.hubFound ??
-    false;
+  localStorage.setItem(
+    'multiverse_riftwalker_v4',
+    JSON.stringify(data)
+  );
 
 
-  G.unlocked =
-    new Set(
-      game.unlocked ||
-      [
-        'earth'
-      ]
-    );
-
-
-  G.completed =
-    new Set(
-      game.completed ||
-      []
-    );
-
-
-  G.cores =
-    game.cores ??
-    0;
-
-
-  G.progress =
-    game.progress ||
-    {};
-
-
-  for (
-    const id of
-    WORLD_ORDER
-  ) {
-
-    G.progress[id] = {
-
-      fragments:
-        0,
-
-      bossDefeated:
-        false,
-
-      petFound:
-        [],
-
-      beacons:
-        0,
-
-      storyStage:
-        0,
-
-      shipParts:
-        0,
-
-      ...(
-        G.progress[id] ||
-        {}
-      )
-    };
-  }
-
-
-  PET_STATE.owned =
-    pets.owned ||
-    {};
-
-
-  PET_STATE.active =
-    pets.active ||
-    null;
-
-
-  if (
-    data.armors
-  ) {
-
-    for (
-      const [
-        id,
-        unlocked
-      ]
-      of
-      Object.entries(
-        data.armors
-      )
-    ) {
-
-      if (
-        ARMORS[id]
-      ) {
-
-        ARMORS[id]
-          .unlocked =
-          !!unlocked;
-      }
-    }
-  }
-
-
-  ARMORS.none.unlocked =
-    true;
-
-
-  const savedScene =
-    game.scene;
-
-
-  const savedWorld =
-    game.worldId;
-
-
-  if (
-    savedScene === 'hub' ||
-    (
-      !savedWorld &&
-      G.hubFound
-    )
-  ) {
-
-    beginHub();
-
-  }
-
-  else if (
-    savedWorld &&
-    WORLDS[
-      savedWorld
-    ]
-  ) {
-
-    beginWorld(
-      savedWorld
-    );
-
-  }
-
-  else {
-
-    beginWorld(
-      'earth'
-    );
-  }
-
-
-  P.x =
-    player.x ??
-    P.x;
-
-
-  P.y =
-    player.y ??
-    P.y;
-
-
-  const stats =
-    getStats();
-
-
-  P.hp =
-    clamp(
-      player.hp ??
-      stats.maxHP,
-
-      1,
-
-      stats.maxHP
-    );
-
-
-  $('startScreen')
-    .classList
-    .add(
-      'hidden'
-    );
-
-
-  $('hud')
-    .classList
-    .remove(
-      'hidden'
-    );
-
-
-  closeAllOverlays();
-
-
-  checkMatrixUnlock();
-
-  syncHUD();
+  $('saveStatus').textContent=
+    'Game saved.';
 
 
   toast(
-    'SAVE LOADED',
-    'Welcome back, Riftwalker.'
+    'SYSTEM',
+    'Game saved.'
   );
-
-
-  return true;
 }
 
 
-/* =========================================================
-   AUTOSAVE
-========================================================= */
+function loadGame(){
 
-let autosaveTimer =
-  0;
-
-
-function updateAutosave(
-  dt
-) {
-
-  if (
-    G.scene === 'menu' ||
-    G.scene === 'flight' ||
-    G.scene === 'hubFlight' ||
-    G.scene === 'arena'
-  ) {
-
-    return;
-  }
-
-
-  autosaveTimer +=
-    dt;
-
-
-  if (
-    autosaveTimer >=
-    30
-  ) {
-
-    autosaveTimer =
-      0;
-
-
-    saveGame();
-  }
-}
-
-
-/* =========================================================
-   LEVEL / XP
-========================================================= */
-
-function addXP(
-  amount
-) {
-
-  P.xp +=
-    amount;
-
-
-  let required =
-    xpRequired(
-      P.level
+  const raw=
+    localStorage.getItem(
+      'multiverse_riftwalker_v4'
     );
 
 
-  while (
-    P.xp >=
-    required
-  ) {
+  if(!raw){
 
-    P.xp -=
-      required;
+    $('saveStatus').textContent=
+      'No save found.';
 
-
-    const oldStats =
-      getStats();
+    return false;
+  }
 
 
-    P.level++;
+  try{
+
+    const d=
+      JSON.parse(raw);
 
 
-    const newStats =
-      getStats();
+    G.hubFound=
+      d.G.hubFound;
 
 
-    P.hp +=
-      newStats.maxHP -
-      oldStats.maxHP;
+    G.unlocked=
+      new Set(
+        d.G.unlocked
+      );
 
 
-    P.hp =
+    G.completed=
+      new Set(
+        d.G.completed
+      );
+
+
+    G.cores=
+      d.G.cores;
+
+
+    G.easterEggs=
+      new Set(
+        d.G.easterEggs||[]
+      );
+
+
+    G.tutorialDone=
+      !!d.G.tutorialDone;
+
+
+    G.tutorialActive=false;
+
+    G.tutorialStep=0;
+
+
+    G.progress=
+      d.G.progress;
+
+
+    Object.assign(
+      P,
+      d.P
+    );
+
+
+    P.baseMaxHP=1000;
+
+    P.baseCritChance=
+      P.baseCritChance??.10;
+
+    P.baseCritDamage=
+      P.baseCritDamage??2;
+
+
+    P.anim={
+      state:'idle',
+      time:0
+    };
+
+
+    Object.assign(
+      PET_STATE,
+      d.pets
+    );
+
+
+    for(
+      const [k,v]
+      of Object.entries(
+        d.armors||{}
+      )
+    ){
+
+      if(ARMORS[k]){
+        ARMORS[k].owned=v;
+      }
+    }
+
+
+    $('startScreen')
+      .classList
+      .add('hidden');
+
+
+    $('hud')
+      .classList
+      .remove('hidden');
+
+
+    closeAllOverlays();
+
+    MUSIC.start();
+
+
+    if(d.G.scene==='hub'){
+
+      beginHub();
+    }
+
+    else{
+
+      beginWorld(
+        d.G.worldId||
+        'earth'
+      );
+    }
+
+
+    P.hp=
       clamp(
         P.hp,
         1,
-        newStats.maxHP
+        getStats().maxHP
       );
 
 
-    toast(
-      'LEVEL UP',
-      'Riftwalker reached Level ' +
-      P.level +
-      '.'
-    );
+    syncHUD();
 
-
-    riftBurst(
-      P.x,
-      P.y - 55,
-      30
-    );
-
-
-    SFX.tone(
-      330,
-      .3,
-      'triangle',
-      .06,
-      2
-    );
-
-
-    required =
-      xpRequired(
-        P.level
-      );
+    return true;
   }
 
+  catch(err){
 
-  syncHUD();
-}
-
-
-function xpRequired(
-  level
-) {
-
-  return (
-    100 +
-    (
-      level - 1
-    ) *
-    65
-  );
-}
+    console.error(err);
 
 
-/* =========================================================
-   HEALTH REGEN FROM CRYSTAL FAWN
-========================================================= */
-
-function updatePetPassive(
-  dt
-) {
-
-  const pet =
-    activePet();
+    $('saveStatus').textContent=
+      'Save could not be loaded.';
 
 
-  if (!pet) return;
-
-
-  const stats =
-    getStats();
-
-
-  if (
-    pet.name ===
-    'Crystal Fawn'
-  ) {
-
-    const danger =
-      G.enemies.some(
-        enemy =>
-          enemy.alive &&
-          enemy.world ===
-          G.worldId &&
-          Math.abs(
-            enemy.x -
-            P.x
-          )
-          <
-          450
-      );
-
-
-    if (
-      !danger &&
-      P.hp <
-      stats.maxHP
-    ) {
-
-      P.hp =
-        Math.min(
-          stats.maxHP,
-          P.hp +
-          5 *
-          dt
-        );
-    }
-  }
-
-
-  if (
-    pet.name ===
-    'Medic Bot'
-  ) {
-
-    pet.healTimer =
-      (
-        pet.healTimer ||
-        0
-      )
-      -
-      dt;
-
-
-    if (
-      pet.healTimer <= 0 &&
-      P.hp <
-      stats.maxHP *
-      .55
-    ) {
-
-      P.hp =
-        Math.min(
-          stats.maxHP,
-          P.hp + 45
-        );
-
-
-      pet.healTimer =
-        14;
-
-
-      floatingText(
-        '+45 HP',
-        P.x,
-        P.y - 100,
-        '#78f1b0'
-      );
-
-
-      burst(
-        P.x,
-        P.y - 50,
-        '#78f1b0',
-        8
-      );
-    }
+    return false;
   }
 }
 
 
 /* =========================================================
-   SCREEN EFFECT UPDATE
-========================================================= */
-
-function updateScreenEffects(
-  dt
-) {
-
-  G.screenShake =
-    Math.max(
-      0,
-      G.screenShake -
-      dt *
-      35
-    );
-
-
-  G.flash =
-    Math.max(
-      0,
-      G.flash -
-      dt
-    );
-}
-
-
-/* =========================================================
-   CAMERA
-========================================================= */
-
-function updateCamera(
-  dt
-) {
-
-  let worldWidth =
-    1280;
-
-
-  if (
-    G.scene === 'world' &&
-    G.worldId
-  ) {
-
-    worldWidth =
-      WORLDS[
-        G.worldId
-      ].width;
-
-  }
-
-  else if (
-    G.scene === 'hub'
-  ) {
-
-    worldWidth =
-      1500;
-  }
-
-
-  const target =
-    clamp(
-      P.x -
-      W *
-      .5,
-
-      0,
-
-      Math.max(
-        0,
-        worldWidth -
-        W
-      )
-    );
-
-
-  G.camera =
-    lerp(
-      G.camera,
-      target,
-      Math.min(
-        1,
-        dt * 5
-      )
-    );
-}
-
-
-/* =========================================================
-   MAIN WORLD UPDATE
-   Drawing is in Part 3.
-========================================================= */
-
-function updateWorld(
-  dt
-) {
-
-  const world =
-    WORLDS[
-      G.worldId
-    ];
-
-
-  if (!world) return;
-
-
-  updatePlayer(
-    dt,
-    world.width
-  );
-
-
-  updateEnemies(
-    dt
-  );
-
-
-  updatePickups(
-    dt
-  );
-
-
-  updatePetPassive(
-    dt
-  );
-
-
-  updateInteractions();
-
-
-  updateCamera(
-    dt
-  );
-
-
-  updateParticles(
-    dt
-  );
-
-
-  updateScreenEffects(
-    dt
-  );
-
-
-  updateAutosave(
-    dt
-  );
-
-
-  checkMatrixUnlock();
-
-
-  syncHUD();
-}
-
-
-/* =========================================================
-   HUB UPDATE
-========================================================= */
-
-function updateHub(
-  dt
-) {
-
-  updatePlayer(
-    dt,
-    1500
-  );
-
-
-  updatePetPassive(
-    dt
-  );
-
-
-  updateInteractions();
-
-
-  updateCamera(
-    dt
-  );
-
-
-  updateParticles(
-    dt
-  );
-
-
-  updateScreenEffects(
-    dt
-  );
-
-
-  updateAutosave(
-    dt
-  );
-
-
-  checkMatrixUnlock();
-
-
-  syncHUD();
-}
-
-
-/* =========================================================
-   TRAVEL UPDATE
-========================================================= */
-
-function updateTravel(
-  dt
-) {
-
-  G.sceneTime +=
-    dt;
-
-
-  updateParticles(
-    dt
-  );
-
-
-  if (
-    G.sceneTime >
-    .35 &&
-    Math.random() <
-    .25
-  ) {
+   PARTICLES / TEXT
+   ========================================================= */
+
+function burst(
+  x,
+  y,
+  color,
+  n=8
+){
+
+  for(
+    let i=0;
+    i<n;
+    i++
+  ){
 
     G.particles.push({
 
-      type:
-        'rift',
+      kind:'particle',
 
-      x:
-        rand(
-          0,
-          W
-        ),
-
-      y:
-        rand(
-          0,
-          H
-        ),
+      x,
+      y,
 
       vx:
         rand(
-          -40,
-          40
+          -120,
+          120
         ),
 
       vy:
         rand(
-          150,
-          420
+          -180,
+          20
         ),
 
       life:
         rand(
-          .4,
-          .9
+          .25,
+          .7
         ),
 
-      maxLife:
-        .9,
+      max:.7,
+
+      color,
 
       size:
         rand(
           2,
-          7
-        ),
-
-      color:
-        Math.random() >
-        .5
-          ? '#72e6ff'
-          : '#9b72ff'
+          6
+        )
     });
   }
-
-
-  if (
-    G.sceneTime >
-    1.65
-  ) {
-
-    beginWorld(
-      G.travelTarget
-    );
-  }
 }
 
 
-/* =========================================================
-   OPENING FLIGHT UPDATE
-========================================================= */
+function floatingText(
+  text,
+  x,
+  y,
+  color='#fff'
+){
 
-function updateOpeningFlight(
-  dt
-) {
+  G.particles.push({
 
-  G.sceneTime +=
-    dt;
+    kind:'text',
 
+    text,
 
-  if (
-    Math.random() <
-    .25
-  ) {
+    x,
+    y,
 
-    G.particles.push({
+    vx:0,
 
-      type:
-        'star',
+    vy:-42,
 
-      x:
-        W +
-        20,
+    life:.9,
 
-      y:
-        rand(
-          20,
-          H - 20
-        ),
+    max:.9,
 
-      vx:
-        rand(
-          -700,
-          -280
-        ),
+    color,
 
-      vy:
-        0,
-
-      life:
-        2.5,
-
-      maxLife:
-        2.5,
-
-      size:
-        rand(
-          1,
-          4
-        ),
-
-      color:
-        '#ffffff'
-    });
-  }
-
-
-  updateParticles(
-    dt
-  );
-
-
-  if (
-    G.sceneTime >
-    2.2 &&
-    G.sceneTime <
-    2.3
-  ) {
-
-    SFX.tone(
-      180,
-      .3,
-      'square',
-      .05,
-      .6
-    );
-  }
-
-
-  if (
-    G.sceneTime >
-    4.8
-  ) {
-
-    G.scene =
-      'crash';
-
-
-    G.sceneTime =
-      0;
-
-
-    G.screenShake =
-      18;
-
-
-    SFX.noise(
-      .45,
-      .14,
-      650
-    );
-  }
+    size:12
+  });
 }
 
 
-/* =========================================================
-   CRASH UPDATE
-========================================================= */
+function updateParticles(dt){
 
-function updateCrash(
-  dt
-) {
+  for(
+    const p
+    of G.particles
+  ){
 
-  G.sceneTime +=
-    dt;
+    p.life-=dt;
 
+    p.x+=
+      p.vx*dt;
 
-  updateParticles(
-    dt
-  );
-
-
-  G.screenShake =
-    Math.max(
-      0,
-      G.screenShake -
-      dt *
-      20
-    );
+    p.y+=
+      p.vy*dt;
 
 
-  if (
-    G.sceneTime >
-    1.6
-  ) {
+    if(
+      p.kind==='particle'
+    ){
 
-    beginWorld(
-      'earth'
-    );
-
-
-    G.progress.earth
-      .storyStage =
-      0;
-
-
-    updateEarthQuest();
-
-
-    toast(
-      'EARTH 2.0',
-      'Ship systems offline. Find a way to survive.'
-    );
-  }
-}
-
-
-/* =========================================================
-   HUB DISCOVERY FLIGHT
-========================================================= */
-
-function updateHubFlight(
-  dt
-) {
-
-  G.sceneTime +=
-    dt;
-
-
-  if (
-    Math.random() <
-    .22
-  ) {
-
-    G.particles.push({
-
-      type:
-        'rift',
-
-      x:
-        rand(
-          0,
-          W
-        ),
-
-      y:
-        rand(
-          0,
-          H
-        ),
-
-      vx:
-        rand(
-          -100,
-          100
-        ),
-
-      vy:
-        rand(
-          180,
-          420
-        ),
-
-      life:
-        .8,
-
-      maxLife:
-        .8,
-
-      size:
-        rand(
-          2,
-          8
-        ),
-
-      color:
-        Math.random() >
-        .5
-          ? '#7eeeff'
-          : '#b096ff'
-    });
+      p.vy+=
+        260*dt;
+    }
   }
 
 
-  updateParticles(
-    dt
-  );
-
-
-  if (
-    G.sceneTime >
-    2.8
-  ) {
-
-    beginHub();
-
-
-    toast(
-      'THE HUB DISCOVERED',
-      'A safe place between worlds.'
-    );
-
-
-    saveGame();
-  }
-}
-
-
-/* =========================================================
-   UPDATE ACTIVE PET FOLLOW POSITION
-========================================================= */
-
-function updatePetFollower(
-  dt
-) {
-
-  const pet =
-    activePet();
-
-
-  if (!pet) return;
-
-
-  if (
-    pet.fx === undefined
-  ) {
-
-    pet.fx =
-      P.x -
-      P.facing *
-      70;
-
-
-    pet.fy =
-      P.y -
-      25;
-  }
-
-
-  const targetX =
-    P.x -
-    P.facing *
-    72;
-
-
-  const targetY =
-    P.y -
-    26 +
-    Math.sin(
-      G.time *
-      4
-    ) *
-    4;
-
-
-  pet.fx =
-    lerp(
-      pet.fx,
-      targetX,
-      Math.min(
-        1,
-        dt * 5
-      )
-    );
-
-
-  pet.fy =
-    lerp(
-      pet.fy,
-      targetY,
-      Math.min(
-        1,
-        dt * 5
-      )
+  G.particles=
+    G.particles.filter(
+      p=>p.life>0
     );
 }
 
 
 /* =========================================================
-   PART 2 COMPLETE
-
-   PART 3 WILL CONTINUE DIRECTLY FROM HERE WITH:
-
-   - full 2.5D shading system
-   - animated Riftwalker renderer
-   - scarf animation
-   - armor visibly changing the player
-   - Nova Sword glow
-   - 3-hit sword animations
-   - custom pet drawings
-   - enemy drawings
-   - bosses
-   - Earth scenery
-   - Music Verse scenery
-   - Money Village scenery
-   - Cosmos scenery
-   - War Zone scenery
-   - Void scenery
-   - Perfect Matrix scenery
-   - foreground occlusion
-   - Hub rendering
-   - opening cinematic rendering
-   - Rift travel animation
-   - Bonus Mode
-   - Practice Bot
-   - private invite-link multiplayer
-   - arena animations
-   - main game loop
-========================================================= */
-/* =========================================================
-   PART 3 OF 3
-   Drawing, Bonus Mode and main loop
-========================================================= */
-
-
-/* =========================================================
-   DRAWING HELPERS
-========================================================= */
+   DRAWING HELPERS / SHADING
+   ========================================================= */
 
 function rr(
   c,
@@ -9439,8 +6821,8 @@ function rr(
   r,
   fill,
   stroke,
-  lw = 2
-) {
+  lw=2
+){
 
   c.beginPath();
 
@@ -9452,23 +6834,18 @@ function rr(
     r
   );
 
+  if(fill){
 
-  if (fill) {
-
-    c.fillStyle =
-      fill;
+    c.fillStyle=fill;
 
     c.fill();
   }
 
+  if(stroke){
 
-  if (stroke) {
+    c.strokeStyle=stroke;
 
-    c.strokeStyle =
-      stroke;
-
-    c.lineWidth =
-      lw;
+    c.lineWidth=lw;
 
     c.stroke();
   }
@@ -9483,8 +6860,8 @@ function ellipse(
   ry,
   fill,
   stroke,
-  lw = 2
-) {
+  lw=2
+){
 
   c.beginPath();
 
@@ -9495,72 +6872,52 @@ function ellipse(
     ry,
     0,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
+  if(fill){
 
-  if (fill) {
-
-    c.fillStyle =
-      fill;
+    c.fillStyle=fill;
 
     c.fill();
   }
 
+  if(stroke){
 
-  if (stroke) {
+    c.strokeStyle=stroke;
 
-    c.strokeStyle =
-      stroke;
-
-    c.lineWidth =
-      lw;
+    c.lineWidth=lw;
 
     c.stroke();
   }
 }
 
 
-/* =========================================================
-   CONTACT SHADOW
-========================================================= */
-
-function contactShadow(
+function shadow(
   x,
   y,
-  w = 60,
-  h = 15,
-  alpha = .3
-) {
+  w=52,
+  h=13,
+  a=.28
+){
 
   ctx.save();
 
-  ctx.translate(
-    x,
-    y
-  );
 
-
-  ctx.scale(
-    1,
-    h / w
-  );
-
-
-  const g =
+  const g=
     ctx.createRadialGradient(
-      0,
-      0,
-      1,
-      0,
-      0,
-      w / 2
+      x,
+      y,
+      2,
+      x,
+      y,
+      w/2
     );
 
 
   g.addColorStop(
     0,
-    `rgba(3,8,18,${alpha})`
+    `rgba(3,8,18,${a})`
   );
 
 
@@ -9570,19 +6927,32 @@ function contactShadow(
   );
 
 
-  ctx.fillStyle =
-    g;
+  ctx.translate(
+    x,
+    y
+  );
+
+
+  ctx.scale(
+    1,
+    h/w
+  );
+
+
+  ctx.fillStyle=g;
 
 
   ctx.beginPath();
 
+
   ctx.arc(
     0,
     0,
-    w / 2,
+    w/2,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
+
 
   ctx.fill();
 
@@ -9593,15 +6963,12 @@ function contactShadow(
 
 /* =========================================================
    SPACE BACKGROUND
-========================================================= */
+   ========================================================= */
 
-function drawSpace(
-  offset = 0
-) {
+function space(off=0){
 
-  ctx.fillStyle =
+  ctx.fillStyle=
     '#02050d';
-
 
   ctx.fillRect(
     0,
@@ -9611,106 +6978,75 @@ function drawSpace(
   );
 
 
-  for (
-    let i = 0;
-    i < 145;
+  for(
+    let i=0;
+    i<150;
     i++
-  ) {
+  ){
 
-    const depth =
-      .05 +
+    const x=
       (
-        i % 5
-      ) *
-      .025;
-
-
-    const x =
-      (
+        i*89.7+
+        off*
         (
-          i *
-          89.7
+          .08+
+          (i%4)*.03
         )
-        -
-        offset *
-        depth
-        +
-        W *
-        5
-      )
-      %
-      W;
+      )%W;
 
 
-    const y =
+    const y=
       (
-        i *
-        47.2
-      )
-      %
-      H;
+        i*47.2
+      )%H;
 
 
-    ctx.globalAlpha =
-      .3 +
-      (
-        i % 5
-      )
-      *
-      .12;
+    ctx.globalAlpha=
+      .35+
+      (i%5)*.1;
 
 
-    ctx.fillStyle =
-      i % 13 === 0
-        ? '#74e9ff'
-        : '#ffffff';
+    ctx.fillStyle=
+      i%13===0
+        ?'#7beaff'
+        :'#fff';
 
 
     ctx.beginPath();
 
+
     ctx.arc(
       x,
       y,
-      i % 17 === 0
-        ? 2
-        : 1,
+      i%17===0
+        ?2
+        :1,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
+
 
     ctx.fill();
   }
 
 
-  ctx.globalAlpha =
-    1;
+  ctx.globalAlpha=1;
 }
 
-
-/* =========================================================
-   PLANET
-========================================================= */
 
 function drawPlanet(
   x,
   y,
   r,
-  light,
-  mid
-) {
+  a,
+  b
+){
 
-  const g =
+  const g=
     ctx.createRadialGradient(
-      x -
-      r *
-      .35,
-
-      y -
-      r *
-      .38,
-
-      4,
-
+      x-r*.3,
+      y-r*.35,
+      5,
       x,
       y,
       r
@@ -9719,50 +7055,80 @@ function drawPlanet(
 
   g.addColorStop(
     0,
-    light
+    a
   );
 
 
   g.addColorStop(
-    .5,
-    mid
+    .45,
+    b
   );
 
 
   g.addColorStop(
     1,
-    '#071020'
+    '#0a1022'
   );
 
 
-  ctx.fillStyle =
-    g;
+  ctx.fillStyle=g;
 
 
   ctx.beginPath();
+
 
   ctx.arc(
     x,
     y,
     r,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
+
 
   ctx.fill();
 }
 
 
 /* =========================================================
-   SPACESHIP
-========================================================= */
+   UPGRADED SPACESHIP
+   ========================================================= */
 
 function drawShip(
   x,
   y,
-  scale = 1,
-  rotation = 0
-) {
+  s=1,
+  rot=0
+){
+
+  const t=
+    G.time||0;
+
+
+  const flying=
+    [
+      'flight',
+      'travel',
+      'crash'
+    ].includes(
+      G.scene
+    );
+
+
+  const wrecked=
+    G.scene==='world' &&
+    G.worldId==='earth' &&
+    s<1;
+
+
+  const engineOn=
+    flying &&
+    !wrecked &&
+    (
+      G.scene!=='crash' ||
+      Math.sin(t*19)>-.35
+    );
+
 
   ctx.save();
 
@@ -9773,91 +7139,341 @@ function drawShip(
   );
 
 
-  ctx.rotate(
-    rotation
-  );
+  ctx.rotate(rot);
 
 
   ctx.scale(
-    scale,
-    scale
+    s,
+    s
   );
 
 
-  ctx.shadowColor =
-    'rgba(94,229,255,.35)';
+  /* ENGINE GLOW */
+
+  if(engineOn){
+
+    const pulse=
+      .82+
+      Math.sin(t*18)*.12;
 
 
-  ctx.shadowBlur =
-    22;
+    ctx.save();
 
 
-  const body =
+    ctx.globalCompositeOperation=
+      'lighter';
+
+
+    for(
+      const ey
+      of [-22,22]
+    ){
+
+      const eg=
+        ctx.createRadialGradient(
+          -91,
+          ey,
+          2,
+          -91,
+          ey,
+          32
+        );
+
+
+      eg.addColorStop(
+        0,
+        'rgba(255,255,255,.95)'
+      );
+
+
+      eg.addColorStop(
+        .28,
+        'rgba(99,238,255,.9)'
+      );
+
+
+      eg.addColorStop(
+        1,
+        'rgba(82,91,255,0)'
+      );
+
+
+      ctx.fillStyle=eg;
+
+
+      ctx.beginPath();
+
+
+      ctx.ellipse(
+        -94,
+        ey,
+        38*pulse,
+        15*pulse,
+        0,
+        0,
+        Math.PI*2
+      );
+
+
+      ctx.fill();
+
+
+      const flame=
+        ctx.createLinearGradient(
+          -150,
+          ey,
+          -82,
+          ey
+        );
+
+
+      flame.addColorStop(
+        0,
+        'rgba(118,74,255,0)'
+      );
+
+
+      flame.addColorStop(
+        .45,
+        'rgba(103,126,255,.48)'
+      );
+
+
+      flame.addColorStop(
+        1,
+        'rgba(169,251,255,.95)'
+      );
+
+
+      ctx.fillStyle=flame;
+
+
+      ctx.beginPath();
+
+
+      ctx.moveTo(
+        -145-rand(0,10),
+        ey
+      );
+
+
+      ctx.quadraticCurveTo(
+        -112,
+        ey-10,
+        -78,
+        ey-7
+      );
+
+
+      ctx.lineTo(
+        -78,
+        ey+7
+      );
+
+
+      ctx.quadraticCurveTo(
+        -112,
+        ey+10,
+        -145-rand(0,10),
+        ey
+      );
+
+
+      ctx.fill();
+    }
+
+
+    ctx.restore();
+  }
+
+
+  /* SHIP GLOW */
+
+  ctx.shadowColor=
+    'rgba(76,220,255,.32)';
+
+  ctx.shadowBlur=22;
+
+
+  /* REAR WINGS */
+
+  const wing=
     ctx.createLinearGradient(
-      -95,
-      -40,
-      110,
-      42
+      -90,
+      -60,
+      35,
+      70
     );
 
 
-  body.addColorStop(
+  wing.addColorStop(
     0,
-    '#ffffff'
+    '#dce8f1'
   );
 
 
-  body.addColorStop(
-    .5,
-    '#aebbd0'
+  wing.addColorStop(
+    .55,
+    '#778aa0'
   );
 
 
-  body.addColorStop(
+  wing.addColorStop(
     1,
-    '#53667f'
+    '#314258'
   );
 
 
-  ctx.fillStyle =
-    body;
+  ctx.fillStyle=wing;
 
+  ctx.strokeStyle=
+    '#172438';
 
-  ctx.strokeStyle =
-    '#18263a';
+  ctx.lineWidth=5;
 
-
-  ctx.lineWidth =
-    5;
+  ctx.lineJoin=
+    'round';
 
 
   ctx.beginPath();
 
   ctx.moveTo(
-    -100,
-    0
+    -72,
+    -17
   );
 
+  ctx.lineTo(
+    -35,
+    -72
+  );
 
   ctx.lineTo(
-    18,
+    35,
     -43
   );
 
+  ctx.lineTo(
+    10,
+    -12
+  );
 
-  ctx.quadraticCurveTo(
-    92,
-    -30,
-    118,
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -72,
+    17
+  );
+
+  ctx.lineTo(
+    -35,
+    72
+  );
+
+  ctx.lineTo(
+    35,
+    43
+  );
+
+  ctx.lineTo(
+    10,
+    12
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  /* MAIN HULL */
+
+  const hull=
+    ctx.createLinearGradient(
+      -105,
+      -45,
+      115,
+      48
+    );
+
+
+  hull.addColorStop(
+    0,
+    '#f9fdff'
+  );
+
+
+  hull.addColorStop(
+    .22,
+    '#d8e4ec'
+  );
+
+
+  hull.addColorStop(
+    .58,
+    '#8da1b5'
+  );
+
+
+  hull.addColorStop(
+    1,
+    '#40556d'
+  );
+
+
+  ctx.fillStyle=hull;
+
+  ctx.strokeStyle=
+    '#172438';
+
+  ctx.lineWidth=6;
+
+
+  ctx.beginPath();
+
+
+  ctx.moveTo(
+    -105,
     0
   );
 
 
   ctx.quadraticCurveTo(
-    92,
-    30,
-    18,
-    43
+    -70,
+    -35,
+    -8,
+    -45
+  );
+
+
+  ctx.quadraticCurveTo(
+    70,
+    -40,
+    122,
+    0
+  );
+
+
+  ctx.quadraticCurveTo(
+    70,
+    40,
+    -8,
+    45
+  );
+
+
+  ctx.quadraticCurveTo(
+    -70,
+    35,
+    -105,
+    0
   );
 
 
@@ -9868,56 +7484,153 @@ function drawShip(
   ctx.stroke();
 
 
-  rr(
-    ctx,
-    -96,
-    -15,
-    60,
-    30,
-    8,
-    '#d94057',
-    '#18263a',
-    4
+  /* RED RIFTWALKER STRIPE */
+
+  const stripe=
+    ctx.createLinearGradient(
+      -88,
+      -18,
+      22,
+      20
+    );
+
+
+  stripe.addColorStop(
+    0,
+    '#9d2338'
   );
 
 
-  ellipse(
-    ctx,
-    31,
-    -5,
-    40,
-    25,
-    '#6de5ff',
-    '#18263a',
-    4
+  stripe.addColorStop(
+    .45,
+    '#e84a5d'
   );
 
 
-  ctx.shadowBlur =
-    0;
+  stripe.addColorStop(
+    1,
+    '#ff7b7b'
+  );
 
 
-  ctx.fillStyle =
-    '#77efff';
+  ctx.fillStyle=stripe;
+
+  ctx.strokeStyle=
+    '#7b2332';
+
+  ctx.lineWidth=3;
 
 
   ctx.beginPath();
 
   ctx.moveTo(
-    -99,
-    -12
+    -92,
+    -16
+  );
+
+  ctx.lineTo(
+    -25,
+    -25
+  );
+
+  ctx.lineTo(
+    18,
+    -17
+  );
+
+  ctx.lineTo(
+    -2,
+    -4
+  );
+
+  ctx.lineTo(
+    -90,
+    8
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  /* COCKPIT */
+
+  ctx.shadowBlur=0;
+
+
+  const canopy=
+    ctx.createLinearGradient(
+      20,
+      -34,
+      72,
+      26
+    );
+
+
+  canopy.addColorStop(
+    0,
+    '#d8ffff'
   );
 
 
-  ctx.lineTo(
-    -145,
+  canopy.addColorStop(
+    .25,
+    '#69eaff'
+  );
+
+
+  canopy.addColorStop(
+    .68,
+    '#267ba8'
+  );
+
+
+  canopy.addColorStop(
+    1,
+    '#102c4b'
+  );
+
+
+  ctx.fillStyle=canopy;
+
+  ctx.strokeStyle=
+    '#17304a';
+
+  ctx.lineWidth=5;
+
+
+  ctx.beginPath();
+
+
+  ctx.moveTo(
+    7,
+    -29
+  );
+
+
+  ctx.quadraticCurveTo(
+    44,
+    -45,
+    78,
+    -20
+  );
+
+
+  ctx.quadraticCurveTo(
+    93,
+    -8,
+    98,
     0
   );
 
 
-  ctx.lineTo(
-    -99,
-    12
+  ctx.quadraticCurveTo(
+    72,
+    8,
+    22,
+    9
   );
 
 
@@ -9925,171 +7638,384 @@ function drawShip(
 
   ctx.fill();
 
+  ctx.stroke();
+
+
+  ctx.save();
+
+  ctx.globalAlpha=.55;
+
+  ctx.strokeStyle=
+    '#e9ffff';
+
+  ctx.lineWidth=3;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    28,
+    -27
+  );
+
+  ctx.quadraticCurveTo(
+    50,
+    -35,
+    69,
+    -22
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+
+  /* NOSE ARMOR */
+
+  ctx.fillStyle=
+    '#25394f';
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    92,
+    -17
+  );
+
+  ctx.lineTo(
+    122,
+    0
+  );
+
+  ctx.lineTo(
+    92,
+    17
+  );
+
+  ctx.lineTo(
+    77,
+    7
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  /* SHIP RIFT CORE */
+
+  ctx.save();
+
+  ctx.translate(
+    -10,
+    5
+  );
+
+  ctx.rotate(
+    Math.PI/4
+  );
+
+  ctx.shadowColor=
+    '#64efff';
+
+  ctx.shadowBlur=18;
+
+  ctx.fillStyle=
+    '#dfffff';
+
+  ctx.strokeStyle=
+    '#4dcbe7';
+
+  ctx.lineWidth=3;
+
+  ctx.fillRect(
+    -9,
+    -9,
+    18,
+    18
+  );
+
+  ctx.strokeRect(
+    -9,
+    -9,
+    18,
+    18
+  );
+
+  ctx.restore();
+
+
+  /* TWIN ENGINES */
+
+  for(
+    const ey
+    of [-22,22]
+  ){
+
+    const eg=
+      ctx.createLinearGradient(
+        -102,
+        ey-12,
+        -65,
+        ey+12
+      );
+
+
+    eg.addColorStop(
+      0,
+      '#27374c'
+    );
+
+
+    eg.addColorStop(
+      1,
+      '#111c2c'
+    );
+
+
+    rr(
+      ctx,
+      -105,
+      ey-11,
+      42,
+      22,
+      8,
+      eg,
+      '#172438',
+      4
+    );
+
+
+    ellipse(
+      ctx,
+      -98,
+      ey,
+      8,
+      7,
+      engineOn
+        ?'#bffcff'
+        :'#40546a',
+      '#172438',
+      2
+    );
+  }
+
+
+  /* PANEL DETAILS */
+
+  ctx.strokeStyle=
+    'rgba(28,49,70,.65)';
+
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -46,
+    -32
+  );
+
+  ctx.lineTo(
+    -31,
+    30
+  );
+
+  ctx.moveTo(
+    2,
+    -39
+  );
+
+  ctx.lineTo(
+    13,
+    31
+  );
+
+  ctx.stroke();
+
+
+  for(
+    const [lx,ly,c]
+    of [
+      [-52,-31,'#6cecff'],
+      [-52,31,'#6cecff'],
+      [57,25,'#ff667d']
+    ]
+  ){
+
+    ctx.shadowColor=c;
+
+    ctx.shadowBlur=9;
+
+    ellipse(
+      ctx,
+      lx,
+      ly,
+      3,
+      3,
+      c
+    );
+  }
+
+
+  ctx.shadowBlur=0;
+
+
+  /* CRASHED SHIP DETAILS */
+
+  if(wrecked){
+
+    ctx.strokeStyle=
+      '#1a2636';
+
+    ctx.lineWidth=6;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      -38,
+      32
+    );
+
+    ctx.lineTo(
+      -48,
+      54
+    );
+
+    ctx.moveTo(
+      48,
+      29
+    );
+
+    ctx.lineTo(
+      58,
+      52
+    );
+
+    ctx.stroke();
+
+
+    ellipse(
+      ctx,
+      -49,
+      56,
+      14,
+      5,
+      '#17202d'
+    );
+
+
+    ellipse(
+      ctx,
+      59,
+      54,
+      14,
+      5,
+      '#17202d'
+    );
+
+
+    ctx.strokeStyle=
+      '#56353a';
+
+    ctx.lineWidth=4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      35,
+      -5
+    );
+
+    ctx.lineTo(
+      52,
+      10
+    );
+
+    ctx.lineTo(
+      39,
+      21
+    );
+
+    ctx.moveTo(
+      -18,
+      -35
+    );
+
+    ctx.lineTo(
+      -4,
+      -19
+    );
+
+    ctx.stroke();
+
+
+    ctx.save();
+
+    ctx.globalAlpha=
+      .28+
+      .12*
+      Math.sin(
+        t*2.4
+      );
+
+
+    for(
+      let i=0;
+      i<4;
+      i++
+    ){
+
+      const sx=
+        -74+i*9;
+
+
+      const sy=
+        -43-
+        i*13-
+        (
+          t*8%
+          (18+i*5)
+        );
+
+
+      ellipse(
+        ctx,
+        sx,
+        sy,
+        11+i*3,
+        8+i*2,
+        '#2d3440'
+      );
+    }
+
+
+    ctx.restore();
+  }
+
 
   ctx.restore();
 }
 
 
 /* =========================================================
-   HUD ART
-========================================================= */
-
-function drawHudIcons() {
-
-  const avatar =
-    $('hudAvatar');
-
-
-  if (avatar) {
-
-    const c =
-      avatar.getContext(
-        '2d'
-      );
-
-
-    c.clearRect(
-      0,
-      0,
-      avatar.width,
-      avatar.height
-    );
-
-
-    drawMiniRiftwalker(
-      c,
-      avatar.width / 2,
-      avatar.height - 2,
-      .3
-    );
-  }
-
-
-  const coin =
-    $('creditIcon');
-
-
-  if (coin) {
-
-    const c =
-      coin.getContext(
-        '2d'
-      );
-
-
-    c.clearRect(
-      0,
-      0,
-      coin.width,
-      coin.height
-    );
-
-
-    const g =
-      c.createRadialGradient(
-        11,
-        8,
-        2,
-        17,
-        17,
-        16
-      );
-
-
-    g.addColorStop(
-      0,
-      '#e8fdff'
-    );
-
-
-    g.addColorStop(
-      .45,
-      '#66e5ff'
-    );
-
-
-    g.addColorStop(
-      1,
-      '#5a43c8'
-    );
-
-
-    c.fillStyle =
-      g;
-
-
-    c.strokeStyle =
-      '#18233a';
-
-
-    c.lineWidth =
-      3;
-
-
-    c.beginPath();
-
-    c.arc(
-      17,
-      17,
-      14,
-      0,
-      Math.PI * 2
-    );
-
-    c.fill();
-
-    c.stroke();
-
-
-    c.save();
-
-    c.translate(
-      17,
-      17
-    );
-
-
-    c.rotate(
-      Math.PI / 4
-    );
-
-
-    c.fillStyle =
-      '#ffffff';
-
-
-    c.fillRect(
-      -5,
-      -5,
-      10,
-      10
-    );
-
-
-    c.restore();
-  }
-}
-
-
-/* =========================================================
-   SMALL RIFTWALKER
-========================================================= */
+   RIFTWALKER CHARACTER
+   ========================================================= */
 
 function drawMiniRiftwalker(
   c,
   x,
   y,
-  s = .5
-) {
+  s=.5
+){
 
   c.save();
-
 
   c.translate(
     x,
     y
   );
-
 
   c.scale(
     s,
@@ -10097,49 +8023,10 @@ function drawMiniRiftwalker(
   );
 
 
-  rr(
-    c,
-    -23,
-    -82,
-    46,
-    56,
-    18,
-    '#233957',
-    '#182333',
-    6
-  );
-
-
-  c.fillStyle =
-    '#e94759';
-
-
-  c.beginPath();
-
-  c.moveTo(
-    -17,
-    -79
-  );
-
-  c.lineTo(
-    -66,
-    -67
-  );
-
-  c.lineTo(
-    -27,
-    -48
-  );
-
-  c.closePath();
-
-  c.fill();
-
-
   ellipse(
     c,
     0,
-    -105,
+    -80,
     34,
     37,
     '#f7fbff',
@@ -10150,21 +8037,47 @@ function drawMiniRiftwalker(
 
   rr(
     c,
-    -24,
-    -115,
-    48,
-    21,
-    10,
-    '#111b2c',
+    -23,
+    -55,
+    46,
+    55,
+    18,
+    '#233957',
     '#182333',
-    4
+    6
   );
+
+
+  c.fillStyle=
+    '#e94759';
+
+
+  c.beginPath();
+
+  c.moveTo(
+    -18,
+    -55
+  );
+
+  c.lineTo(
+    -65,
+    -45
+  );
+
+  c.lineTo(
+    -25,
+    -30
+  );
+
+  c.closePath();
+
+  c.fill();
 
 
   ellipse(
     c,
-    -10,
-    -104,
+    -11,
+    -84,
     5,
     3,
     '#6ceaff'
@@ -10173,8 +8086,8 @@ function drawMiniRiftwalker(
 
   ellipse(
     c,
-    10,
-    -104,
+    11,
+    -84,
     5,
     3,
     '#6ceaff'
@@ -10185,78 +8098,37 @@ function drawMiniRiftwalker(
 }
 
 
-/* =========================================================
-   RIFTWALKER
-========================================================= */
-
 function drawRiftwalker(
   x,
   y,
-  scale = 1,
-  remote = false,
-  remoteData = null
-) {
+  scale=1,
+  remote=false
+){
 
-  const t =
+  const t=
     G.time;
 
 
-  const state =
-    remoteData?.state ||
-    P.anim.state;
+  const run=
+    P.anim.state==='run'
+      ?Math.sin(
+        P.anim.time*14
+      )
+      :0;
 
 
-  const animTime =
-    remoteData?.animTime ??
-    P.anim.time;
-
-
-  const facing =
-    remoteData?.facing ??
-    P.facing;
-
-
-  const attackTimer =
-    remoteData?.attack ??
-    P.attackTimer;
-
-
-  const attackIndex =
-    remoteData?.attackIndex ??
-    P.attackIndex;
-
-
-  const run =
-    state === 'run'
-      ? Math.sin(
-          animTime *
-          14
-        )
-      : 0;
-
-
-  const idle =
+  const idle=
     Math.sin(
-      t *
-      3
-    )
-    *
-    2;
+      t*3
+    )*2;
 
 
-  const attack =
-    attackTimer >
-    0;
+  const attack=
+    P.attackTimer>0;
 
 
-  const jumpLift =
-    state === 'jump'
-      ? 4
-      : (
-          state === 'fall'
-            ? -2
-            : 0
-        );
+  const ai=
+    P.attackIndex;
 
 
   ctx.save();
@@ -10269,55 +8141,43 @@ function drawRiftwalker(
 
 
   ctx.scale(
-    facing *
-    scale,
+    P.facing*scale,
     scale
   );
 
 
-  if (
+  if(
     !remote &&
-    P.hitFlash > 0
-  ) {
+    P.hitFlash>0
+  ){
 
-    ctx.globalAlpha =
-      .55 +
-      Math.sin(
-        t *
-        70
-      )
-      *
-      .35;
+    ctx.globalAlpha=
+      .55+
+      Math.sin(t*70)*.35;
   }
 
 
-  contactShadow(
+  shadow(
     0,
     8,
-    state === 'dash'
-      ? 78
-      : 62,
-    15,
+    60,
+    14,
     .34
   );
 
 
   /* LEGS */
 
-  const leg =
-    run *
-    11;
+  const leg=
+    run*10;
 
 
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     '#182333';
 
+  ctx.lineWidth=14;
 
-  ctx.lineWidth =
-    14;
-
-
-  ctx.lineCap =
+  ctx.lineCap=
     'round';
 
 
@@ -10326,28 +8186,22 @@ function drawRiftwalker(
 
   ctx.moveTo(
     -11,
-    -35 +
-    jumpLift
+    -35
   );
 
-
   ctx.lineTo(
-    -16 -
-    leg,
+    -16-leg,
     0
   );
 
 
   ctx.moveTo(
     11,
-    -35 +
-    jumpLift
+    -35
   );
 
-
   ctx.lineTo(
-    16 +
-    leg,
+    16+leg,
     0
   );
 
@@ -10357,8 +8211,7 @@ function drawRiftwalker(
 
   ellipse(
     ctx,
-    -19 -
-    leg,
+    -19-leg,
     4,
     22,
     10,
@@ -10370,8 +8223,7 @@ function drawRiftwalker(
 
   ellipse(
     ctx,
-    19 +
-    leg,
+    19+leg,
     4,
     22,
     10,
@@ -10383,10 +8235,10 @@ function drawRiftwalker(
 
   /* BODY */
 
-  const body =
+  const body=
     ctx.createLinearGradient(
       -30,
-      -100,
+      -95,
       30,
       -25
     );
@@ -10413,9 +8265,7 @@ function drawRiftwalker(
   rr(
     ctx,
     -29,
-    -96 +
-    idle +
-    jumpLift,
+    -96+idle,
     58,
     65,
     22,
@@ -10425,16 +8275,31 @@ function drawRiftwalker(
   );
 
 
-  drawEquippedArmor(
-    idle +
-    jumpLift,
+  /* SHOULDER ARMOR */
 
-    remote
-      ? (
-          remoteData?.armor ||
-          'none'
-        )
-      : P.armor
+  rr(
+    ctx,
+    -35,
+    -88+idle,
+    18,
+    25,
+    8,
+    '#334d70',
+    '#172131',
+    4
+  );
+
+
+  rr(
+    ctx,
+    17,
+    -88+idle,
+    18,
+    25,
+    8,
+    '#334d70',
+    '#172131',
+    4
   );
 
 
@@ -10442,31 +8307,22 @@ function drawRiftwalker(
 
   ctx.save();
 
-
   ctx.translate(
     0,
-    -64 +
-    idle +
-    jumpLift
+    -64+idle
   );
-
 
   ctx.rotate(
-    Math.PI / 4
+    Math.PI/4
   );
 
-
-  ctx.shadowColor =
+  ctx.shadowColor=
     '#65eaff';
 
+  ctx.shadowBlur=15;
 
-  ctx.shadowBlur =
-    16;
-
-
-  ctx.fillStyle =
+  ctx.fillStyle=
     '#dffcff';
-
 
   ctx.fillRect(
     -7,
@@ -10475,14 +8331,10 @@ function drawRiftwalker(
     14
   );
 
-
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     '#4bbbd8';
 
-
-  ctx.lineWidth =
-    2;
-
+  ctx.lineWidth=2;
 
   ctx.strokeRect(
     -7,
@@ -10491,37 +8343,18 @@ function drawRiftwalker(
     14
   );
 
-
   ctx.restore();
 
 
-  /* SCARF */
+  /* RED ENERGY SCARF */
 
-  const scarfWave =
-    Math.sin(
-      t *
-      5
-    )
-    *
-    10
-    +
-    Math.abs(
-      P.vx
-    )
-    *
-    .025;
-
-
-  ctx.fillStyle =
+  ctx.fillStyle=
     '#e94759';
 
-
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     '#7e2435';
 
-
-  ctx.lineWidth =
-    4;
+  ctx.lineWidth=4;
 
 
   ctx.beginPath();
@@ -10529,38 +8362,26 @@ function drawRiftwalker(
 
   ctx.moveTo(
     -18,
-    -108 +
-    idle
+    -108+idle
   );
 
 
   ctx.lineTo(
-    -76 -
-    scarfWave,
-    -102 +
-    idle +
-    Math.sin(
-      t *
-      7
-    )
-    *
-    5
+    -78-
+    Math.sin(t*5)*10,
+    -100+idle
   );
 
 
   ctx.lineTo(
-    -42 -
-    scarfWave *
-    .25,
-    -78 +
-    idle
+    -40,
+    -78+idle
   );
 
 
   ctx.lineTo(
     -12,
-    -88 +
-    idle
+    -88+idle
   );
 
 
@@ -10573,80 +8394,53 @@ function drawRiftwalker(
 
   /* ARMS */
 
-  let rightX =
-    42;
+  let rightX=42;
+
+  let rightY=-60;
+
+  let leftX=-42;
+
+  let leftY=-58;
 
 
-  let rightY =
-    -60;
+  if(attack){
+
+    const phase=
+      1-
+      P.attackTimer/.25;
 
 
-  let leftX =
-    -42;
+    if(ai===0){
 
+      rightX=55;
 
-  let leftY =
-    -58;
-
-
-  if (attack) {
-
-    const phase =
-      1 -
-      attackTimer /
-      .25;
-
-
-    if (
-      attackIndex ===
-      0
-    ) {
-
-      rightX =
-        55;
-
-
-      rightY =
-        -100 +
-        phase *
-        40;
+      rightY=
+        -100+
+        phase*40;
     }
 
+    else if(ai===1){
 
-    else if (
-      attackIndex ===
-      1
-    ) {
+      rightX=62;
 
-      rightX =
-        62;
-
-
-      rightY =
-        -48 -
-        phase *
-        45;
+      rightY=
+        -48-
+        phase*45;
     }
 
+    else{
 
-    else {
+      rightX=58;
 
-      rightX =
-        58;
-
-
-      rightY =
-        -85;
+      rightY=-85;
     }
   }
 
 
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     '#172131';
 
-
-  ctx.lineWidth =
-    13;
+  ctx.lineWidth=13;
 
 
   ctx.beginPath();
@@ -10654,31 +8448,25 @@ function drawRiftwalker(
 
   ctx.moveTo(
     -21,
-    -80 +
-    idle
+    -80+idle
   );
 
 
   ctx.lineTo(
     leftX,
-    leftY +
-    run *
-    6
+    leftY+run*6
   );
 
 
   ctx.moveTo(
     21,
-    -80 +
-    idle
+    -80+idle
   );
 
 
   ctx.lineTo(
     rightX,
-    rightY -
-    run *
-    6
+    rightY-run*6
   );
 
 
@@ -10688,9 +8476,7 @@ function drawRiftwalker(
   ellipse(
     ctx,
     leftX,
-    leftY +
-    run *
-    6,
+    leftY+run*6,
     9,
     9,
     '#dbe9f4',
@@ -10702,9 +8488,7 @@ function drawRiftwalker(
   ellipse(
     ctx,
     rightX,
-    rightY -
-    run *
-    6,
+    rightY-run*6,
     9,
     9,
     '#dbe9f4',
@@ -10715,7 +8499,7 @@ function drawRiftwalker(
 
   /* HEAD */
 
-  const head =
+  const head=
     ctx.createRadialGradient(
       -12,
       -138,
@@ -10728,7 +8512,7 @@ function drawRiftwalker(
 
   head.addColorStop(
     0,
-    '#ffffff'
+    '#fff'
   );
 
 
@@ -10747,8 +8531,7 @@ function drawRiftwalker(
   ellipse(
     ctx,
     0,
-    -129 +
-    idle,
+    -129+idle,
     42,
     43,
     head,
@@ -10762,8 +8545,7 @@ function drawRiftwalker(
   rr(
     ctx,
     -28,
-    -142 +
-    idle,
+    -142+idle,
     56,
     25,
     12,
@@ -10773,19 +8555,16 @@ function drawRiftwalker(
   );
 
 
-  ctx.shadowColor =
+  ctx.shadowColor=
     '#62eaff';
 
-
-  ctx.shadowBlur =
-    12;
+  ctx.shadowBlur=12;
 
 
   ellipse(
     ctx,
     -12,
-    -130 +
-    idle,
+    -130+idle,
     6,
     3,
     '#7af1ff'
@@ -10795,113 +8574,83 @@ function drawRiftwalker(
   ellipse(
     ctx,
     12,
-    -130 +
-    idle,
+    -130+idle,
     6,
     3,
     '#7af1ff'
   );
 
 
-  ctx.shadowBlur =
-    0;
+  ctx.shadowBlur=0;
 
 
   /* NOVA SWORD */
 
-  if (
+  if(
     P.weapon ||
     remote
-  ) {
+  ){
 
     ctx.save();
 
 
     ctx.translate(
       rightX,
-      rightY -
-      run *
-      6
+      rightY-run*6
     );
 
 
-    let angle =
-      -.35;
+    let ang=-.35;
 
 
-    if (attack) {
+    if(attack){
 
-      const ph =
-        1 -
-        attackTimer /
-        .25;
-
-
-      if (
-        attackIndex ===
-        0
-      ) {
-
-        angle =
-          -1.5 +
-          ph *
-          1.8;
-      }
+      const ph=
+        1-
+        P.attackTimer/.25;
 
 
-      else if (
-        attackIndex ===
-        1
-      ) {
+      ang=
+        ai===0
+          ?-1.5+
+            ph*1.8
 
-        angle =
-          .5 -
-          ph *
-          2;
-      }
+          :ai===1
+            ?.5-
+              ph*2
 
-
-      else {
-
-        angle =
-          -1.7 +
-          ph *
-          3.4;
-      }
+            :-1.7+
+              ph*3.4;
     }
 
 
-    ctx.rotate(
-      angle
-    );
+    ctx.rotate(ang);
 
 
-    ctx.shadowColor =
+    ctx.shadowColor=
       '#9d68ff';
 
-
-    ctx.shadowBlur =
-      24;
+    ctx.shadowBlur=22;
 
 
-    const sg =
+    const sg=
       ctx.createLinearGradient(
         0,
-        -82,
+        -72,
         0,
-        8
+        5
       );
 
 
     sg.addColorStop(
       0,
-      '#ffffff'
+      '#fff'
     );
 
 
     sg.addColorStop(
-      .3,
-      '#eee8ff'
+      .35,
+      '#e7ddff'
     );
 
 
@@ -10919,54 +8668,54 @@ function drawRiftwalker(
 
     ctx.beginPath();
 
+
     ctx.moveTo(
       -7,
       -68
     );
 
+
     ctx.lineTo(
       0,
-      -84
+      -82
     );
+
 
     ctx.lineTo(
       7,
       -68
     );
 
+
     ctx.lineTo(
       6,
       8
     );
+
 
     ctx.lineTo(
       -6,
       8
     );
 
+
     ctx.closePath();
 
 
-    ctx.fillStyle =
-      sg;
-
+    ctx.fillStyle=sg;
 
     ctx.fill();
 
 
-    ctx.strokeStyle =
+    ctx.strokeStyle=
       '#5a45b7';
 
-
-    ctx.lineWidth =
-      3;
-
+    ctx.lineWidth=3;
 
     ctx.stroke();
 
 
-    ctx.shadowBlur =
-      0;
+    ctx.shadowBlur=0;
 
 
     rr(
@@ -10999,35 +8748,32 @@ function drawRiftwalker(
   }
 
 
-  /* SLASH EFFECT */
+  /* ATTACK SLASH */
 
-  if (attack) {
+  if(attack){
 
     ctx.save();
 
 
-    ctx.globalAlpha =
-      .65;
+    ctx.globalAlpha=.65;
 
 
-    ctx.strokeStyle =
-      attackIndex === 2
-        ? '#eee4ff'
-        : '#9d7aff';
+    ctx.strokeStyle=
+      ai===2
+        ?'#e6d9ff'
+        :'#9d7aff';
 
 
-    ctx.lineWidth =
-      attackIndex === 2
-        ? 12
-        : 7;
+    ctx.lineWidth=
+      ai===2
+        ?12
+        :7;
 
 
-    ctx.shadowColor =
+    ctx.shadowColor=
       '#9c6fff';
 
-
-    ctx.shadowBlur =
-      18;
+    ctx.shadowBlur=18;
 
 
     ctx.beginPath();
@@ -11036,9 +8782,9 @@ function drawRiftwalker(
     ctx.arc(
       20,
       -70,
-      attackIndex === 2
-        ? 94
-        : 70,
+      ai===2
+        ?92
+        :70,
       -1.9,
       .7
     );
@@ -11051,469 +8797,75 @@ function drawRiftwalker(
   }
 
 
-  /* DASH TRAIL */
-
-  if (
-    state === 'dash'
-  ) {
-
-    ctx.save();
-
-
-    ctx.globalAlpha =
-      .18;
-
-
-    for (
-      let i = 1;
-      i <= 3;
-      i++
-    ) {
-
-      ellipse(
-        ctx,
-        -i *
-        34,
-        -65,
-        28,
-        52,
-        '#6cecff'
-      );
-    }
-
-
-    ctx.restore();
-  }
-
-
   ctx.restore();
 }
 
 
 /* =========================================================
-   VISIBLE ARMOR
-========================================================= */
+   PET DRAWING
+   ========================================================= */
 
-function drawEquippedArmor(
-  offset = 0,
-  armorId = P.armor
-) {
+function hashColor(name){
 
-  if (
-    armorId ===
-    'none'
-  ) {
+  let h=0;
 
-    return;
-  }
 
+  for(
+    const ch
+    of name
+  ){
 
-  if (
-    armorId ===
-    'scout'
-  ) {
-
-    rr(
-      ctx,
-      -38,
-      -91 +
-      offset,
-      18,
-      27,
-      7,
-      '#6987a9',
-      '#172131',
-      4
-    );
-
-
-    rr(
-      ctx,
-      20,
-      -91 +
-      offset,
-      18,
-      27,
-      7,
-      '#6987a9',
-      '#172131',
-      4
-    );
-  }
-
-
-  else if (
-    armorId ===
-    'rift'
-  ) {
-
-    rr(
-      ctx,
-      -23,
-      -89 +
-      offset,
-      46,
-      34,
-      11,
-      '#344f79',
-      '#172131',
-      4
-    );
-
-
-    ctx.strokeStyle =
-      '#62eaff';
-
-
-    ctx.lineWidth =
-      3;
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      -15,
-      -72 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      0,
-      -84 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      15,
-      -72 +
-      offset
-    );
-
-
-    ctx.stroke();
-  }
-
-
-  else if (
-    armorId ===
-    'titan'
-  ) {
-
-    rr(
-      ctx,
-      -39,
-      -94 +
-      offset,
-      24,
-      33,
-      8,
-      '#5f6d7b',
-      '#172131',
-      5
-    );
-
-
-    rr(
-      ctx,
-      15,
-      -94 +
-      offset,
-      24,
-      33,
-      8,
-      '#5f6d7b',
-      '#172131',
-      5
-    );
-
-
-    rr(
-      ctx,
-      -27,
-      -88 +
-      offset,
-      54,
-      43,
-      12,
-      '#465666',
-      '#172131',
-      5
-    );
-  }
-
-
-  else if (
-    armorId ===
-    'void'
-  ) {
-
-    ctx.strokeStyle =
-      '#b073ff';
-
-
-    ctx.lineWidth =
-      4;
-
-
-    ctx.shadowColor =
-      '#8b56ff';
-
-
-    ctx.shadowBlur =
-      10;
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-      -20,
-      -87 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      -5,
-      -72 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      -18,
-      -55 +
-      offset
-    );
-
-
-    ctx.moveTo(
-      20,
-      -87 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      5,
-      -72 +
-      offset
-    );
-
-
-    ctx.lineTo(
-      18,
-      -55 +
-      offset
-    );
-
-
-    ctx.stroke();
-
-
-    ctx.shadowBlur =
-      0;
-  }
-
-
-  else if (
-    armorId ===
-    'matrix'
-  ) {
-
-    ctx.fillStyle =
-      '#7ff7f2';
-
-
-    ctx.strokeStyle =
-      '#172131';
-
-
-    ctx.lineWidth =
-      3;
-
-
-    const pieces = [
-
-      [
-        -36,
-        -87,
-        11
-      ],
-
-      [
-        36,
-        -80,
-        9
-      ],
-
-      [
-        -30,
-        -48,
-        8
-      ],
-
-      [
-        30,
-        -50,
-        10
-      ]
-    ];
-
-
-    for (
-      const [
-        x,
-        y,
-        s
-      ]
-      of
-      pieces
-    ) {
-
-      ctx.save();
-
-
-      ctx.translate(
-        x,
-        y +
-        offset
-      );
-
-
-      ctx.rotate(
-        G.time +
-        x
-      );
-
-
-      ctx.fillRect(
-        -s / 2,
-        -s / 2,
-        s,
-        s
-      );
-
-
-      ctx.strokeRect(
-        -s / 2,
-        -s / 2,
-        s,
-        s
-      );
-
-
-      ctx.restore();
-    }
-  }
-}
-
-
-/* =========================================================
-   PET COLOUR
-========================================================= */
-
-function hashColor(
-  name
-) {
-
-  let h =
-    0;
-
-
-  for (
-    const ch of
-    name
-  ) {
-
-    h =
+    h=
       (
-        h *
-        31 +
+        h*31+
         ch.charCodeAt(0)
-      )
-      >>>
-      0;
+      )>>>0;
   }
 
 
-  return (
-    `hsl(${h % 360} 62% 64%)`
+  return(
+    `hsl(${h%360} 62% 64%)`
   );
 }
 
-
-/* =========================================================
-   CUSTOM PET DRAWING
-========================================================= */
 
 function drawPetSprite(
   c,
   x,
   y,
   name,
-  scale = 1,
-  time = 0
-) {
+  scale=1,
+  time=0
+){
 
-  const color =
-    hashColor(
-      name
-    );
+  const color=
+    hashColor(name);
 
 
-  const type =
-    PET_TYPES[
-      name
-    ] ||
-    '';
+  const type=
+    PET_TYPES[name]||'';
 
 
-  const fly =
+  const fly=
     /Bird|Finch|Hawk|Eagle|Butterfly|Moth|Starling|Bee/
-      .test(
-        name
-      );
+      .test(name);
 
 
-  const bot =
+  const bot=
     /Bot/
-      .test(
-        name
-      );
+      .test(name);
 
 
-  const longBody =
+  const long=
     /Serpent|Squid|Spider/
-      .test(
-        name
-      );
+      .test(name);
 
 
-  const rabbit =
-    /Rabbit|Bunny|Hare/
-      .test(
-        name
-      );
-
-
-  const ears =
-    /Cat|Fox|Pup|Hound|Wolf|Lion|Fawn|Boar/
-      .test(
-        name
-      );
-
-
-  const bob =
+  const bob=
     Math.sin(
-      time *
-      4 +
-      name.length
-    )
-    *
-    3;
+      time*4+
+      (name.length%5)
+    )*3;
 
 
   c.save();
@@ -11521,11 +8873,11 @@ function drawPetSprite(
 
   c.translate(
     x,
-    y +
+    y+
     (
       fly
-        ? -12 + bob
-        : 0
+        ?-12+bob
+        :0
     )
   );
 
@@ -11538,47 +8890,38 @@ function drawPetSprite(
 
   /* SHADOW */
 
-  c.globalAlpha =
-    .18;
+  c.globalAlpha=.18;
 
-
-  c.fillStyle =
+  c.fillStyle=
     '#06101a';
-
 
   c.beginPath();
 
   c.ellipse(
     0,
     7,
-    27,
+    26,
     7,
     0,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
   c.fill();
 
-
-  c.globalAlpha =
-    1;
+  c.globalAlpha=1;
 
 
   /* WINGS */
 
-  if (fly) {
+  if(fly){
 
-    c.fillStyle =
-      color;
+    c.fillStyle=color;
 
-
-    c.strokeStyle =
+    c.strokeStyle=
       '#192438';
 
-
-    c.lineWidth =
-      4;
+    c.lineWidth=4;
 
 
     c.beginPath();
@@ -11589,15 +8932,9 @@ function drawPetSprite(
       -18,
       18,
       10,
-      -.5 +
-      Math.sin(
-        time *
-        8
-      )
-      *
-      .12,
+      -.5,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
 
@@ -11606,15 +8943,9 @@ function drawPetSprite(
       -18,
       18,
       10,
-      .5 -
-      Math.sin(
-        time *
-        8
-      )
-      *
-      .12,
+      .5,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
 
@@ -11624,33 +8955,32 @@ function drawPetSprite(
   }
 
 
-  if (longBody) {
+  /* LONG PET BODY */
 
-    c.strokeStyle =
-      color;
+  if(long){
 
+    c.strokeStyle=color;
 
-    c.lineWidth =
-      17;
+    c.lineWidth=17;
 
-
-    c.lineCap =
+    c.lineCap=
       'round';
 
 
     c.beginPath();
 
+
     c.moveTo(
-      -25,
-      -4
+      -24,
+      -5
     );
 
 
     c.quadraticCurveTo(
       0,
-      15,
-      26,
-      -8
+      14,
+      24,
+      -7
     );
 
 
@@ -11658,45 +8988,44 @@ function drawPetSprite(
   }
 
 
-  /* BODY */
+  /* MAIN BODY */
 
-  const body =
+  const bodyGrad=
     c.createLinearGradient(
       -20,
-      -38,
-      23,
-      7
+      -35,
+      22,
+      5
     );
 
 
-  body.addColorStop(
+  bodyGrad.addColorStop(
     0,
-    '#fbfdff'
+    '#f8fbff'
   );
 
 
-  body.addColorStop(
-    .2,
+  bodyGrad.addColorStop(
+    .18,
     color
   );
 
 
-  body.addColorStop(
+  bodyGrad.addColorStop(
     1,
     '#40506b'
   );
 
 
-  c.fillStyle =
-    body;
+  c.fillStyle=
+    bodyGrad;
 
 
-  c.strokeStyle =
+  c.strokeStyle=
     '#182333';
 
 
-  c.lineWidth =
-    4;
+  c.lineWidth=4;
 
 
   c.beginPath();
@@ -11706,14 +9035,14 @@ function drawPetSprite(
     0,
     -14,
     bot
-      ? 24
-      : 25,
+      ?24
+      :25,
     bot
-      ? 22
-      : 24,
+      ?22
+      :24,
     0,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
 
@@ -11724,14 +9053,17 @@ function drawPetSprite(
 
   /* RABBIT EARS */
 
-  if (rabbit) {
+  if(
+    /Rabbit|Bunny|Hare/
+      .test(name)
+  ){
 
     rr(
       c,
       -18,
-      -49,
+      -48,
       10,
-      29,
+      28,
       7,
       color,
       '#182333',
@@ -11742,9 +9074,9 @@ function drawPetSprite(
     rr(
       c,
       8,
-      -49,
+      -48,
       10,
-      29,
+      28,
       7,
       color,
       '#182333',
@@ -11753,20 +9085,17 @@ function drawPetSprite(
   }
 
 
-  /* POINTED EARS */
+  /* ANIMAL EARS */
 
-  if (ears) {
+  if(
+    /Cat|Fox|Pup|Hound|Wolf|Lion|Fawn|Boar/
+      .test(name)
+  ){
 
-    c.fillStyle =
-      color;
+    c.fillStyle=color;
 
-
-    c.strokeStyle =
+    c.strokeStyle=
       '#182333';
-
-
-    c.lineWidth =
-      3;
 
 
     c.beginPath();
@@ -11816,7 +9145,7 @@ function drawPetSprite(
 
   /* FACE */
 
-  if (bot) {
+  if(bot){
 
     rr(
       c,
@@ -11831,7 +9160,7 @@ function drawPetSprite(
     );
 
 
-    c.fillStyle =
+    c.fillStyle=
       '#67ecff';
 
 
@@ -11843,21 +9172,21 @@ function drawPetSprite(
     );
   }
 
+  else{
 
-  else {
-
-    c.fillStyle =
+    c.fillStyle=
       '#102034';
 
 
     c.beginPath();
+
 
     c.arc(
       -8,
       -18,
       3,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
 
@@ -11866,48 +9195,48 @@ function drawPetSprite(
       -18,
       3,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
 
     c.fill();
 
 
-    c.strokeStyle =
+    c.strokeStyle=
       '#102034';
 
 
-    c.lineWidth =
-      2;
+    c.lineWidth=2;
 
 
     c.beginPath();
+
 
     c.arc(
       0,
       -10,
       6,
       .2,
-      Math.PI - .2
+      Math.PI-.2
     );
+
 
     c.stroke();
   }
 
 
-  /* GLITCH EFFECT */
+  /* MATRIX GLITCH */
 
-  if (
+  if(
     type.includes(
       'Glitch'
     )
-  ) {
+  ){
 
-    c.globalAlpha =
-      .48;
+    c.globalAlpha=.45;
 
 
-    c.fillStyle =
+    c.fillStyle=
       '#62f4ff';
 
 
@@ -11919,7 +9248,7 @@ function drawPetSprite(
     );
 
 
-    c.fillStyle =
+    c.fillStyle=
       '#e45cff';
 
 
@@ -11932,115 +9261,43 @@ function drawPetSprite(
   }
 
 
-  /* VOID AURA */
-
-  if (
-    type.includes(
-      'Void'
-    )
-  ) {
-
-    c.shadowColor =
-      '#a26bff';
-
-
-    c.shadowBlur =
-      12;
-
-
-    c.strokeStyle =
-      '#a26bff';
-
-
-    c.lineWidth =
-      2;
-
-
-    c.beginPath();
-
-    c.arc(
-      0,
-      -14,
-      31,
-      0,
-      Math.PI * 2
-    );
-
-    c.stroke();
-  }
-
-
   c.restore();
 }
 
 
 /* =========================================================
-   PET PORTRAIT
-========================================================= */
-
-function drawPetPortrait(
-  canvasEl,
-  name,
-  large = false
-) {
-
-  const c =
-    canvasEl.getContext(
-      '2d'
-    );
-
-
-  c.clearRect(
-    0,
-    0,
-    canvasEl.width,
-    canvasEl.height
-  );
-
-
-  drawPetSprite(
-    c,
-    canvasEl.width / 2,
-    canvasEl.height * .72,
-    name,
-    large
-      ? 2
-      : .85,
-    G.time
-  );
-}
-
-
-/* =========================================================
    ENEMY DRAWING
-========================================================= */
+   ========================================================= */
 
-function drawEnemy(
-  enemy,
-  cam
-) {
+function drawEnemy(e,cam){
 
-  const x =
-    enemy.x -
-    cam;
+  const x=
+    e.x-cam;
 
 
-  const y =
-    enemy.y;
+  const y=
+    e.y;
 
 
-  contactShadow(
+  const bob=
+    Math.sin(
+      G.time*4+
+      e.x*.01
+    )*3;
+
+
+  shadow(
     x,
-    y + 7,
-    enemy.boss
-      ? 120
-      : 58,
-    enemy.boss
-      ? 25
-      : 13,
-    enemy.boss
-      ? .42
-      : .28
+    y+8,
+    e.boss
+      ?128
+      :72,
+    e.boss
+      ?27
+      :15,
+    e.boss
+      ?.42
+      :.3
   );
 
 
@@ -12053,503 +9310,2576 @@ function drawEnemy(
   );
 
 
-  const s =
-    enemy.boss
-      ? 1.7
-      : 1;
+  if(e.hit>0){
+
+    ctx.globalAlpha=
+      .78+
+      Math.sin(
+        G.time*80
+      )*.2;
+  }
 
 
-  const bob =
-    Math.sin(
-      G.time *
-      4 +
-      enemy.x *
-      .01
-    )
-    *
-    3;
+  if(e.boss){
 
-
-  ctx.scale(
-    s,
-    s
-  );
-
-
-  const g =
-    ctx.createLinearGradient(
-      -30,
-      -65,
-      30,
-      0
+    drawBossCreature(
+      e,
+      bob
     );
+  }
 
+  else{
 
-  g.addColorStop(
-    0,
-
-    enemy.hit > 0
-      ? '#ffffff'
-      : (
-          enemy.boss
-            ? '#ff8b78'
-            : '#8ae6bd'
-        )
-  );
-
-
-  g.addColorStop(
-    1,
-
-    enemy.boss
-      ? '#7d2945'
-      : '#315c55'
-  );
-
-
-  ellipse(
-    ctx,
-    0,
-    -32 +
-    bob,
-    27,
-    28,
-    g,
-    '#182333',
-    5
-  );
-
-
-  ctx.fillStyle =
-    '#172131';
-
-
-  ctx.beginPath();
-
-
-  ctx.moveTo(
-    -22,
-    -49 +
-    bob
-  );
-
-
-  ctx.lineTo(
-    -12,
-    -70 +
-    bob
-  );
-
-
-  ctx.lineTo(
-    -3,
-    -52 +
-    bob
-  );
-
-
-  ctx.moveTo(
-    22,
-    -49 +
-    bob
-  );
-
-
-  ctx.lineTo(
-    12,
-    -70 +
-    bob
-  );
-
-
-  ctx.lineTo(
-    3,
-    -52 +
-    bob
-  );
-
-
-  ctx.fill();
-
-
-  ellipse(
-    ctx,
-    -9,
-    -34 +
-    bob,
-    4,
-    3,
-
-    enemy.boss
-      ? '#ffe1d8'
-      : '#d8fff0'
-  );
-
-
-  ellipse(
-    ctx,
-    9,
-    -34 +
-    bob,
-    4,
-    3,
-
-    enemy.boss
-      ? '#ffe1d8'
-      : '#d8fff0'
-  );
-
-
-  if (
-    enemy.boss
-  ) {
-
-    ctx.strokeStyle =
-      '#ffb0a0';
-
-
-    ctx.lineWidth =
-      5;
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      -30 +
-      bob,
-      38,
-      -.8,
-      .8
+    drawWorldCreature(
+      e,
+      bob
     );
-
-    ctx.stroke();
   }
 
 
   ctx.restore();
 
 
-  /* ENEMY HP */
-
-  const ratio =
+  const ratio=
     clamp(
-      enemy.hp /
-      enemy.maxHP,
+      e.hp/e.maxHP,
       0,
       1
     );
 
 
-  const barW =
-    enemy.boss
-      ? 120
-      : 60;
+  const bw=
+    e.boss
+      ?124
+      :68;
+
+
+  const by=
+    y-
+    (
+      e.boss
+        ?158
+        :108
+    );
 
 
   rr(
     ctx,
-    x -
-    barW / 2,
-    y -
-    (
-      enemy.boss
-        ? 132
-        : 82
-    ),
-    barW,
-    7,
+    x-bw/2,
+    by,
+    bw,
+    8,
     4,
-    '#0b1020'
+    'rgba(4,8,18,.9)',
+    'rgba(255,255,255,.12)',
+    1
   );
 
 
   rr(
     ctx,
-    x -
-    barW / 2,
-    y -
-    (
-      enemy.boss
-        ? 132
-        : 82
-    ),
-    barW *
-    ratio,
-    7,
-    4,
-
-    enemy.boss
-      ? '#ff657d'
-      : '#6ce7ad'
+    x-bw/2+1,
+    by+1,
+    (bw-2)*ratio,
+    6,
+    3,
+    e.boss
+      ?'#ff657d'
+      :'#69e3a1'
   );
 
 
-  if (
-    enemy.boss
-  ) {
+  if(e.boss){
 
-    ctx.fillStyle =
-      '#ffffff';
+    ctx.fillStyle=
+      '#fff';
 
 
-    ctx.font =
+    ctx.font=
       '900 11px system-ui';
 
 
-    ctx.textAlign =
+    ctx.textAlign=
       'center';
 
 
     ctx.fillText(
-      enemy.name,
+      e.name,
       x,
-      y - 146
+      by-10
     );
 
 
-    ctx.textAlign =
+    ctx.textAlign=
       'left';
   }
 }
 
 
+function enemyEyes(
+  y=-48,
+  color='#dffcff',
+  spread=10
+){
+
+  ctx.shadowColor=
+    color;
+
+
+  ctx.shadowBlur=10;
+
+
+  ellipse(
+    ctx,
+    -spread,
+    y,
+    4,
+    3,
+    color
+  );
+
+
+  ellipse(
+    ctx,
+    spread,
+    y,
+    4,
+    3,
+    color
+  );
+
+
+  ctx.shadowBlur=0;
+}
+function drawWorldCreature(e,bob){
+  const v=e.variant||0,hit=e.hit>0?'#ffffff':null;
+  ctx.lineJoin='round';ctx.lineCap='round';
+
+  if(e.world==='earth'){
+    // Moss stalker / beetle / ruin crawler.
+    const body=hit||['#4f9b65','#66866c','#7b7b68'][v];
+
+    ctx.strokeStyle='#18382f';
+    ctx.lineWidth=7;
+
+    ctx.beginPath();
+    ctx.moveTo(-25,-30+bob);
+    ctx.lineTo(-39,0);
+
+    ctx.moveTo(-7,-27+bob);
+    ctx.lineTo(-12,4);
+
+    ctx.moveTo(20,-27+bob);
+    ctx.lineTo(33,3);
+
+    ctx.moveTo(34,-31+bob);
+    ctx.lineTo(48,-1);
+    ctx.stroke();
+
+    const g=ctx.createLinearGradient(-38,-70,40,-18);
+    g.addColorStop(0,hit||'#a7df86');
+    g.addColorStop(1,body);
+
+    ellipse(
+      ctx,
+      0,
+      -42+bob,
+      40,
+      27,
+      g,
+      '#17372e',
+      5
+    );
+
+    ctx.fillStyle=hit||'#8ee6d1';
+    ctx.strokeStyle='#315a55';
+    ctx.lineWidth=3;
+
+    for(let i=-1;i<=1;i++){
+      ctx.beginPath();
+      ctx.moveTo(i*18,-60+bob);
+      ctx.lineTo(i*18+9,-88-(i===0?8:0)+bob);
+      ctx.lineTo(i*18+16,-58+bob);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ellipse(
+      ctx,
+      35,
+      -47+bob,
+      19,
+      17,
+      hit||'#5c8d62',
+      '#17372e',
+      4
+    );
+
+    enemyEyes(
+      -50+bob,
+      '#caff9c',
+      7
+    );
+  }
+
+  else if(e.world==='music'){
+    // Amp spider.
+
+    ctx.strokeStyle='#17142e';
+    ctx.lineWidth=8;
+
+    for(const side of [-1,1]){
+      for(let i=0;i<3;i++){
+
+        const yy=-50+i*14+bob;
+
+        ctx.beginPath();
+        ctx.moveTo(side*25,yy);
+        ctx.lineTo(side*(45+i*4),yy-10);
+        ctx.lineTo(side*(57+i*5),yy+7);
+        ctx.stroke();
+      }
+    }
+
+    const g=ctx.createLinearGradient(-35,-78,35,-15);
+
+    g.addColorStop(
+      0,
+      hit||'#6c59b9'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#2b2456'
+    );
+
+    rr(
+      ctx,
+      -34,
+      -77+bob,
+      68,
+      61,
+      18,
+      g,
+      '#17142e',
+      5
+    );
+
+    ctx.shadowColor='#6cecff';
+    ctx.shadowBlur=12;
+
+    ellipse(
+      ctx,
+      0,
+      -47+bob,
+      20,
+      20,
+      '#15182b',
+      '#7b70ff',
+      4
+    );
+
+    ellipse(
+      ctx,
+      0,
+      -47+bob,
+      8,
+      8,
+      hit||'#67efff',
+      '#2a3159',
+      2
+    );
+
+    ctx.shadowBlur=0;
+
+    for(let i=-2;i<=2;i++){
+      rr(
+        ctx,
+        i*9-3,
+        -13-Math.abs(i)*4+bob,
+        6,
+        10+Math.abs(i)*4,
+        2,
+        i%2?'#ff70d8':'#68efff'
+      );
+    }
+  }
+
+  else if(e.world==='money'){
+    // Coin mimic.
+
+    ctx.strokeStyle='#4c3421';
+    ctx.lineWidth=7;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-24,-20+bob);
+    ctx.lineTo(-33,2);
+    ctx.lineTo(-44,5);
+
+    ctx.moveTo(24,-20+bob);
+    ctx.lineTo(33,2);
+    ctx.lineTo(44,5);
+
+    ctx.stroke();
+
+    const g=ctx.createLinearGradient(-38,-75,38,-10);
+
+    g.addColorStop(
+      0,
+      hit||'#d4a958'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#72502d'
+    );
+
+    rr(
+      ctx,
+      -40,
+      -65+bob,
+      80,
+      52,
+      10,
+      g,
+      '#49321e',
+      5
+    );
+
+    rr(
+      ctx,
+      -42,
+      -78+bob,
+      84,
+      24,
+      12,
+      hit||'#a97b3f',
+      '#49321e',
+      5
+    );
+
+    ctx.fillStyle='#f7e6bd';
+
+    for(let i=-2;i<=2;i++){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        i*13-5,
+        -47+bob
+      );
+
+      ctx.lineTo(
+        i*13,
+        -35+bob
+      );
+
+      ctx.lineTo(
+        i*13+5,
+        -47+bob
+      );
+
+      ctx.fill();
+    }
+
+    ellipse(
+      ctx,
+      0,
+      -72+bob,
+      11,
+      11,
+      '#f0d16b',
+      '#70572a',
+      3
+    );
+
+    ctx.fillStyle='#5a4025';
+    ctx.font='900 11px system-ui';
+    ctx.textAlign='center';
+
+    ctx.fillText(
+      'R',
+      0,
+      -68+bob
+    );
+
+    ctx.textAlign='left';
+
+    enemyEyes(
+      -51+bob,
+      '#fff2a6',
+      17
+    );
+  }
+
+  else if(e.world==='cosmos'){
+    // Meteor crab.
+
+    ctx.strokeStyle='#22264e';
+    ctx.lineWidth=7;
+
+    for(const side of [-1,1]){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        side*22,
+        -27+bob
+      );
+
+      ctx.lineTo(
+        side*42,
+        -2
+      );
+
+      ctx.lineTo(
+        side*53,
+        2
+      );
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        side*30,
+        -49+bob
+      );
+
+      ctx.lineTo(
+        side*56,
+        -64+bob
+      );
+
+      ctx.stroke();
+
+      ellipse(
+        ctx,
+        side*63,
+        -67+bob,
+        15,
+        11,
+        hit||'#6e72bb',
+        '#292c58',
+        4
+      );
+    }
+
+    const g=ctx.createRadialGradient(
+      -10,
+      -58,
+      3,
+      0,
+      -45,
+      42
+    );
+
+    g.addColorStop(
+      0,
+      hit||'#b7c9ff'
+    );
+
+    g.addColorStop(
+      .45,
+      hit||'#6469aa'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#343764'
+    );
+
+    ellipse(
+      ctx,
+      0,
+      -42+bob,
+      39,
+      31,
+      g,
+      '#22264e',
+      5
+    );
+
+    ctx.shadowColor='#9eeeff';
+    ctx.shadowBlur=14;
+
+    ctx.save();
+
+    ctx.translate(
+      0,
+      -43+bob
+    );
+
+    ctx.rotate(
+      Math.PI/4
+    );
+
+    ctx.fillStyle='#dffcff';
+
+    ctx.fillRect(
+      -8,
+      -8,
+      16,
+      16
+    );
+
+    ctx.restore();
+
+    ctx.shadowBlur=0;
+
+    enemyEyes(
+      -58+bob,
+      '#dffcff',
+      13
+    );
+  }
+
+  else if(e.world==='war'){
+    // Battle droid.
+
+    ctx.strokeStyle='#251f22';
+    ctx.lineWidth=9;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-15,-28+bob);
+    ctx.lineTo(-20,3);
+
+    ctx.moveTo(15,-28+bob);
+    ctx.lineTo(20,3);
+
+    ctx.moveTo(-30,-58+bob);
+    ctx.lineTo(-52,-33+bob);
+
+    ctx.moveTo(30,-58+bob);
+    ctx.lineTo(55,-45+bob);
+
+    ctx.stroke();
+
+    const g=ctx.createLinearGradient(-32,-90,32,-20);
+
+    g.addColorStop(
+      0,
+      hit||'#9b7b6f'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#4b3c3d'
+    );
+
+    rr(
+      ctx,
+      -33,
+      -88+bob,
+      66,
+      64,
+      12,
+      g,
+      '#2b2326',
+      5
+    );
+
+    rr(
+      ctx,
+      -23,
+      -105+bob,
+      46,
+      26,
+      9,
+      hit||'#6e5b59',
+      '#2b2326',
+      4
+    );
+
+    ctx.fillStyle='#ff765f';
+    ctx.shadowColor='#ff765f';
+    ctx.shadowBlur=12;
+
+    ctx.fillRect(
+      -15,
+      -95+bob,
+      30,
+      5
+    );
+
+    ctx.shadowBlur=0;
+
+    rr(
+      ctx,
+      45,
+      -53+bob,
+      28,
+      12,
+      5,
+      '#3a3033',
+      '#201b1d',
+      4
+    );
+  }
+
+  else if(e.world==='void'){
+    // Shadow hound.
+
+    ctx.strokeStyle='#10091a';
+    ctx.lineWidth=9;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-22,-28+bob);
+    ctx.lineTo(-31,3);
+
+    ctx.moveTo(18,-28+bob);
+    ctx.lineTo(26,3);
+
+    ctx.stroke();
+
+    const g=ctx.createLinearGradient(-42,-72,40,-16);
+
+    g.addColorStop(
+      0,
+      hit||'#6c4b8f'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#21112f'
+    );
+
+    ellipse(
+      ctx,
+      -4,
+      -43+bob,
+      39,
+      25,
+      g,
+      '#10091a',
+      5
+    );
+
+    ellipse(
+      ctx,
+      30,
+      -52+bob,
+      22,
+      20,
+      hit||'#3a1c50',
+      '#10091a',
+      5
+    );
+
+    ctx.fillStyle=
+      hit||'#6f49a1';
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      18,
+      -68+bob
+    );
+
+    ctx.lineTo(
+      25,
+      -92+bob
+    );
+
+    ctx.lineTo(
+      33,
+      -68+bob
+    );
+
+    ctx.moveTo(
+      35,
+      -68+bob
+    );
+
+    ctx.lineTo(
+      49,
+      -88+bob
+    );
+
+    ctx.lineTo(
+      48,
+      -61+bob
+    );
+
+    ctx.fill();
+
+    ctx.strokeStyle='#7b54b0';
+    ctx.lineWidth=8;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      -40,
+      -45+bob
+    );
+
+    ctx.quadraticCurveTo(
+      -70,
+      -70+bob,
+      -82,
+      -42+bob
+    );
+
+    ctx.stroke();
+
+    enemyEyes(
+      -54+bob,
+      '#d99cff',
+      8
+    );
+  }
+
+  else{
+    // Matrix fragment bot.
+
+    ctx.strokeStyle='#071c27';
+    ctx.lineWidth=8;
+
+    ctx.beginPath();
+
+    ctx.moveTo(-20,-28+bob);
+    ctx.lineTo(-30,2);
+
+    ctx.moveTo(20,-28+bob);
+    ctx.lineTo(31,2);
+
+    ctx.moveTo(-30,-57+bob);
+    ctx.lineTo(-52,-45+bob);
+
+    ctx.moveTo(30,-57+bob);
+    ctx.lineTo(53,-68+bob);
+
+    ctx.stroke();
+
+    const g=ctx.createLinearGradient(
+      -34,
+      -90,
+      34,
+      -20
+    );
+
+    g.addColorStop(
+      0,
+      hit||'#61eee6'
+    );
+
+    g.addColorStop(
+      .45,
+      hit||'#3c74a3'
+    );
+
+    g.addColorStop(
+      1,
+      hit||'#352c72'
+    );
+
+    ctx.fillStyle=g;
+    ctx.strokeStyle='#071c27';
+    ctx.lineWidth=5;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      -30,
+      -84+bob
+    );
+
+    ctx.lineTo(
+      25,
+      -92+bob
+    );
+
+    ctx.lineTo(
+      38,
+      -58+bob
+    );
+
+    ctx.lineTo(
+      24,
+      -24+bob
+    );
+
+    ctx.lineTo(
+      -34,
+      -30+bob
+    );
+
+    ctx.lineTo(
+      -42,
+      -61+bob
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+    ctx.stroke();
+
+    rr(
+      ctx,
+      -22,
+      -76+bob,
+      44,
+      22,
+      6,
+      '#071927',
+      '#163c4d',
+      3
+    );
+
+    ctx.fillStyle='#6efff2';
+
+    ctx.fillRect(
+      -14,
+      -68+bob,
+      10,
+      4
+    );
+
+    ctx.fillStyle='#e46dff';
+
+    ctx.fillRect(
+      5,
+      -68+bob,
+      14,
+      4
+    );
+
+    ctx.globalAlpha=.5;
+
+    ctx.fillStyle='#65f4ff';
+
+    ctx.fillRect(
+      -48,
+      -49+bob,
+      20,
+      4
+    );
+
+    ctx.fillStyle='#e45cff';
+
+    ctx.fillRect(
+      25,
+      -35+bob,
+      30,
+      4
+    );
+
+    ctx.globalAlpha=1;
+  }
+}
+
+
 /* =========================================================
-   TREES
-========================================================= */
+   BOSS CREATURES
+   ========================================================= */
 
-function drawTree(
-  x,
-  y,
-  cam,
-  worldId,
-  foreground = false
-) {
+function drawBossCreature(e,bob){
 
-  x -=
-    cam;
+  const accent=
+    WORLDS[e.world]?.accent||
+    '#ff7589';
 
+  const hit=
+    e.hit>0
+      ?'#fff'
+      :accent;
 
-  const sway =
-    Math.sin(
-      G.time *
-      1.7 +
-      x *
-      .01
-    )
-    *
-    3;
+  ctx.scale(
+    1.45,
+    1.45
+  );
 
+  ctx.strokeStyle='#171422';
+  ctx.lineWidth=8;
+
+  ctx.beginPath();
+
+  ctx.moveTo(-28,-34+bob);
+  ctx.lineTo(-38,2);
+
+  ctx.moveTo(28,-34+bob);
+  ctx.lineTo(38,2);
+
+  ctx.moveTo(-42,-72+bob);
+  ctx.lineTo(-68,-44+bob);
+
+  ctx.moveTo(42,-72+bob);
+  ctx.lineTo(68,-44+bob);
+
+  ctx.stroke();
+
+  const g=
+    ctx.createLinearGradient(
+      -48,
+      -120,
+      48,
+      -20
+    );
+
+  g.addColorStop(
+    0,
+    hit
+  );
+
+  g.addColorStop(
+    .38,
+    e.world==='void'
+      ?'#6f43a4'
+      :'#a04d58'
+  );
+
+  g.addColorStop(
+    1,
+    '#352039'
+  );
+
+  ctx.fillStyle=g;
+
+  ctx.strokeStyle='#171422';
+
+  ctx.lineWidth=6;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -45,
+    -98+bob
+  );
+
+  ctx.lineTo(
+    -22,
+    -122+bob
+  );
+
+  ctx.lineTo(
+    0,
+    -112+bob
+  );
+
+  ctx.lineTo(
+    22,
+    -122+bob
+  );
+
+  ctx.lineTo(
+    45,
+    -98+bob
+  );
+
+  ctx.lineTo(
+    50,
+    -45+bob
+  );
+
+  ctx.lineTo(
+    27,
+    -22+bob
+  );
+
+  ctx.lineTo(
+    -28,
+    -22+bob
+  );
+
+  ctx.lineTo(
+    -50,
+    -45+bob
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+  ctx.stroke();
+
+  rr(
+    ctx,
+    -34,
+    -103+bob,
+    68,
+    30,
+    10,
+    '#111526',
+    '#25203d',
+    4
+  );
+
+  enemyEyes(
+    -88+bob,
+    '#ffe1d8',
+    15
+  );
+
+  ctx.shadowColor=accent;
+  ctx.shadowBlur=18;
 
   ctx.save();
 
+  ctx.translate(
+    0,
+    -55+bob
+  );
+
+  ctx.rotate(
+    Math.PI/4
+  );
+
+  ctx.fillStyle='#fff';
+  ctx.strokeStyle=accent;
+  ctx.lineWidth=3;
+
+  ctx.fillRect(
+    -9,
+    -9,
+    18,
+    18
+  );
+
+  ctx.strokeRect(
+    -9,
+    -9,
+    18,
+    18
+  );
+
+  ctx.restore();
+
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle=hit;
+  ctx.strokeStyle='#171422';
+  ctx.lineWidth=4;
+
+  if(
+    e.world==='earth' ||
+    e.world==='void'
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      -36,
+      -105+bob
+    );
+
+    ctx.lineTo(
+      -52,
+      -138+bob
+    );
+
+    ctx.lineTo(
+      -20,
+      -114+bob
+    );
+
+    ctx.moveTo(
+      36,
+      -105+bob
+    );
+
+    ctx.lineTo(
+      52,
+      -138+bob
+    );
+
+    ctx.lineTo(
+      20,
+      -114+bob
+    );
+
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  if(e.world==='war'){
+
+    rr(
+      ctx,
+      -76,
+      -52+bob,
+      34,
+      16,
+      5,
+      '#4b3a3d',
+      '#171422',
+      4
+    );
+
+    rr(
+      ctx,
+      42,
+      -52+bob,
+      34,
+      16,
+      5,
+      '#4b3a3d',
+      '#171422',
+      4
+    );
+  }
+
+  if(e.world==='matrix'){
+
+    ctx.globalAlpha=.55;
+
+    ctx.fillStyle='#61eee6';
+
+    ctx.fillRect(
+      -62,
+      -70+bob,
+      28,
+      5
+    );
+
+    ctx.fillStyle='#e45cff';
+
+    ctx.fillRect(
+      35,
+      -42+bob,
+      32,
+      5
+    );
+
+    ctx.globalAlpha=1;
+  }
+}
+
+
+/* =========================================================
+   WORLD PROPS
+   ========================================================= */
+
+function drawProp(type,x,y,cam,world){
+
+  x-=cam;
+
+  ctx.save();
 
   ctx.translate(
     x,
     y
   );
 
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
 
-  const trunk =
-    ctx.createLinearGradient(
-      -15,
-      -110,
-      15,
-      0
-    );
+  const k=
+    type%4;
 
 
-  trunk.addColorStop(
-    0,
-    '#916b49'
-  );
+  /* EARTH */
 
+  if(world==='earth'){
 
-  trunk.addColorStop(
-    1,
-    '#4b3427'
-  );
+    if(k===0){
 
-
-  rr(
-    ctx,
-    -15,
-    -110,
-    30,
-    115,
-    12,
-    trunk,
-    '#33261f',
-    4
-  );
-
-
-  const leafDark =
-    worldId === 'void'
-      ? '#38234d'
-      : (
-          worldId === 'music'
-            ? '#7b3a9a'
-            : '#26744e'
+      const trunk=
+        ctx.createLinearGradient(
+          -18,
+          -120,
+          18,
+          0
         );
 
-
-  const leaves = [
-
-    [
-      -27,
-      -120,
-      35
-    ],
-
-    [
-      22,
-      -120,
-      39
-    ],
-
-    [
-      sway,
-      -154,
-      43
-    ]
-  ];
-
-
-  for (
-    const [
-      dx,
-      dy,
-      r
-    ]
-    of
-    leaves
-  ) {
-
-    const g =
-      ctx.createRadialGradient(
-        dx - 8,
-        dy - 10,
-        2,
-        dx,
-        dy,
-        r
+      trunk.addColorStop(
+        0,
+        '#a77a4d'
       );
 
+      trunk.addColorStop(
+        1,
+        '#493426'
+      );
 
-    g.addColorStop(
-      0,
+      rr(
+        ctx,
+        -17,
+        -112,
+        34,
+        116,
+        13,
+        trunk,
+        '#2f2b26',
+        4
+      );
 
-      worldId ===
-      'music'
-        ? '#e883e8'
-        : '#a4ec93'
-    );
+      for(
+        const [dx,dy,r]
+        of [
+          [-34,-122,38],
+          [25,-125,43],
+          [-2,-162,47]
+        ]
+      ){
 
+        const g=
+          ctx.createRadialGradient(
+            dx-10,
+            dy-13,
+            3,
+            dx,
+            dy,
+            r
+          );
 
-    g.addColorStop(
-      1,
-      leafDark
-    );
+        g.addColorStop(
+          0,
+          '#c7f19a'
+        );
 
+        g.addColorStop(
+          .5,
+          '#5fbf72'
+        );
 
-    ellipse(
-      ctx,
-      dx,
-      dy,
-      r,
-      r *
-      .78,
-      g,
-      '#1b4434',
-      4
-    );
+        g.addColorStop(
+          1,
+          '#236246'
+        );
+
+        ellipse(
+          ctx,
+          dx,
+          dy,
+          r,
+          r*.72,
+          g,
+          '#214c3b',
+          4
+        );
+      }
+
+      ctx.fillStyle='#7de6b0';
+
+      for(let i=0;i<5;i++){
+
+        ellipse(
+          ctx,
+          -28+i*14,
+          -78+(i%2)*8,
+          3,
+          6,
+          '#7de6b0'
+        );
+      }
+    }
+
+    else if(k===1){
+
+      const stone=
+        ctx.createLinearGradient(
+          -45,
+          -150,
+          45,
+          8
+        );
+
+      stone.addColorStop(
+        0,
+        '#e9e2c9'
+      );
+
+      stone.addColorStop(
+        .5,
+        '#aaa990'
+      );
+
+      stone.addColorStop(
+        1,
+        '#686b63'
+      );
+
+      rr(
+        ctx,
+        -35,
+        -140,
+        70,
+        145,
+        13,
+        stone,
+        '#484c48',
+        5
+      );
+
+      rr(
+        ctx,
+        -50,
+        -158,
+        100,
+        24,
+        8,
+        '#ddd5ba',
+        '#4c504b',
+        5
+      );
+
+      ctx.strokeStyle='#5d655c';
+      ctx.lineWidth=3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-12,-130);
+      ctx.lineTo(4,-99);
+      ctx.lineTo(-8,-72);
+
+      ctx.moveTo(20,-55);
+      ctx.lineTo(3,-33);
+
+      ctx.stroke();
+
+      ctx.fillStyle='#4c8b5b';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-35,-25);
+
+      ctx.quadraticCurveTo(
+        -58,
+        -55,
+        -38,
+        -86
+      );
+
+      ctx.quadraticCurveTo(
+        -20,
+        -58,
+        -20,
+        -18
+      );
+
+      ctx.fill();
+    }
+
+    else if(k===2){
+
+      ctx.save();
+
+      ctx.shadowColor='#8ef4ff';
+      ctx.shadowBlur=20;
+
+      for(
+        const [dx,h]
+        of [
+          [-24,58],
+          [0,86],
+          [24,48]
+        ]
+      ){
+
+        const cg=
+          ctx.createLinearGradient(
+            0,
+            -h,
+            0,
+            0
+          );
+
+        cg.addColorStop(
+          0,
+          '#eaffff'
+        );
+
+        cg.addColorStop(
+          .35,
+          '#6cecff'
+        );
+
+        cg.addColorStop(
+          1,
+          '#4f5ac7'
+        );
+
+        ctx.fillStyle=cg;
+
+        ctx.strokeStyle='#334076';
+
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          dx,
+          -h
+        );
+
+        ctx.lineTo(
+          dx+13,
+          -8
+        );
+
+        ctx.lineTo(
+          dx+7,
+          4
+        );
+
+        ctx.lineTo(
+          dx-9,
+          2
+        );
+
+        ctx.lineTo(
+          dx-13,
+          -10
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    else{
+
+      rr(
+        ctx,
+        -48,
+        -68,
+        96,
+        72,
+        14,
+        '#415a61',
+        '#1f3438',
+        5
+      );
+
+      rr(
+        ctx,
+        -34,
+        -55,
+        68,
+        18,
+        6,
+        '#6ed7be',
+        '#274b49',
+        3
+      );
+
+      ctx.fillStyle='#b7d1a4';
+
+      ctx.fillRect(
+        -28,
+        -27,
+        56,
+        5
+      );
+
+      ctx.strokeStyle='#283a3e';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -35,
+        -68
+      );
+
+      ctx.lineTo(
+        -15,
+        -88
+      );
+
+      ctx.lineTo(
+        23,
+        -81
+      );
+
+      ctx.stroke();
+    }
   }
 
 
-  if (foreground) {
+  /* MUSIC */
 
-    ctx.globalAlpha =
-      .94;
+  else if(world==='music'){
+
+    if(k===0){
+
+      const sg=
+        ctx.createLinearGradient(
+          -45,
+          -135,
+          45,
+          5
+        );
+
+      sg.addColorStop(
+        0,
+        '#342b68'
+      );
+
+      sg.addColorStop(
+        1,
+        '#161630'
+      );
+
+      rr(
+        ctx,
+        -42,
+        -132,
+        84,
+        136,
+        14,
+        sg,
+        '#11152c',
+        5
+      );
+
+      for(
+        const [yy,r]
+        of [
+          [-98,24],
+          [-42,30]
+        ]
+      ){
+
+        ctx.shadowColor='#6cecff';
+        ctx.shadowBlur=10;
+
+        ellipse(
+          ctx,
+          0,
+          yy,
+          r,
+          r,
+          '#15182b',
+          '#7b70ff',
+          5
+        );
+
+        ellipse(
+          ctx,
+          0,
+          yy,
+          r*.42,
+          r*.42,
+          '#65efff',
+          '#26294b',
+          3
+        );
+      }
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===1){
+
+      rr(
+        ctx,
+        -34,
+        -150,
+        68,
+        154,
+        10,
+        '#201742',
+        '#101127',
+        5
+      );
+
+      for(
+        let yy=-132;
+        yy<-15;
+        yy+=18
+      ){
+
+        rr(
+          ctx,
+          -23,
+          yy,
+          46,
+          9,
+          3,
+          yy%36===0
+            ?'#ff70d8'
+            :'#68efff'
+        );
+      }
+
+      ctx.shadowColor='#ff70d8';
+      ctx.shadowBlur=14;
+
+      ellipse(
+        ctx,
+        0,
+        -165,
+        15,
+        15,
+        '#ff78d8',
+        '#542454',
+        3
+      );
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===2){
+
+      ctx.save();
+
+      ctx.translate(
+        0,
+        -70+
+        Math.sin(
+          G.time*3+
+          x*.01
+        )*6
+      );
+
+      ctx.rotate(
+        G.time*.25
+      );
+
+      ctx.shadowColor='#a77cff';
+      ctx.shadowBlur=22;
+
+      ctx.fillStyle='#e7ddff';
+      ctx.strokeStyle='#6b4fcb';
+      ctx.lineWidth=4;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,-42);
+      ctx.lineTo(25,0);
+      ctx.lineTo(0,42);
+      ctx.lineTo(-25,0);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    else{
+
+      rr(
+        ctx,
+        -52,
+        -62,
+        104,
+        66,
+        16,
+        '#2b2250',
+        '#14132d',
+        5
+      );
+
+      for(let i=0;i<7;i++){
+
+        const h=
+          12+
+          (i%4)*7;
+
+        rr(
+          ctx,
+          -39+i*12,
+          -10-h,
+          8,
+          h,
+          2,
+          i%2
+            ?'#ff6fd4'
+            :'#67ecff'
+        );
+      }
+    }
   }
 
+
+  /* MONEY */
+
+  else if(world==='money'){
+
+    if(k===0){
+
+      rr(
+        ctx,
+        -52,
+        -76,
+        104,
+        80,
+        10,
+        '#765637',
+        '#3d3026',
+        5
+      );
+
+      ctx.fillStyle='#f0d06a';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-62,-76);
+      ctx.lineTo(-48,-111);
+      ctx.lineTo(48,-111);
+      ctx.lineTo(62,-76);
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      ctx.strokeStyle='#5a452d';
+      ctx.lineWidth=5;
+      ctx.stroke();
+
+      for(let i=-2;i<=2;i++){
+
+        ctx.fillStyle=
+          i%2
+            ?'#f7e4a4'
+            :'#b95d4f';
+
+        ctx.fillRect(
+          i*20-10,
+          -108,
+          20,
+          31
+        );
+      }
+    }
+
+    else if(k===1){
+
+      ctx.strokeStyle='#4c3b24';
+      ctx.lineWidth=8;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,3);
+      ctx.lineTo(0,-105);
+
+      ctx.stroke();
+
+      ctx.shadowColor='#ffe68a';
+      ctx.shadowBlur=18;
+
+      ellipse(
+        ctx,
+        0,
+        -122,
+        24,
+        24,
+        '#f4d16b',
+        '#7c6229',
+        4
+      );
+
+      ctx.fillStyle='#fff2a6';
+
+      ctx.font=
+        '900 19px system-ui';
+
+      ctx.textAlign=
+        'center';
+
+      ctx.fillText(
+        'R',
+        0,
+        -115
+      );
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===2){
+
+      rr(
+        ctx,
+        -48,
+        -112,
+        96,
+        116,
+        14,
+        '#7c8b83',
+        '#35433c',
+        5
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -52,
+        32,
+        32,
+        '#394c45',
+        '#d8bd64',
+        5
+      );
+
+      ctx.strokeStyle='#d8bd64';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-22,-52);
+      ctx.lineTo(22,-52);
+
+      ctx.moveTo(0,-74);
+      ctx.lineTo(0,-30);
+
+      ctx.stroke();
+    }
+
+    else{
+
+      rr(
+        ctx,
+        -48,
+        -48,
+        96,
+        52,
+        10,
+        '#9d7540',
+        '#4b3824',
+        5
+      );
+
+      rr(
+        ctx,
+        -37,
+        -38,
+        30,
+        28,
+        5,
+        '#c89a50',
+        '#5f4526',
+        3
+      );
+
+      rr(
+        ctx,
+        7,
+        -38,
+        30,
+        28,
+        5,
+        '#c89a50',
+        '#5f4526',
+        3
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -58,
+        12,
+        12,
+        '#f1d16b',
+        '#6e5725',
+        3
+      );
+    }
+  }
+
+
+  /* COSMOS */
+
+  else if(world==='cosmos'){
+
+    if(k===0){
+
+      rr(
+        ctx,
+        -16,
+        -90,
+        32,
+        94,
+        9,
+        '#768ba8',
+        '#27354c',
+        4
+      );
+
+      ctx.strokeStyle='#d8efff';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        -105,
+        34,
+        .15,
+        Math.PI-.15
+      );
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        -104
+      );
+
+      ctx.lineTo(
+        22,
+        -128
+      );
+
+      ctx.stroke();
+
+      ctx.shadowColor='#73efff';
+      ctx.shadowBlur=14;
+
+      ellipse(
+        ctx,
+        24,
+        -131,
+        7,
+        7,
+        '#dffcff'
+      );
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===1){
+
+      ctx.fillStyle='#3d3b63';
+      ctx.strokeStyle='#20213c';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-45,2);
+      ctx.lineTo(-34,-46);
+      ctx.lineTo(-5,-65);
+      ctx.lineTo(36,-48);
+      ctx.lineTo(48,-5);
+      ctx.lineTo(22,10);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowColor='#a88cff';
+      ctx.shadowBlur=18;
+
+      ctx.fillStyle='#d8d2ff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,-82);
+      ctx.lineTo(16,-45);
+      ctx.lineTo(0,-19);
+      ctx.lineTo(-16,-45);
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===2){
+
+      rr(
+        ctx,
+        -47,
+        -74,
+        94,
+        78,
+        16,
+        '#394e6b',
+        '#17253b',
+        5
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -38,
+        27,
+        22,
+        '#7beeff',
+        '#24455f',
+        4
+      );
+
+      ctx.strokeStyle='#bfefff';
+      ctx.lineWidth=3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-47,-20);
+      ctx.lineTo(-70,-42);
+
+      ctx.moveTo(47,-20);
+      ctx.lineTo(70,-42);
+
+      ctx.stroke();
+    }
+
+    else{
+
+      rr(
+        ctx,
+        -48,
+        -56,
+        96,
+        60,
+        12,
+        '#27384f',
+        '#101a2a',
+        5
+      );
+
+      rr(
+        ctx,
+        -35,
+        -43,
+        70,
+        14,
+        5,
+        '#6cecff',
+        '#24475f',
+        3
+      );
+
+      for(let i=0;i<4;i++){
+
+        ellipse(
+          ctx,
+          -24+i*16,
+          -13,
+          4,
+          4,
+          i===2
+            ?'#ff6d8c'
+            :'#a7f7ff'
+        );
+      }
+    }
+  }
+
+
+  /* WAR */
+
+  else if(world==='war'){
+
+    if(k===0){
+
+      ctx.fillStyle='#54443b';
+      ctx.strokeStyle='#241f1e';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-60,0);
+      ctx.lineTo(-40,-62);
+      ctx.lineTo(40,-62);
+      ctx.lineTo(60,0);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      for(let i=-2;i<=2;i++){
+
+        ctx.fillStyle='#b85b42';
+
+        ctx.fillRect(
+          i*20-8,
+          -55,
+          12,
+          48
+        );
+      }
+    }
+
+    else if(k===1){
+
+      rr(
+        ctx,
+        -35,
+        -52,
+        70,
+        56,
+        12,
+        '#4a4f4d',
+        '#202625',
+        5
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -62,
+        30,
+        22,
+        '#626864',
+        '#202625',
+        4
+      );
+
+      rr(
+        ctx,
+        12,
+        -70,
+        68,
+        14,
+        6,
+        '#3b403f',
+        '#1c2020',
+        4
+      );
+
+      ctx.shadowColor='#ff735c';
+      ctx.shadowBlur=10;
+
+      ellipse(
+        ctx,
+        75,
+        -63,
+        5,
+        5,
+        '#ff8b68'
+      );
+
+      ctx.shadowBlur=0;
+    }
+
+    else if(k===2){
+
+      for(
+        const [dx,dy]
+        of [
+          [-32,-18],
+          [0,-18],
+          [32,-18],
+          [-16,-42],
+          [16,-42]
+        ]
+      ){
+
+        rr(
+          ctx,
+          dx-22,
+          dy-13,
+          44,
+          26,
+          12,
+          '#8a7456',
+          '#453b2d',
+          3
+        );
+      }
+    }
+
+    else{
+
+      ctx.save();
+
+      ctx.rotate(-.18);
+
+      rr(
+        ctx,
+        -48,
+        -60,
+        96,
+        62,
+        13,
+        '#50575b',
+        '#242a2d',
+        5
+      );
+
+      ellipse(
+        ctx,
+        -18,
+        -28,
+        18,
+        18,
+        '#22292c',
+        '#8c4e3d',
+        4
+      );
+
+      ctx.strokeStyle='#d46c4e';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        20,
+        -49
+      );
+
+      ctx.lineTo(
+        48,
+        -75
+      );
+
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
+
+  /* VOID */
+
+  else if(world==='void'){
+
+    if(k===0){
+
+      const vg=
+        ctx.createLinearGradient(
+          -32,
+          -145,
+          32,
+          5
+        );
+
+      vg.addColorStop(
+        0,
+        '#302047'
+      );
+
+      vg.addColorStop(
+        1,
+        '#0b0812'
+      );
+
+      ctx.shadowColor='#8f65ff';
+      ctx.shadowBlur=14;
+
+      ctx.fillStyle=vg;
+      ctx.strokeStyle='#5b3d89';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(-28,3);
+      ctx.lineTo(-37,-112);
+      ctx.lineTo(0,-154);
+      ctx.lineTo(37,-112);
+      ctx.lineTo(28,3);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowBlur=0;
+
+      ctx.strokeStyle='#b88cff';
+      ctx.lineWidth=3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,-122);
+      ctx.lineTo(-11,-87);
+      ctx.lineTo(8,-65);
+      ctx.lineTo(0,-32);
+
+      ctx.stroke();
+    }
+
+    else if(k===1){
+
+      ctx.save();
+
+      ctx.shadowColor='#a66cff';
+      ctx.shadowBlur=24;
+
+      for(
+        const [dx,h]
+        of [
+          [-22,62],
+          [4,94],
+          [26,51]
+        ]
+      ){
+
+        ctx.fillStyle='#b88cff';
+        ctx.strokeStyle='#3c245f';
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+
+        ctx.moveTo(dx,-h);
+        ctx.lineTo(dx+14,-8);
+        ctx.lineTo(dx,4);
+        ctx.lineTo(dx-13,-8);
+
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    else if(k===2){
+
+      ctx.strokeStyle='#19111f';
+      ctx.lineWidth=14;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,4);
+
+      ctx.quadraticCurveTo(
+        -18,
+        -65,
+        -4,
+        -130
+      );
+
+      ctx.stroke();
+
+      ctx.lineWidth=7;
+
+      for(const side of [-1,1]){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          -4,
+          -92
+        );
+
+        ctx.quadraticCurveTo(
+          side*45,
+          -120,
+          side*55,
+          -154
+        );
+
+        ctx.stroke();
+      }
+
+      ctx.shadowColor='#7d50d4';
+      ctx.shadowBlur=14;
+
+      ellipse(
+        ctx,
+        0,
+        -72,
+        8,
+        8,
+        '#a778ff'
+      );
+
+      ctx.shadowBlur=0;
+    }
+
+    else{
+
+      rr(
+        ctx,
+        -48,
+        -58,
+        96,
+        62,
+        10,
+        '#151020',
+        '#09070d',
+        5
+      );
+
+      ctx.shadowColor='#9f70ff';
+      ctx.shadowBlur=18;
+
+      ellipse(
+        ctx,
+        0,
+        -29,
+        20,
+        20,
+        '#3d245d',
+        '#9d70ff',
+        4
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -29,
+        7,
+        7,
+        '#d8c5ff'
+      );
+
+      ctx.shadowBlur=0;
+    }
+  }
+
+
+  /* PERFECT MATRIX */
+
+  else{
+
+    if(k===0){
+
+      rr(
+        ctx,
+        -30,
+        -132,
+        60,
+        136,
+        8,
+        '#102c3a',
+        '#43d7d2',
+        4
+      );
+
+      for(
+        let yy=-112;
+        yy<-12;
+        yy+=20
+      ){
+
+        rr(
+          ctx,
+          -19,
+          yy,
+          38,
+          7,
+          2,
+          yy%40===0
+            ?'#58f1ec'
+            :'#8a73ff'
+        );
+      }
+    }
+
+    else if(k===1){
+
+      ctx.save();
+
+      ctx.translate(
+        0,
+        -64
+      );
+
+      ctx.rotate(
+        G.time*.45
+      );
+
+      ctx.shadowColor='#59f5ef';
+      ctx.shadowBlur=20;
+
+      ctx.strokeStyle='#7afaf5';
+      ctx.lineWidth=4;
+
+      ctx.strokeRect(
+        -30,
+        -30,
+        60,
+        60
+      );
+
+      ctx.rotate(
+        Math.PI/4
+      );
+
+      ctx.strokeRect(
+        -20,
+        -20,
+        40,
+        40
+      );
+
+      ctx.restore();
+    }
+
+    else if(k===2){
+
+      rr(
+        ctx,
+        -50,
+        -66,
+        100,
+        70,
+        12,
+        '#0c2230',
+        '#31586a',
+        5
+      );
+
+      ctx.fillStyle='#8efcf8';
+
+      ctx.font=
+        '900 12px monospace';
+
+      ctx.fillText(
+        '0101 1100',
+        -32,
+        -35
+      );
+
+      ctx.fillText(
+        '0010 0111',
+        -32,
+        -16
+      );
+    }
+
+    else{
+
+      ctx.strokeStyle='#53e5df';
+      ctx.lineWidth=7;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0,3);
+      ctx.lineTo(0,-100);
+
+      ctx.moveTo(0,-70);
+      ctx.lineTo(-38,-105);
+
+      ctx.moveTo(0,-52);
+      ctx.lineTo(42,-91);
+
+      ctx.stroke();
+
+      for(
+        const [dx,dy]
+        of [
+          [0,-105],
+          [-40,-108],
+          [44,-94]
+        ]
+      ){
+
+        ellipse(
+          ctx,
+          dx,
+          dy,
+          9,
+          9,
+          '#8afcf7',
+          '#173f4b',
+          3
+        );
+      }
+    }
+  }
 
   ctx.restore();
 }
 
 
 /* =========================================================
-   RUINS
-========================================================= */
-
-function drawRuin(
-  x,
-  y,
-  cam
-) {
-
-  x -=
-    cam;
-
-
-  const g =
-    ctx.createLinearGradient(
-      x - 35,
-      y - 145,
-      x + 35,
-      y
-    );
-
-
-  g.addColorStop(
-    0,
-    '#eee9d9'
-  );
-
-
-  g.addColorStop(
-    1,
-    '#777a80'
-  );
-
-
-  rr(
-    ctx,
-    x - 31,
-    y - 135,
-    62,
-    145,
-    14,
-    g,
-    '#4d5260',
-    5
-  );
-
-
-  rr(
-    ctx,
-    x - 44,
-    y - 151,
-    88,
-    22,
-    8,
-    '#e9e3d0',
-    '#4d5260',
-    5
-  );
-}
-
-
-/* =========================================================
    WORLD BACKGROUNDS
-========================================================= */
+   ========================================================= */
 
-function drawWorldBackground(
-  world,
-  cam
-) {
+function drawWorldBackground(w,cam){
 
-  const sky =
+  const id=G.worldId;
+  const t=G.time||0;
+
+  const sky=
     ctx.createLinearGradient(
       0,
       0,
@@ -12557,22 +11887,22 @@ function drawWorldBackground(
       H
     );
 
-
   sky.addColorStop(
     0,
-    world.skyA
+    w.skyA
   );
 
+  sky.addColorStop(
+    .58,
+    w.skyB
+  );
 
   sky.addColorStop(
     1,
-    world.skyB
+    w.ground
   );
 
-
-  ctx.fillStyle =
-    sky;
-
+  ctx.fillStyle=sky;
 
   ctx.fillRect(
     0,
@@ -12582,239 +11912,701 @@ function drawWorldBackground(
   );
 
 
-  /* SPACE STARS */
+  /* EARTH 2.0 */
 
-  if (
-    G.worldId === 'cosmos' ||
-    G.worldId === 'void' ||
-    G.worldId === 'matrix'
-  ) {
+  if(id==='earth'){
 
-    for (
-      let i = 0;
-      i < 80;
-      i++
-    ) {
+    const sun=
+      ctx.createRadialGradient(
+        1035,
+        115,
+        5,
+        1035,
+        115,
+        92
+      );
 
-      ctx.globalAlpha =
-        .2 +
+    sun.addColorStop(
+      0,
+      'rgba(255,250,210,.95)'
+    );
+
+    sun.addColorStop(
+      .35,
+      'rgba(255,232,157,.55)'
+    );
+
+    sun.addColorStop(
+      1,
+      'rgba(255,232,157,0)'
+    );
+
+    ctx.fillStyle=sun;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      1035,
+      115,
+      92,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    for(let i=0;i<7;i++){
+
+      let x=
         (
-          i % 4
-        )
-        *
-        .13;
+          (
+            i*235-
+            cam*.035
+          )%1700+
+          1700
+        )%1700-
+        160;
+
+      let y=
+        90+
+        (i%3)*48;
+
+      ctx.globalAlpha=.5;
+
+      ctx.fillStyle='#f5fbef';
+
+      ellipse(
+        ctx,
+        x,
+        y,
+        58,
+        18
+      );
+
+      ellipse(
+        ctx,
+        x+45,
+        y+5,
+        42,
+        15
+      );
+
+      ellipse(
+        ctx,
+        x-42,
+        y+7,
+        35,
+        13
+      );
+    }
+
+    ctx.globalAlpha=1;
 
 
-      ctx.fillStyle =
-        i % 9 === 0
-          ? world.accent
-          : '#ffffff';
+    for(let layer=0;layer<3;layer++){
 
+      ctx.fillStyle=
+        layer===0
+          ?'rgba(34,91,76,.18)'
+          :layer===1
+            ?'rgba(30,78,66,.28)'
+            :'rgba(24,66,56,.42)';
 
       ctx.beginPath();
 
-
-      ctx.arc(
-        (
-          (
-            i *
-            93
-            -
-            cam *
-            .08
-          )
-          %
-          (
-            W +
-            100
-          )
-        )
-        -
-        50,
-
-        30 +
-        (
-          i *
-          57
-        )
-        %
-        340,
-
-        i % 17 === 0
-          ? 2
-          : 1,
-
+      ctx.moveTo(
         0,
-        Math.PI * 2
+        410
       );
 
+      for(let i=0;i<7;i++){
+
+        const x=
+          i*240-
+          (
+            (
+              cam*
+              (
+                .035+
+                layer*.035
+              )
+            )%240
+          )-
+          120;
+
+        const y=
+          270-
+          layer*15-
+          (
+            (i+layer)%3
+          )*45;
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+        ctx.lineTo(
+          x+150,
+          390
+        );
+      }
+
+      ctx.lineTo(
+        W,
+        410
+      );
+
+      ctx.closePath();
 
       ctx.fill();
     }
 
 
-    ctx.globalAlpha =
-      1;
-  }
+    ctx.fillStyle=
+      'rgba(31,65,61,.34)';
 
+    for(let i=0;i<13;i++){
 
-  /* EARTH MOUNTAINS */
-
-  if (
-    G.worldId ===
-    'earth'
-  ) {
-
-    ctx.fillStyle =
-      'rgba(36,94,79,.24)';
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-      0,
-      390
-    );
-
-
-    for (
-      let x = 0;
-      x <= W;
-      x += 80
-    ) {
-
-      ctx.lineTo(
-        x,
-
-        330 +
-        Math.sin(
+      const x=
+        (
           (
-            x +
-            cam *
-            .12
-          )
-          *
-          .006
-        )
-        *
-        55
+            i*135-
+            cam*.11
+          )%1800+
+          1800
+        )%1800-
+        100;
+
+      const h=
+        35+
+        (i%5)*18;
+
+      ctx.fillRect(
+        x,
+        370-h,
+        75,
+        h
       );
+
+      if(i%3===0){
+
+        ctx.clearRect(
+          x+18,
+          370-h+12,
+          16,
+          12
+        );
+      }
     }
-
-
-    ctx.lineTo(
-      W,
-      520
-    );
-
-
-    ctx.lineTo(
-      0,
-      520
-    );
-
-
-    ctx.closePath();
-
-    ctx.fill();
   }
 
 
   /* MUSIC VERSE */
 
-  if (
-    G.worldId ===
-    'music'
-  ) {
+  if(id==='music'){
 
-    for (
-      let i = 0;
-      i < 12;
-      i++
-    ) {
+    const moon=
+      ctx.createRadialGradient(
+        1080,
+        125,
+        8,
+        1080,
+        125,
+        105
+      );
 
-      const h =
-        60 +
-        Math.sin(
-          G.time *
-          3 +
-          i
-        )
-        *
-        25;
+    moon.addColorStop(
+      0,
+      'rgba(255,224,255,.95)'
+    );
+
+    moon.addColorStop(
+      .3,
+      'rgba(255,111,216,.48)'
+    );
+
+    moon.addColorStop(
+      1,
+      'rgba(108,86,255,0)'
+    );
+
+    ctx.fillStyle=moon;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      1080,
+      125,
+      105,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
 
 
-      ctx.fillStyle =
-        `rgba(105,235,255,${
-          .08 +
+    ctx.save();
+
+    ctx.globalAlpha=.14;
+
+    for(let i=0;i<6;i++){
+
+      ctx.fillStyle=
+        i%2
+          ?'#6cecff'
+          :'#ff73da';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        130+i*210,
+        0
+      );
+
+      ctx.lineTo(
+        350+i*150,
+        400
+      );
+
+      ctx.lineTo(
+        420+i*150,
+        400
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+
+    for(let i=0;i<26;i++){
+
+      const x=
+        (
           (
-            i % 3
-          )
-          *
-          .03
-        })`;
+            i*72-
+            cam*.14
+          )%1900+
+          1900
+        )%1900-
+        80;
 
+      const h=
+        45+
+        (
+          (i*37)%160
+        );
+
+      ctx.fillStyle=
+        i%2
+          ?'rgba(37,28,83,.68)'
+          :'rgba(52,30,94,.72)';
 
       ctx.fillRect(
-        i *
-        110
-        -
-        (
-          cam *
-          .12
-          %
-          110
-        ),
-        400 -
-        h,
-        70,
+        x,
+        400-h,
+        54,
         h
       );
+
+      ctx.fillStyle=
+        i%3
+          ?'rgba(104,236,255,.55)'
+          :'rgba(255,111,216,.55)';
+
+      for(
+        let yy=400-h+14;
+        yy<392;
+        yy+=24
+      ){
+
+        ctx.fillRect(
+          x+10,
+          yy,
+          34,
+          5
+        );
+      }
+    }
+
+
+    ctx.strokeStyle=
+      'rgba(210,240,255,.18)';
+
+    ctx.lineWidth=2;
+
+    for(
+      let yy=180;
+      yy<300;
+      yy+=24
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        yy
+      );
+
+      ctx.lineTo(
+        W,
+        yy
+      );
+
+      ctx.stroke();
     }
   }
 
 
   /* MONEY VILLAGE */
 
-  if (
-    G.worldId ===
-    'money'
-  ) {
+  if(id==='money'){
 
-    ctx.fillStyle =
-      'rgba(255,232,145,.16)';
+    const sun=
+      ctx.createRadialGradient(
+        1020,
+        120,
+        5,
+        1020,
+        120,
+        95
+      );
+
+    sun.addColorStop(
+      0,
+      'rgba(255,247,190,.95)'
+    );
+
+    sun.addColorStop(
+      .38,
+      'rgba(255,210,91,.55)'
+    );
+
+    sun.addColorStop(
+      1,
+      'rgba(255,210,91,0)'
+    );
+
+    ctx.fillStyle=sun;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      1020,
+      120,
+      95,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
 
 
-    for (
-      let i = 0;
-      i < 9;
-      i++
-    ) {
+    ctx.fillStyle=
+      'rgba(50,90,59,.28)';
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      390
+    );
+
+    for(let i=0;i<=8;i++){
+
+      const x=
+        i*190-
+        (
+          cam*.05%
+          190
+        );
+
+      const y=
+        275+
+        Math.sin(
+          i*1.7
+        )*45;
+
+      ctx.quadraticCurveTo(
+        x+95,
+        y-35,
+        x+190,
+        350
+      );
+    }
+
+    ctx.lineTo(
+      W,
+      420
+    );
+
+    ctx.lineTo(
+      0,
+      420
+    );
+
+    ctx.fill();
+
+
+    for(let i=0;i<12;i++){
+
+      const x=
+        (
+          (
+            i*150-
+            cam*.11
+          )%1900+
+          1900
+        )%1900-
+        80;
+
+      const base=395;
+
+      const h=
+        38+
+        (i%4)*15;
+
+      ctx.fillStyle=
+        'rgba(90,69,42,.5)';
+
+      ctx.fillRect(
+        x,
+        base-h,
+        90,
+        h
+      );
 
       ctx.beginPath();
 
-
-      ctx.arc(
-        i *
-        170
-        -
-        cam *
-        .1,
-
-        120 +
-        (
-          i % 3
-        )
-        *
-        50,
-
-        45,
-
-        0,
-        Math.PI * 2
+      ctx.moveTo(
+        x-8,
+        base-h
       );
 
+      ctx.lineTo(
+        x+45,
+        base-h-35
+      );
+
+      ctx.lineTo(
+        x+98,
+        base-h
+      );
+
+      ctx.fill();
+
+      ctx.fillStyle=
+        'rgba(255,223,113,.55)';
+
+      ctx.fillRect(
+        x+18,
+        base-h+12,
+        12,
+        14
+      );
+
+      ctx.fillRect(
+        x+57,
+        base-h+12,
+        12,
+        14
+      );
+    }
+
+
+    ctx.strokeStyle=
+      'rgba(90,79,50,.45)';
+
+    ctx.lineWidth=12;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      650-cam*.025,
+      330,
+      75,
+      Math.PI,
+      0
+    );
+
+    ctx.stroke();
+
+    ctx.fillStyle=
+      'rgba(78,71,50,.32)';
+
+    ctx.fillRect(
+      575-cam*.025,
+      330,
+      150,
+      70
+    );
+  }
+
+
+  /* COSMOS */
+
+  if(id==='cosmos'){
+
+    ctx.fillStyle='#020611';
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      H
+    );
+
+    for(let i=0;i<170;i++){
+
+      const x=
+        (
+          (
+            i*89.7-
+            cam*
+            (
+              .012+
+              (i%4)*.008
+            )
+          )%1500+
+          1500
+        )%1500;
+
+      const y=
+        (
+          i*47.2
+        )%390;
+
+      ctx.globalAlpha=
+        .25+
+        (i%5)*.12;
+
+      ctx.fillStyle=
+        i%11===0
+          ?'#8beeff'
+          :i%17===0
+            ?'#c6a6ff'
+            :'#fff';
+
+      ctx.beginPath();
+
+      ctx.arc(
+        x,
+        y,
+        i%19===0
+          ?2
+          :1,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+    }
+
+    ctx.globalAlpha=1;
+
+
+    const neb=
+      ctx.createRadialGradient(
+        370,
+        180,
+        20,
+        370,
+        180,
+        280
+      );
+
+    neb.addColorStop(
+      0,
+      'rgba(113,80,210,.34)'
+    );
+
+    neb.addColorStop(
+      .45,
+      'rgba(65,95,196,.17)'
+    );
+
+    neb.addColorStop(
+      1,
+      'rgba(10,14,40,0)'
+    );
+
+    ctx.fillStyle=neb;
+
+    ctx.fillRect(
+      0,
+      0,
+      760,
+      430
+    );
+
+    drawPlanet(
+      1080-cam*.018,
+      145,
+      100,
+      '#b0c8ff',
+      '#4c3d93'
+    );
+
+    drawPlanet(
+      170-cam*.008,
+      90,
+      42,
+      '#8ff0d8',
+      '#1c6472'
+    );
+
+
+    for(let i=0;i<8;i++){
+
+      const x=
+        (
+          (
+            i*260-
+            cam*.07
+          )%1900+
+          1900
+        )%1900-
+        100;
+
+      const y=
+        315+
+        (i%3)*32;
+
+      ctx.fillStyle=
+        'rgba(92,82,144,.55)';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x-55,
+        y
+      );
+
+      ctx.lineTo(
+        x-25,
+        y-28
+      );
+
+      ctx.lineTo(
+        x+38,
+        y-20
+      );
+
+      ctx.lineTo(
+        x+62,
+        y+4
+      );
+
+      ctx.lineTo(
+        x+8,
+        y+18
+      );
+
+      ctx.closePath();
 
       ctx.fill();
     }
@@ -12823,90 +12615,455 @@ function drawWorldBackground(
 
   /* WAR ZONE */
 
-  if (
-    G.worldId ===
-    'war'
-  ) {
+  if(id==='war'){
 
-    ctx.fillStyle =
-      'rgba(40,25,28,.3)';
+    const redSun=
+      ctx.createRadialGradient(
+        1040,
+        145,
+        5,
+        1040,
+        145,
+        95
+      );
+
+    redSun.addColorStop(
+      0,
+      'rgba(255,204,145,.85)'
+    );
+
+    redSun.addColorStop(
+      .4,
+      'rgba(235,98,66,.35)'
+    );
+
+    redSun.addColorStop(
+      1,
+      'rgba(110,40,32,0)'
+    );
+
+    ctx.fillStyle=redSun;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      1040,
+      145,
+      95,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
 
 
-    for (
-      let i = 0;
-      i < 8;
-      i++
-    ) {
+    ctx.fillStyle=
+      'rgba(40,31,32,.62)';
+
+    for(let i=0;i<12;i++){
+
+      const x=
+        (
+          (
+            i*145-
+            cam*.09
+          )%1800+
+          1800
+        )%1800-
+        100;
+
+      const h=
+        55+
+        (i%4)*35;
 
       ctx.fillRect(
-        i *
-        190
-        -
-        cam *
-        .16,
-
-        250 +
-        (
-          i % 2
-        )
-        *
-        40,
-
-        95,
-        220
+        x,
+        395-h,
+        90,
+        h
       );
+
+      if(i%3===0){
+
+        ctx.fillRect(
+          x+20,
+          395-h-80,
+          18,
+          80
+        );
+
+        ctx.globalAlpha=.15;
+
+        ellipse(
+          ctx,
+          x+29,
+          395-h-100,
+          42,
+          18,
+          '#332a2b'
+        );
+
+        ctx.globalAlpha=1;
+      }
     }
-  }
 
 
-  /* MATRIX GRID */
+    ctx.save();
 
-  if (
-    G.worldId ===
-    'matrix'
-  ) {
+    ctx.globalAlpha=.12;
 
-    ctx.strokeStyle =
-      'rgba(92,246,239,.13)';
+    ctx.fillStyle='#ffb16f';
 
-
-    ctx.lineWidth =
-      1;
-
-
-    for (
-      let x =
-        -cam %
-        70;
-
-      x < W;
-
-      x += 70
-    ) {
+    for(let i=0;i<4;i++){
 
       ctx.beginPath();
 
       ctx.moveTo(
-        x,
+        80+i*320,
         0
       );
 
-
       ctx.lineTo(
-        x,
-        H
+        230+i*280,
+        400
       );
 
+      ctx.lineTo(
+        280+i*280,
+        400
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+
+    for(let i=0;i<30;i++){
+
+      const x=
+        (
+          i*73+
+          t*28
+        )%W;
+
+      const y=
+        70+
+        (i*61)%320;
+
+      ctx.globalAlpha=
+        .25+
+        (i%4)*.1;
+
+      ctx.fillStyle='#ff9a63';
+
+      ctx.fillRect(
+        x,
+        y,
+        2,
+        2
+      );
+    }
+
+    ctx.globalAlpha=1;
+  }
+
+
+  /* VOID */
+
+  if(id==='void'){
+
+    ctx.fillStyle='#040208';
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      H
+    );
+
+
+    const rift=
+      ctx.createRadialGradient(
+        1040,
+        160,
+        12,
+        1040,
+        160,
+        155
+      );
+
+    rift.addColorStop(
+      0,
+      'rgba(245,232,255,.9)'
+    );
+
+    rift.addColorStop(
+      .12,
+      'rgba(171,112,255,.72)'
+    );
+
+    rift.addColorStop(
+      .38,
+      'rgba(92,42,151,.32)'
+    );
+
+    rift.addColorStop(
+      1,
+      'rgba(30,10,50,0)'
+    );
+
+    ctx.fillStyle=rift;
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+      1040,
+      160,
+      160,
+      95,
+      0,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.strokeStyle=
+      'rgba(176,120,255,.32)';
+
+    ctx.lineWidth=6;
+
+    for(let i=0;i<4;i++){
+
+      ctx.beginPath();
+
+      ctx.ellipse(
+        1040,
+        160,
+        85+i*25,
+        38+i*16,
+        t*.05+i*.2,
+        0,
+        Math.PI*2
+      );
 
       ctx.stroke();
     }
 
 
-    for (
-      let y = 0;
-      y < H;
-      y += 70
-    ) {
+    for(let i=0;i<9;i++){
+
+      const x=
+        (
+          (
+            i*220-
+            cam*.06
+          )%1900+
+          1900
+        )%1900-
+        80;
+
+      const y=
+        390-
+        (i%3)*35;
+
+      ctx.fillStyle=
+        'rgba(31,17,45,.78)';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x-24,
+        y
+      );
+
+      ctx.lineTo(
+        x-38,
+        y-120-
+        (i%2)*55
+      );
+
+      ctx.lineTo(
+        x,
+        y-165-
+        (i%3)*30
+      );
+
+      ctx.lineTo(
+        x+35,
+        y-110
+      );
+
+      ctx.lineTo(
+        x+25,
+        y
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+    }
+
+
+    ctx.save();
+
+    ctx.globalAlpha=.12;
+
+    for(let i=0;i<5;i++){
+
+      const mg=
+        ctx.createLinearGradient(
+          0,
+          300+i*25,
+          0,
+          470+i*20
+        );
+
+      mg.addColorStop(
+        0,
+        'rgba(180,110,255,0)'
+      );
+
+      mg.addColorStop(
+        1,
+        'rgba(160,80,255,.8)'
+      );
+
+      ctx.fillStyle=mg;
+
+      ctx.fillRect(
+        0,
+        300+i*24,
+        W,
+        40
+      );
+    }
+
+    ctx.restore();
+  }
+
+
+  /* MATRIX */
+
+  if(id==='matrix'){
+
+    ctx.fillStyle='#04121d';
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      H
+    );
+
+
+    const glow=
+      ctx.createRadialGradient(
+        640,
+        280,
+        10,
+        640,
+        280,
+        380
+      );
+
+    glow.addColorStop(
+      0,
+      'rgba(67,238,230,.17)'
+    );
+
+    glow.addColorStop(
+      1,
+      'rgba(40,20,90,0)'
+    );
+
+    ctx.fillStyle=glow;
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      500
+    );
+
+
+    for(let i=0;i<20;i++){
+
+      const x=
+        (
+          (
+            i*95-
+            cam*.12
+          )%1700+
+          1700
+        )%1700-
+        80;
+
+      const h=
+        50+
+        (
+          (i*47)%190
+        );
+
+      ctx.fillStyle=
+        i%3===0
+          ?'rgba(74,43,132,.48)'
+          :'rgba(10,49,65,.7)';
+
+      ctx.fillRect(
+        x,
+        400-h,
+        68,
+        h
+      );
+
+      ctx.strokeStyle=
+        'rgba(90,243,239,.42)';
+
+      ctx.lineWidth=2;
+
+      ctx.strokeRect(
+        x,
+        400-h,
+        68,
+        h
+      );
+
+      for(
+        let yy=400-h+14;
+        yy<390;
+        yy+=22
+      ){
+
+        ctx.fillStyle=
+          i%2
+            ?'rgba(90,243,239,.48)'
+            :'rgba(159,110,255,.45)';
+
+        ctx.fillRect(
+          x+10,
+          yy,
+          48,
+          4
+        );
+      }
+    }
+
+
+    ctx.strokeStyle=
+      'rgba(90,243,239,.2)';
+
+    ctx.lineWidth=1;
+
+    for(
+      let y=405;
+      y<H;
+      y+=34
+    ){
 
       ctx.beginPath();
 
@@ -12914,436 +13071,662 @@ function drawWorldBackground(
         0,
         y
       );
-
 
       ctx.lineTo(
         W,
         y
       );
 
+      ctx.stroke();
+    }
+
+
+    for(
+      let x=-W;
+      x<W*2;
+      x+=80
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        W/2,
+        395
+      );
+
+      ctx.lineTo(
+        x,
+        H
+      );
 
       ctx.stroke();
     }
+
+
+    ctx.save();
+
+    ctx.globalAlpha=.18;
+
+    for(let i=0;i<12;i++){
+
+      const x=
+        (
+          i*137+
+          t*18
+        )%W;
+
+      const y=
+        70+
+        (i*79)%290;
+
+      ctx.fillStyle=
+        i%2
+          ?'#59f5ef'
+          :'#9d7aff';
+
+      ctx.fillRect(
+        x,
+        y,
+        25+
+        (i%3)*16,
+        3
+      );
+    }
+
+    ctx.restore();
   }
 
 
-  /* GROUND */
+  /* WALKABLE GROUND */
 
-  const ground =
+  ctx.fillStyle=
+    w.ground;
+
+  ctx.globalAlpha=
+    id==='cosmos' ||
+    id==='void' ||
+    id==='matrix'
+      ?.82
+      :1;
+
+  ctx.fillRect(
+    0,
+    400,
+    W,
+    320
+  );
+
+  ctx.globalAlpha=1;
+
+
+  const ground=
     ctx.createLinearGradient(
       0,
-      410,
+      400,
       0,
       H
     );
 
-
   ground.addColorStop(
     0,
-    world.ground
+    'rgba(255,255,255,.10)'
   );
 
+  ground.addColorStop(
+    .22,
+    'rgba(0,0,0,.02)'
+  );
 
   ground.addColorStop(
     1,
-    world.dark
+    'rgba(0,0,0,.42)'
   );
 
-
-  ctx.fillStyle =
-    ground;
-
+  ctx.fillStyle=ground;
 
   ctx.fillRect(
     0,
-    410,
+    400,
     W,
-    H - 410
+    320
   );
-}
 
 
-/* =========================================================
-   WORLD PROPS
-========================================================= */
+  if(id==='earth'){
 
-function drawWorldProps(
-  world,
-  cam
-) {
+    ctx.strokeStyle=
+      'rgba(219,236,185,.18)';
 
-  const width =
-    world.width;
+    ctx.lineWidth=3;
 
+    for(let i=0;i<9;i++){
 
-  for (
-    let x = 600;
-    x < width;
-    x += 520
-  ) {
-
-    if (
-      x % 1040 ===
-      600
-    ) {
-
-      drawTree(
-        x,
-        525,
-        cam,
-        G.worldId,
-        false
-      );
-
-    }
-
-    else {
-
-      drawRuin(
-        x,
-        525,
-        cam
-      );
-    }
-  }
-
-
-  /* MUSIC SPEAKERS */
-
-  if (
-    G.worldId ===
-    'music'
-  ) {
-
-    for (
-      let x = 1000;
-      x < width;
-      x += 900
-    ) {
-
-      const sx =
-        x -
-        cam;
-
-
-      ctx.shadowColor =
-        '#e15ee2';
-
-
-      ctx.shadowBlur =
-        18;
-
-
-      rr(
-        ctx,
-        sx - 35,
-        405,
-        70,
-        120,
-        12,
-        '#17182e',
-        '#5f53c9',
-        5
-      );
-
-
-      ellipse(
-        ctx,
-        sx,
-        450,
-        23,
-        23,
-        '#e957d4',
-        '#51245b',
-        4
-      );
-
-
-      ctx.shadowBlur =
-        0;
-    }
-  }
-
-
-  /* COSMOS PLATFORMS */
-
-  if (
-    G.worldId ===
-    'cosmos'
-  ) {
-
-    for (
-      let x = 900;
-      x < width;
-      x += 850
-    ) {
-
-      const sx =
-        x -
-        cam;
-
-
-      ctx.fillStyle =
-        '#6f6aa8';
-
-
-      ctx.strokeStyle =
-        '#282447';
-
-
-      ctx.lineWidth =
-        4;
-
+      const yy=
+        430+
+        i*34;
 
       ctx.beginPath();
 
-
-      ctx.ellipse(
-        sx,
-        500,
-        80,
-        25,
-        -.1,
+      ctx.moveTo(
         0,
-        Math.PI * 2
+        yy
       );
 
-
-      ctx.fill();
+      ctx.quadraticCurveTo(
+        W*.45,
+        yy+
+        12*
+        Math.sin(
+          i+
+          cam*.002
+        ),
+        W,
+        yy-4
+      );
 
       ctx.stroke();
-
-
-      ctx.shadowColor =
-        '#78eaff';
-
-
-      ctx.shadowBlur =
-        16;
-
-
-      ellipse(
-        ctx,
-        sx,
-        475,
-        12,
-        12,
-        '#9af6ff'
-      );
-
-
-      ctx.shadowBlur =
-        0;
     }
   }
-}
 
 
-/* =========================================================
-   EARTH STORY OBJECTS
-========================================================= */
+  if(id==='music'){
 
-function drawEarthStoryObjects(
-  cam
-) {
+    for(let i=0;i<14;i++){
 
-  const p =
-    G.progress.earth;
+      const x=
+        i*100-
+        (
+          cam*.35%
+          100
+        );
 
+      const h=
+        16+
+        Math.abs(
+          Math.sin(
+            t*2+i
+          )
+        )*34;
 
-  const crashX =
-    310 -
-    cam;
+      ctx.fillStyle=
+        i%2
+          ?'rgba(108,236,255,.18)'
+          :'rgba(255,111,216,.18)';
 
-
-  drawCrashedShip(
-    crashX,
-    510
-  );
-
-
-  if (
-    p.storyStage ===
-    1
-  ) {
-
-    drawSwordPickup(
-      950 -
-      cam,
-      505
-    );
+      ctx.fillRect(
+        x,
+        410,
+        65,
+        h
+      );
+    }
   }
 
 
-  if (
-    p.storyStage ===
-    2
-  ) {
+  if(id==='money'){
 
-    const parts = [
+    ctx.strokeStyle=
+      'rgba(83,62,35,.18)';
 
-      [
-        'drive',
-        1480
-      ],
+    ctx.lineWidth=2;
 
-      [
-        'stabilizer',
-        2350
-      ],
+    for(
+      let y=420;
+      y<H;
+      y+=34
+    ){
 
-      [
-        'core',
-        3250
-      ]
-    ];
+      for(
+        let x=
+          (
+            (y/34)%2
+          )*35-70;
+        x<W;
+        x+=70
+      ){
 
-
-    for (
-      const [
-        id,
-        x
-      ]
-      of
-      parts
-    ) {
-
-      if (
-        !(
-          p.collectedParts ||
-          []
-        )
-        .includes(
-          id
-        )
-      ) {
-
-        drawShipPart(
-          x -
-          cam,
-          505,
-          id
+        rr(
+          ctx,
+          x,
+          y,
+          62,
+          24,
+          8,
+          null,
+          'rgba(83,62,35,.18)',
+          2
         );
       }
     }
   }
 
 
-  drawTower(
-    3920 -
-    cam,
-    525,
-    p.storyStage >=
-    3
-  );
+  if(id==='cosmos'){
 
+    ctx.strokeStyle=
+      'rgba(137,190,255,.22)';
 
-  drawGate(
-    4520 -
-    cam,
-    525,
-    p.storyStage >=
-    4
-  );
-}
+    ctx.lineWidth=2;
 
+    for(
+      let x=-100;
+      x<W+100;
+      x+=120
+    ){
 
-/* =========================================================
-   CRASHED SHIP
-========================================================= */
+      ctx.beginPath();
 
-function drawCrashedShip(
-  x,
-  y
-) {
+      ctx.moveTo(
+        x,
+        400
+      );
 
-  ctx.save();
+      ctx.lineTo(
+        x+70,
+        H
+      );
 
+      ctx.stroke();
+    }
 
-  ctx.translate(
-    x,
-    y
-  );
+    for(
+      let y=430;
+      y<H;
+      y+=55
+    ){
 
+      ctx.beginPath();
 
-  ctx.rotate(
-    -.16
-  );
+      ctx.moveTo(
+        0,
+        y
+      );
 
+      ctx.lineTo(
+        W,
+        y
+      );
 
-  ctx.globalAlpha =
-    .95;
-
-
-  drawShip(
-    0,
-    -20,
-    .72,
-    0
-  );
-
-
-  for (
-    let i = 0;
-    i < 4;
-    i++
-  ) {
-
-    ellipse(
-      ctx,
-      -80 +
-      i *
-      24,
-      -50 -
-      i *
-      8,
-      18 +
-      i *
-      4,
-      10 +
-      i *
-      3,
-      'rgba(40,45,52,.45)'
-    );
+      ctx.stroke();
+    }
   }
 
 
-  ctx.restore();
+  if(id==='war'){
+
+    ctx.strokeStyle=
+      'rgba(45,31,28,.28)';
+
+    ctx.lineWidth=4;
+
+    for(let i=0;i<18;i++){
+
+      const x=
+        (
+          i*93-
+          cam*.25
+        )%W;
+
+      const y=
+        430+
+        (i*47)%250;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x-22,
+        y
+      );
+
+      ctx.lineTo(
+        x+18,
+        y-8
+      );
+
+      ctx.lineTo(
+        x+34,
+        y+6
+      );
+
+      ctx.stroke();
+    }
+  }
+
+
+  if(id==='void'){
+
+    for(let i=0;i<20;i++){
+
+      const x=
+        (
+          i*79-
+          cam*.18
+        )%W;
+
+      const y=
+        430+
+        (i*53)%250;
+
+      ctx.globalAlpha=.12;
+
+      ellipse(
+        ctx,
+        x,
+        y,
+        18+
+        (i%3)*10,
+        5,
+        '#a879ff'
+      );
+    }
+
+    ctx.globalAlpha=1;
+  }
 }
 
 
 /* =========================================================
-   NOVA SWORD PICKUP
-========================================================= */
+   WORLD RENDERING
+   ========================================================= */
 
-function drawSwordPickup(
-  x,
-  y
-) {
+function drawWorld(){
+
+  const w=
+    WORLDS[G.worldId];
+
+  const cam=
+    G.camera;
+
+  const pr=
+    G.progress[G.worldId];
+
+  drawWorldBackground(
+    w,
+    cam
+  );
+
+
+  const drawables=[];
+
+
+  for(let i=0;i<9;i++){
+
+    drawables.push({
+
+      y:
+        470+
+        (i%3)*38,
+
+      fn:()=>
+        drawProp(
+          i,
+          850+i*560,
+          470+(i%3)*38,
+          cam,
+          G.worldId
+        )
+    });
+  }
+
+
+  if(G.worldId==='earth'){
+
+    drawables.push({
+
+      y:530,
+
+      fn:()=>
+        drawShip(
+          480-cam,
+          500,
+          .65,
+          .05
+        )
+    });
+
+
+    if(pr.storyStage===1){
+
+      drawables.push({
+
+        y:515,
+
+        fn:()=>
+          drawSwordPickup(
+            1180-cam,
+            500
+          )
+      });
+    }
+
+
+    if(pr.storyStage===3){
+
+      drawables.push({
+
+        y:520,
+
+        fn:()=>
+          drawTower(
+            3350-cam,
+            520
+          )
+      });
+    }
+
+
+    if(pr.storyStage>=4){
+
+      drawables.push({
+
+        y:520,
+
+        fn:()=>
+          drawGate(
+            4050-cam,
+            520
+          )
+      });
+    }
+  }
+
+
+  for(const egg of EASTER_EGGS){
+
+    if(
+      egg.world===G.worldId &&
+      !G.easterEggs.has(egg.id)
+    ){
+
+      drawables.push({
+
+        y:egg.y,
+
+        fn:()=>
+          drawEasterEgg(
+            egg,
+            cam
+          )
+      });
+    }
+  }
+
+
+  for(const p of G.pickups){
+
+    if(!p.taken){
+
+      drawables.push({
+
+        y:p.y,
+
+        fn:()=>
+          drawPickup(
+            p,
+            cam
+          )
+      });
+    }
+  }
+
+
+  for(const e of G.enemies){
+
+    if(
+      e.alive &&
+      e.world===G.worldId
+    ){
+
+      drawables.push({
+
+        y:e.y,
+
+        fn:()=>
+          drawEnemy(
+            e,
+            cam
+          )
+      });
+    }
+  }
+
+
+  const ap=
+    activePet();
+
+
+  if(ap){
+
+    drawables.push({
+
+      y:P.y+3,
+
+      fn:()=>
+        drawFollowerPet(
+          cam
+        )
+    });
+  }
+
+
+  drawables.push({
+
+    y:P.y,
+
+    fn:()=>
+      drawRiftwalker(
+        P.x-cam,
+        P.y-P.jump,
+        1,
+        false
+      )
+  });
+
+
+  drawables
+    .sort(
+      (a,b)=>
+        a.y-b.y
+    )
+    .forEach(
+      d=>d.fn()
+    );
+
+
+  /* VOID LIGHT RADIUS */
+
+  if(G.worldId==='void'){
+
+    const ap=
+      activePet();
+
+    const types=
+      ap
+        ?PET_TYPES[ap.name]
+        :'';
+
+    const rad=
+      types.includes('Void') ||
+      types.includes('Dark')
+        ?320
+        :200;
+
+    ctx.save();
+
+    ctx.fillStyle=
+      'rgba(0,0,0,.82)';
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      H
+    );
+
+    ctx.globalCompositeOperation=
+      'destination-out';
+
+    const vg=
+      ctx.createRadialGradient(
+        P.x-cam,
+        P.y-P.jump-55,
+        30,
+        P.x-cam,
+        P.y-P.jump-55,
+        rad
+      );
+
+    vg.addColorStop(
+      0,
+      'rgba(0,0,0,1)'
+    );
+
+    vg.addColorStop(
+      1,
+      'rgba(0,0,0,0)'
+    );
+
+    ctx.fillStyle=vg;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      P.x-cam,
+      P.y-P.jump-55,
+      rad,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+
+  drawForeground(w);
+}
+
+
+/* =========================================================
+   WORLD OBJECTS
+   ========================================================= */
+
+function drawSwordPickup(x,y){
 
   ctx.save();
 
-
   ctx.translate(
     x,
-    y - 35
+    y-35
   );
 
+  ctx.rotate(.55);
 
-  ctx.rotate(
-    .55
-  );
+  ctx.shadowColor='#9b72ff';
+  ctx.shadowBlur=24;
 
-
-  ctx.shadowColor =
-    '#9b72ff';
-
-
-  ctx.shadowBlur =
-    24;
-
-
-  const g =
+  const g=
     ctx.createLinearGradient(
       0,
       -80,
@@ -13351,18 +13734,15 @@ function drawSwordPickup(
       0
     );
 
-
   g.addColorStop(
     0,
-    '#ffffff'
+    '#fff'
   );
-
 
   g.addColorStop(
     1,
     '#7750ed'
   );
-
 
   rr(
     ctx,
@@ -13376,7 +13756,6 @@ function drawSwordPickup(
     3
   );
 
-
   rr(
     ctx,
     -18,
@@ -13389,139 +13768,16 @@ function drawSwordPickup(
     3
   );
 
-
-  rr(
-    ctx,
-    -5,
-    0,
-    10,
-    28,
-    4,
-    '#3d2a72',
-    '#20153d',
-    3
-  );
-
-
   ctx.restore();
 }
 
 
-/* =========================================================
-   SHIP COMPONENT
-========================================================= */
-
-function drawShipPart(
-  x,
-  y,
-  id
-) {
-
-  contactShadow(
-    x,
-    y + 4,
-    50,
-    10,
-    .22
-  );
-
-
-  ctx.save();
-
-
-  ctx.translate(
-    x,
-    y - 28
-  );
-
-
-  ctx.rotate(
-    Math.sin(
-      G.time *
-      2 +
-      x
-    )
-    *
-    .08
-  );
-
-
-  const g =
-    ctx.createLinearGradient(
-      -22,
-      -22,
-      22,
-      22
-    );
-
-
-  g.addColorStop(
-    0,
-    '#dbe6ef'
-  );
-
-
-  g.addColorStop(
-    1,
-    '#50637a'
-  );
-
+function drawTower(x,y){
 
   rr(
     ctx,
-    -24,
-    -20,
-    48,
-    40,
-    10,
-    g,
-    '#1b293b',
-    4
-  );
-
-
-  ctx.shadowColor =
-    '#67eaff';
-
-
-  ctx.shadowBlur =
-    12;
-
-
-  ellipse(
-    ctx,
-    0,
-    0,
-    8,
-    8,
-
-    id === 'core'
-      ? '#b178ff'
-      : '#67eaff',
-
-    '#264c61',
-    2
-  );
-
-
-  ctx.restore();
-}
-
-
-/* =========================================================
-   SIGNAL TOWER
-========================================================= */
-
-function drawTower(
-  x,
-  y,
-  active
-) {
-
-  rr(
-    ctx,
-    x - 35,
-    y - 190,
+    x-35,
+    y-190,
     70,
     195,
     15,
@@ -13530,54 +13786,30 @@ function drawTower(
     5
   );
 
-
-  ctx.shadowColor =
-    active
-      ? '#65eaff'
-      : '#53616a';
-
-
-  ctx.shadowBlur =
-    active
-      ? 22
-      : 0;
-
+  ctx.shadowColor='#65eaff';
+  ctx.shadowBlur=20;
 
   ellipse(
     ctx,
     x,
-    y - 205,
+    y-205,
     28,
     28,
-
-    active
-      ? '#78efff'
-      : '#69747b',
-
+    '#78efff',
     '#294c5e',
     4
   );
 
-
-  ctx.shadowBlur =
-    0;
+  ctx.shadowBlur=0;
 }
 
 
-/* =========================================================
-   ANCIENT GATE
-========================================================= */
-
-function drawGate(
-  x,
-  y,
-  active
-) {
+function drawGate(x,y){
 
   rr(
     ctx,
-    x - 75,
-    y - 180,
+    x-75,
+    y-180,
     45,
     185,
     12,
@@ -13586,11 +13818,10 @@ function drawGate(
     5
   );
 
-
   rr(
     ctx,
-    x + 30,
-    y - 180,
+    x+30,
+    y-180,
     45,
     185,
     12,
@@ -13599,168 +13830,101 @@ function drawGate(
     5
   );
 
-
-  ctx.strokeStyle =
-    active
-      ? '#8b70ff'
-      : '#4c4c55';
-
-
-  ctx.lineWidth =
-    10;
-
-
-  if (active) {
-
-    ctx.shadowColor =
-      '#7761e8';
-
-
-    ctx.shadowBlur =
-      18;
-  }
-
+  ctx.strokeStyle='#7761e8';
+  ctx.lineWidth=10;
 
   ctx.beginPath();
 
-
   ctx.arc(
     x,
-    y - 140,
+    y-140,
     70,
     Math.PI,
     0
   );
 
-
   ctx.stroke();
-
-
-  ctx.shadowBlur =
-    0;
 }
 
 
-/* =========================================================
-   PICKUPS
-========================================================= */
+function drawPickup(p,cam){
 
-function drawPickup(
-  item,
-  cam
-) {
-
-  const x =
-    item.x -
-    cam;
+  const x=p.x-cam;
+  const y=p.y;
 
 
-  const y =
-    item.y;
-
-
-  if (
-    item.kind ===
-    'pet'
-  ) {
+  if(p.kind==='pet'){
 
     drawPetSprite(
       ctx,
       x,
       y,
-      item.name,
-      .82,
+      p.name,
+      .8,
       G.time
     );
+
+    return;
   }
 
 
-  else if (
-    item.kind ===
-    'fragment'
-  ) {
+  if(p.kind==='fragment'){
 
     ctx.save();
 
-
     ctx.translate(
       x,
-      y - 35
+      y-35
     );
-
 
     ctx.rotate(
       G.time
     );
 
+    ctx.shadowColor='#79eaff';
+    ctx.shadowBlur=18;
 
-    ctx.shadowColor =
-      '#79eaff';
-
-
-    ctx.shadowBlur =
-      18;
-
-
-    ctx.fillStyle =
-      '#dffcff';
-
-
-    ctx.strokeStyle =
-      '#6e59dd';
-
-
-    ctx.lineWidth =
-      3;
-
+    ctx.fillStyle='#dffcff';
+    ctx.strokeStyle='#6e59dd';
+    ctx.lineWidth=3;
 
     ctx.beginPath();
-
 
     ctx.moveTo(
       0,
       -18
     );
 
-
     ctx.lineTo(
       13,
       0
     );
-
 
     ctx.lineTo(
       0,
       18
     );
 
-
     ctx.lineTo(
       -13,
       0
     );
 
-
     ctx.closePath();
 
     ctx.fill();
-
     ctx.stroke();
-
 
     ctx.restore();
   }
 
 
-  else if (
-    item.kind ===
-    'beacon'
-  ) {
+  if(p.kind==='beacon'){
 
     rr(
       ctx,
-      x - 24,
-      y - 110,
+      x-24,
+      y-110,
       48,
       115,
       10,
@@ -13769,161 +13933,42 @@ function drawPickup(
       5
     );
 
-
-    ctx.shadowColor =
-      '#ff6b57';
-
-
-    ctx.shadowBlur =
-      18;
-
-
     ellipse(
       ctx,
       x,
-      y - 124,
+      y-124,
       20,
       20,
       '#ff6b57',
       '#6f2b2b',
       4
     );
-
-
-    ctx.shadowBlur =
-      0;
   }
 
 
-  else if (
-    item.kind ===
-    'portal'
-  ) {
+  if(p.kind==='portal'){
 
     ctx.save();
 
+    ctx.strokeStyle='#79eaff';
 
-    ctx.strokeStyle =
-      '#79eaff';
+    ctx.shadowColor='#6cecff';
 
+    ctx.shadowBlur=24;
 
-    ctx.shadowColor =
-      '#6cecff';
-
-
-    ctx.shadowBlur =
-      24;
-
-
-    ctx.lineWidth =
-      14;
-
+    ctx.lineWidth=14;
 
     ctx.beginPath();
 
-
     ctx.arc(
       x,
-      y - 55,
+      y-55,
       58,
       Math.PI,
       0
     );
 
-
     ctx.stroke();
-
-
-    ctx.restore();
-  }
-
-
-  else if (
-    item.kind ===
-    'credit'
-  ) {
-
-    ctx.save();
-
-
-    ctx.translate(
-      x,
-      y - 12
-    );
-
-
-    ctx.rotate(
-      G.time *
-      2 +
-      item.x
-    );
-
-
-    ctx.shadowColor =
-      '#72e6ff';
-
-
-    ctx.shadowBlur =
-      12;
-
-
-    const g =
-      ctx.createRadialGradient(
-        -4,
-        -5,
-        2,
-        0,
-        0,
-        13
-      );
-
-
-    g.addColorStop(
-      0,
-      '#ffffff'
-    );
-
-
-    g.addColorStop(
-      .45,
-      '#70ecff'
-    );
-
-
-    g.addColorStop(
-      1,
-      '#5c43cc'
-    );
-
-
-    ellipse(
-      ctx,
-      0,
-      0,
-      13,
-      13,
-      g,
-      '#19253d',
-      3
-    );
-
-
-    ctx.rotate(
-      Math.PI / 4
-    );
-
-
-    ctx.fillStyle =
-      '#ffffff';
-
-
-    ctx.fillRect(
-      -4,
-      -4,
-      8,
-      8
-    );
-
 
     ctx.restore();
   }
@@ -13931,1063 +13976,3385 @@ function drawPickup(
 
 
 /* =========================================================
+   EASTER EGG GRAPHICS
+   ========================================================= */
+
+function drawEasterEgg(egg,cam=0){
+
+  const x=
+    egg.x-cam;
+
+  const y=
+    egg.y;
+
+  const bob=
+    Math.sin(
+      G.time*2.6+
+      egg.x*.01
+    )*2;
+
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y+bob
+  );
+
+  ctx.globalAlpha=.82;
+
+
+  ctx.save();
+
+  ctx.globalAlpha=
+    .12+
+    .08*
+    Math.sin(
+      G.time*4
+    );
+
+  ctx.fillStyle='#fff4a8';
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    5,
+    24,
+    6,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+
+
+  ctx.strokeStyle='#182333';
+  ctx.lineWidth=3;
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+
+
+  switch(egg.art){
+
+    case 'scarf':
+
+      ctx.fillStyle='#e94759';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-18,-18);
+
+      ctx.quadraticCurveTo(
+        0,
+        -28,
+        18,
+        -16
+      );
+
+      ctx.lineTo(
+        8,
+        -7
+      );
+
+      ctx.quadraticCurveTo(
+        -3,
+        -15,
+        -20,
+        -7
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      break;
+
+
+    case 'cartridge':
+
+      rr(
+        ctx,
+        -17,
+        -27,
+        34,
+        30,
+        5,
+        '#26364b',
+        '#111a27',
+        3
+      );
+
+      rr(
+        ctx,
+        -10,
+        -19,
+        20,
+        10,
+        2,
+        '#65eaff'
+      );
+
+      break;
+
+
+    case 'smile':
+
+      ellipse(
+        ctx,
+        0,
+        -13,
+        19,
+        16,
+        '#8f927e',
+        '#44483f',
+        3
+      );
+
+      ellipse(
+        ctx,
+        -7,
+        -16,
+        2,
+        2,
+        '#222'
+      );
+
+      ellipse(
+        ctx,
+        7,
+        -16,
+        2,
+        2,
+        '#222'
+      );
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        -12,
+        9,
+        .25,
+        Math.PI-.25
+      );
+
+      ctx.stroke();
+
+      break;
+
+
+    case 'coffee':
+
+      rr(
+        ctx,
+        -13,
+        -25,
+        25,
+        24,
+        4,
+        '#e7e0cf',
+        '#4c4a46',
+        3
+      );
+
+      ctx.beginPath();
+
+      ctx.arc(
+        13,
+        -14,
+        8,
+        -Math.PI/2,
+        Math.PI/2
+      );
+
+      ctx.stroke();
+
+      ctx.strokeStyle=
+        'rgba(255,255,255,.55)';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -5,
+        -30
+      );
+
+      ctx.quadraticCurveTo(
+        0,
+        -40,
+        5,
+        -30
+      );
+
+      ctx.stroke();
+
+      break;
+
+
+    case 'note':
+
+      ctx.strokeStyle='#d9f9ff';
+      ctx.lineWidth=5;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        6,
+        -34
+      );
+
+      ctx.lineTo(
+        6,
+        -10
+      );
+
+      ctx.lineTo(
+        18,
+        -14
+      );
+
+      ctx.stroke();
+
+      ellipse(
+        ctx,
+        0,
+        -6,
+        8,
+        6,
+        '#c7f8ff'
+      );
+
+      ellipse(
+        ctx,
+        18,
+        -10,
+        8,
+        6,
+        '#c7f8ff'
+      );
+
+      break;
+
+
+    case 'record':
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        20,
+        20,
+        '#171a29',
+        '#5e62a0',
+        3
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        6,
+        6,
+        '#ff7ad8'
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        2,
+        2,
+        '#fff'
+      );
+
+      break;
+
+
+    case 'metronome':
+
+      ctx.fillStyle='#d6b14f';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-18,2);
+      ctx.lineTo(-10,-34);
+      ctx.lineTo(10,-34);
+      ctx.lineTo(18,2);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        -8
+      );
+
+      ctx.lineTo(
+        8,
+        -30
+      );
+
+      ctx.stroke();
+
+      break;
+
+
+    case 'pixel':
+
+      for(
+        const [dx,dy,c]
+        of [
+          [-14,-24,'#6cecff'],
+          [0,-24,'#ff7ad8'],
+          [-7,-10,'#fff0a0'],
+          [7,-10,'#9d83ff']
+        ]
+      ){
+
+        ctx.fillStyle=c;
+
+        ctx.fillRect(
+          dx,
+          dy,
+          11,
+          11
+        );
+      }
+
+      break;
+
+
+    case 'coin':
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        17,
+        17,
+        '#f1d267',
+        '#806622',
+        3
+      );
+
+      ctx.fillStyle='#fff0a0';
+
+      ctx.font=
+        '900 16px system-ui';
+
+      ctx.textAlign='center';
+
+      ctx.fillText(
+        '1',
+        0,
+        -8
+      );
+
+      break;
+
+
+    case 'pig':
+
+      ellipse(
+        ctx,
+        0,
+        -12,
+        21,
+        15,
+        '#e9a3b7',
+        '#6e4554',
+        3
+      );
+
+      ellipse(
+        ctx,
+        16,
+        -13,
+        8,
+        7,
+        '#efb3c4',
+        '#6e4554',
+        2
+      );
+
+      ellipse(
+        ctx,
+        -9,
+        -27,
+        5,
+        7,
+        '#e9a3b7',
+        '#6e4554',
+        2
+      );
+
+      break;
+
+
+    case 'receipt':
+
+      rr(
+        ctx,
+        -12,
+        -34,
+        24,
+        35,
+        2,
+        '#eef4ef',
+        '#6d7370',
+        2
+      );
+
+      ctx.strokeStyle='#777';
+      ctx.lineWidth=2;
+
+      for(
+        let yy=-26;
+        yy<-4;
+        yy+=7
+      ){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          -7,
+          yy
+        );
+
+        ctx.lineTo(
+          7,
+          yy
+        );
+
+        ctx.stroke();
+      }
+
+      break;
+
+
+    case 'cat':
+
+      ctx.fillStyle='#303746';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-16,-5);
+      ctx.lineTo(-13,-28);
+      ctx.lineTo(-5,-20);
+      ctx.lineTo(5,-20);
+      ctx.lineTo(13,-28);
+      ctx.lineTo(16,-5);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      ellipse(
+        ctx,
+        -6,
+        -13,
+        2,
+        2,
+        '#ffe96c'
+      );
+
+      ellipse(
+        ctx,
+        6,
+        -13,
+        2,
+        2,
+        '#ffe96c'
+      );
+
+      break;
+
+
+    case 'flag':
+
+      ctx.strokeStyle='#dbe8f5';
+      ctx.lineWidth=3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -10,
+        1
+      );
+
+      ctx.lineTo(
+        -10,
+        -37
+      );
+
+      ctx.stroke();
+
+      ctx.fillStyle='#7fe9ff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-8,-35);
+      ctx.lineTo(18,-29);
+      ctx.lineTo(-8,-20);
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      break;
+
+
+    case 'helmet':
+
+      ctx.fillStyle='#d8e2ec';
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        -14,
+        20,
+        Math.PI,
+        0
+      );
+
+      ctx.lineTo(
+        18,
+        0
+      );
+
+      ctx.lineTo(
+        -18,
+        0
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      rr(
+        ctx,
+        -14,
+        -20,
+        28,
+        12,
+        6,
+        '#19304c',
+        '#6cecff',
+        2
+      );
+
+      break;
+
+
+    case 'satellite':
+
+      rr(
+        ctx,
+        -8,
+        -23,
+        16,
+        16,
+        3,
+        '#c7d6e4',
+        '#3c4b5a',
+        2
+      );
+
+      ctx.fillStyle='#6486aa';
+
+      ctx.fillRect(
+        -28,
+        -21,
+        18,
+        12
+      );
+
+      ctx.fillRect(
+        10,
+        -21,
+        18,
+        12
+      );
+
+      ctx.strokeStyle='#dffcff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        -23
+      );
+
+      ctx.lineTo(
+        8,
+        -34
+      );
+
+      ctx.stroke();
+
+      break;
+
+
+    case 'whale':
+
+      ctx.fillStyle='#88b9e8';
+
+      ctx.beginPath();
+
+      ctx.ellipse(
+        -2,
+        -13,
+        21,
+        11,
+        0,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        17,
+        -13
+      );
+
+      ctx.lineTo(
+        30,
+        -23
+      );
+
+      ctx.lineTo(
+        28,
+        -9
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      break;
+
+
+    case 'sword':
+
+      ctx.save();
+
+      ctx.rotate(-.5);
+
+      rr(
+        ctx,
+        -3,
+        -36,
+        6,
+        30,
+        2,
+        '#ddd8c6',
+        '#765c3a',
+        2
+      );
+
+      rr(
+        ctx,
+        -11,
+        -8,
+        22,
+        5,
+        2,
+        '#9b7750',
+        '#523a27',
+        2
+      );
+
+      ctx.restore();
+
+      break;
+
+
+    case 'duck':
+
+      ellipse(
+        ctx,
+        0,
+        -10,
+        18,
+        12,
+        '#f4d65c',
+        '#735f2b',
+        3
+      );
+
+      ellipse(
+        ctx,
+        8,
+        -25,
+        10,
+        10,
+        '#f4d65c',
+        '#735f2b',
+        3
+      );
+
+      ctx.fillStyle='#dd6c3e';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        16,
+        -25
+      );
+
+      ctx.lineTo(
+        27,
+        -21
+      );
+
+      ctx.lineTo(
+        16,
+        -18
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      break;
+
+
+    case 'radio':
+
+      rr(
+        ctx,
+        -20,
+        -28,
+        40,
+        29,
+        5,
+        '#5c665f',
+        '#222b2b',
+        3
+      );
+
+      ctx.strokeStyle='#b9c7c1';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -12,
+        -29
+      );
+
+      ctx.lineTo(
+        10,
+        -42
+      );
+
+      ctx.stroke();
+
+      ellipse(
+        ctx,
+        9,
+        -13,
+        8,
+        8,
+        '#202929'
+      );
+
+      break;
+
+
+    case 'flower':
+
+      ctx.strokeStyle='#6ea75d';
+      ctx.lineWidth=3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        2
+      );
+
+      ctx.lineTo(
+        0,
+        -22
+      );
+
+      ctx.stroke();
+
+      for(
+        let a=0;
+        a<Math.PI*2;
+        a+=Math.PI/2
+      ){
+
+        ellipse(
+          ctx,
+          Math.cos(a)*8,
+          -24+
+          Math.sin(a)*8,
+          6,
+          6,
+          '#f2a6ca',
+          '#764d66',
+          2
+        );
+      }
+
+      ellipse(
+        ctx,
+        0,
+        -24,
+        5,
+        5,
+        '#ffe477'
+      );
+
+      break;
+
+
+    case 'eye':
+
+      ctx.fillStyle='#d9c8ff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -22,
+        -14
+      );
+
+      ctx.quadraticCurveTo(
+        0,
+        -34,
+        22,
+        -14
+      );
+
+      ctx.quadraticCurveTo(
+        0,
+        6,
+        -22,
+        -14
+      );
+
+      ctx.fill();
+      ctx.stroke();
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        7,
+        7,
+        '#6d43c9'
+      );
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        3,
+        3,
+        '#111'
+      );
+
+      break;
+
+
+    case 'candle':
+
+      rr(
+        ctx,
+        -7,
+        -22,
+        14,
+        23,
+        3,
+        '#ddd4c4',
+        '#6c6255',
+        2
+      );
+
+      ctx.fillStyle='#aa78ff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        -42
+      );
+
+      ctx.quadraticCurveTo(
+        12,
+        -29,
+        0,
+        -22
+      );
+
+      ctx.quadraticCurveTo(
+        -12,
+        -29,
+        0,
+        -42
+      );
+
+      ctx.fill();
+
+      break;
+
+
+    case 'door':
+
+      rr(
+        ctx,
+        -13,
+        -35,
+        26,
+        36,
+        3,
+        '#382949',
+        '#120d19',
+        3
+      );
+
+      ellipse(
+        ctx,
+        7,
+        -17,
+        2,
+        2,
+        '#c3a6ff'
+      );
+
+      break;
+
+
+    case 'star':
+
+      ctx.fillStyle='#e9e1ff';
+      ctx.shadowColor='#a77cff';
+      ctx.shadowBlur=12;
+
+      ctx.beginPath();
+
+      for(let i=0;i<10;i++){
+
+        const a=
+          -Math.PI/2+
+          i*Math.PI/5;
+
+        const r=
+          i%2
+            ?7
+            :18;
+
+        const px=
+          Math.cos(a)*r;
+
+        const py=
+          -15+
+          Math.sin(a)*r;
+
+        if(i){
+          ctx.lineTo(
+            px,
+            py
+          );
+        }
+        else{
+          ctx.moveTo(
+            px,
+            py
+          );
+        }
+      }
+
+      ctx.closePath();
+
+      ctx.fill();
+
+      ctx.shadowBlur=0;
+
+      break;
+
+
+    case 'bug':
+
+      ellipse(
+        ctx,
+        0,
+        -14,
+        11,
+        14,
+        '#75f4c8',
+        '#163b35',
+        2
+      );
+
+      ctx.strokeStyle='#75f4c8';
+
+      for(const side of [-1,1]){
+
+        for(
+          const yy
+          of [
+            -20,
+            -13,
+            -6
+          ]
+        ){
+
+          ctx.beginPath();
+
+          ctx.moveTo(
+            side*8,
+            yy
+          );
+
+          ctx.lineTo(
+            side*18,
+            yy-5
+          );
+
+          ctx.stroke();
+        }
+      }
+
+      break;
+
+
+    case 'floppy':
+
+      rr(
+        ctx,
+        -16,
+        -31,
+        32,
+        32,
+        3,
+        '#6f7c91',
+        '#1a2432',
+        3
+      );
+
+      rr(
+        ctx,
+        -9,
+        -27,
+        18,
+        10,
+        1,
+        '#c5d3df'
+      );
+
+      rr(
+        ctx,
+        -10,
+        -11,
+        20,
+        9,
+        1,
+        '#29374a'
+      );
+
+      break;
+
+
+    case 'cube':
+
+      ctx.fillStyle='#73e9ff';
+
+      ctx.fillRect(
+        -15,
+        -29,
+        30,
+        30
+      );
+
+      ctx.strokeRect(
+        -15,
+        -29,
+        30,
+        30
+      );
+
+      ctx.strokeStyle='#d9fbff';
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -15,
+        -29
+      );
+
+      ctx.lineTo(
+        0,
+        -40
+      );
+
+      ctx.lineTo(
+        15,
+        -29
+      );
+
+      ctx.moveTo(
+        15,
+        -29
+      );
+
+      ctx.lineTo(
+        27,
+        -38
+      );
+
+      ctx.lineTo(
+        0,
+        -40
+      );
+
+      ctx.stroke();
+
+      break;
+
+
+    case 'zero':
+
+      rr(
+        ctx,
+        -20,
+        -31,
+        40,
+        28,
+        4,
+        '#091b25',
+        '#5af3ef',
+        2
+      );
+
+      ctx.fillStyle='#aefcf8';
+
+      ctx.font=
+        '900 13px monospace';
+
+      ctx.textAlign='center';
+
+      ctx.fillText(
+        '1/0',
+        0,
+        -12
+      );
+
+      break;
+
+
+    case 'ship':
+
+      ctx.fillStyle='#c8d6e4';
+
+      ctx.beginPath();
+
+      ctx.moveTo(-23,-10);
+      ctx.lineTo(5,-29);
+      ctx.lineTo(25,-10);
+      ctx.lineTo(4,-2);
+
+      ctx.closePath();
+
+      ctx.fill();
+      ctx.stroke();
+
+      rr(
+        ctx,
+        -14,
+        -15,
+        11,
+        7,
+        2,
+        '#d94d60'
+      );
+
+      break;
+  }
+
+  ctx.restore();
+}
+
+
+/* =========================================================
    FOLLOWER PET
-========================================================= */
+   ========================================================= */
 
-function drawFollowerPet(
-  cam
-) {
+function drawFollowerPet(cam){
 
-  const pet =
+  const ap=
     activePet();
 
+  if(!ap){
+    return;
+  }
 
-  if (!pet) return;
+  ap.x=
+    lerp(
+      ap.x??P.x-65,
+      P.x-P.facing*72,
+      .08
+    );
 
+  ap.y=
+    lerp(
+      ap.y??P.y,
+      P.y,
+      .08
+    );
 
   drawPetSprite(
     ctx,
-
-    (
-      pet.fx ??
-      P.x - 70
-    )
-    -
-    cam,
-
-    pet.fy ??
-    P.y - 25,
-
-    pet.name,
-
-    .8,
-
+    ap.x-cam,
+    ap.y,
+    ap.name,
+    .78,
     G.time
   );
 }
 
 
 /* =========================================================
-   WORLD SHADING
-========================================================= */
+   FOREGROUND DEPTH
+   ========================================================= */
 
-function drawWorldShade() {
+function drawForeground(w){
 
-  const g =
+  const id=
+    G.worldId;
+
+  const t=
+    G.time||0;
+
+  ctx.save();
+
+
+  const grad=
     ctx.createLinearGradient(
       0,
-      0,
+      H-165,
       0,
       H
     );
 
-
-  g.addColorStop(
+  grad.addColorStop(
     0,
     'rgba(0,0,0,0)'
   );
 
-
-  g.addColorStop(
-    .7,
-    'rgba(5,9,18,.02)'
-  );
-
-
-  g.addColorStop(
+  grad.addColorStop(
     1,
-
-    G.worldId === 'void'
-      ? 'rgba(1,1,8,.52)'
-      : 'rgba(3,8,18,.24)'
+    'rgba(4,8,16,.38)'
   );
 
-
-  ctx.fillStyle =
-    g;
-
+  ctx.fillStyle=grad;
 
   ctx.fillRect(
     0,
-    0,
+    H-170,
     W,
-    H
+    170
   );
-}
 
 
-/* =========================================================
-   FOREGROUND OCCLUSION
-========================================================= */
+  if(id==='earth'){
 
-function drawForegroundWorld(
-  cam
-) {
+    ctx.fillStyle=
+      'rgba(18,74,51,.72)';
 
-  if (
-    G.worldId ===
-    'earth'
-  ) {
+    for(
+      let x=-10;
+      x<W+20;
+      x+=26
+    ){
 
-    ctx.fillStyle =
-      'rgba(13,55,45,.72)';
-
-
-    for (
-      let x = -20;
-      x < W + 30;
-      x += 28
-    ) {
-
-      const h =
-        18 +
+      const h=
+        18+
         Math.sin(
-          (
-            x +
-            cam
-          )
-          *
-          .12
-        )
-        *
-        7;
-
+          x*.12
+        )*8;
 
       ctx.beginPath();
-
 
       ctx.moveTo(
         x,
         H
       );
 
-
       ctx.lineTo(
-        x + 8,
-        H - h
+        x+7,
+        H-h
       );
 
-
       ctx.lineTo(
-        x + 14,
+        x+12,
         H
       );
-
 
       ctx.fill();
     }
 
 
-    for (
-      let x = 1250;
-      x <
-      WORLDS.earth.width;
-      x += 1600
-    ) {
+    ctx.fillStyle=
+      'rgba(74,130,73,.5)';
 
-      drawTree(
+    for(
+      let x=12;
+      x<W;
+      x+=95
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
         x,
-        620,
-        cam,
-        'earth',
-        true
+        H
       );
+
+      ctx.quadraticCurveTo(
+        x+9,
+        H-38,
+        x+18,
+        H
+      );
+
+      ctx.fill();
     }
   }
 
 
-  if (
-    G.worldId ===
-    'void'
-  ) {
+  else if(id==='music'){
 
-    const fog =
-      ctx.createLinearGradient(
-        0,
-        H - 170,
-        0,
-        H
+    ctx.globalAlpha=.25;
+
+    for(
+      let x=0;
+      x<W;
+      x+=90
+    ){
+
+      ctx.fillStyle=
+        (x/90)%2
+          ?'#6cecff'
+          :'#ff70d8';
+
+      const h=
+        12+
+        Math.abs(
+          Math.sin(
+            t*3+
+            x*.02
+          )
+        )*26;
+
+      ctx.fillRect(
+        x,
+        H-h,
+        54,
+        h
       );
+    }
 
-
-    fog.addColorStop(
-      0,
-      'rgba(20,10,38,0)'
-    );
-
-
-    fog.addColorStop(
-      1,
-      'rgba(13,5,28,.72)'
-    );
-
-
-    ctx.fillStyle =
-      fog;
-
-
-    ctx.fillRect(
-      0,
-      H - 170,
-      W,
-      170
-    );
+    ctx.globalAlpha=1;
   }
 
 
-  if (
-    G.worldId ===
-    'cosmos'
-  ) {
+  else if(id==='money'){
 
-    for (
-      let i = 0;
-      i < 12;
-      i++
-    ) {
+    ctx.fillStyle=
+      'rgba(82,61,31,.42)';
 
-      const x =
-        (
-          i *
-          127 +
-          G.time *
-          18
-        )
-        %
-        W;
+    for(
+      let x=-30;
+      x<W+40;
+      x+=70
+    ){
 
+      ctx.beginPath();
 
-      const y =
-        H -
-        70 -
-        (
-          i % 4
-        )
-        *
-        25;
+      ctx.arc(
+        x,
+        H+5,
+        38,
+        Math.PI,
+        0
+      );
+
+      ctx.fill();
+    }
+  }
 
 
-      ctx.globalAlpha =
-        .25;
+  else if(id==='cosmos'){
 
+    ctx.strokeStyle=
+      'rgba(126,210,255,.35)';
+
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      H-18
+    );
+
+    ctx.lineTo(
+      W,
+      H-18
+    );
+
+    ctx.stroke();
+
+
+    for(
+      let x=30;
+      x<W;
+      x+=150
+    ){
+
+      ctx.shadowColor='#6cecff';
+      ctx.shadowBlur=10;
 
       ellipse(
         ctx,
         x,
-        y,
+        H-22,
         4,
         4,
-        '#9cefff'
+        '#9ff9ff'
       );
     }
 
-
-    ctx.globalAlpha =
-      1;
+    ctx.shadowBlur=0;
   }
 
 
-  if (
-    G.worldId ===
-    'matrix'
-  ) {
+  else if(id==='war'){
 
-    ctx.globalAlpha =
-      .14 +
-      Math.random() *
-      .04;
+    ctx.fillStyle=
+      'rgba(31,26,25,.55)';
+
+    for(
+      let x=-30;
+      x<W+40;
+      x+=115
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x,
+        H
+      );
+
+      ctx.lineTo(
+        x+18,
+        H-34
+      );
+
+      ctx.lineTo(
+        x+36,
+        H
+      );
+
+      ctx.fill();
+    }
 
 
-    ctx.fillStyle =
-      '#63f4ef';
+    for(let i=0;i<12;i++){
 
+      const x=
+        (
+          i*117+
+          t*42
+        )%W;
 
-    for (
-      let i = 0;
-      i < 4;
-      i++
-    ) {
+      ctx.fillStyle=
+        'rgba(255,128,79,.45)';
 
       ctx.fillRect(
-        rand(
-          0,
-          W
-        ),
+        x,
+        H-80-
+        (i%4)*22,
+        2,
+        2
+      );
+    }
+  }
 
-        rand(
-          80,
-          H - 80
-        ),
 
-        rand(
-          30,
-          120
-        ),
+  else if(id==='void'){
 
+    ctx.fillStyle=
+      'rgba(11,5,18,.78)';
+
+    for(
+      let x=-20;
+      x<W+20;
+      x+=80
+    ){
+
+      const h=
+        24+
+        (x%5)*3;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x,
+        H
+      );
+
+      ctx.lineTo(
+        x+18,
+        H-h
+      );
+
+      ctx.lineTo(
+        x+35,
+        H
+      );
+
+      ctx.fill();
+    }
+
+    ctx.globalAlpha=.18;
+
+    ctx.fillStyle='#9f70ff';
+
+    ctx.fillRect(
+      0,
+      H-32,
+      W,
+      32
+    );
+
+    ctx.globalAlpha=1;
+  }
+
+
+  else if(id==='matrix'){
+
+    ctx.globalAlpha=.3;
+
+    ctx.fillStyle='#58f1ec';
+
+    for(let i=0;i<10;i++){
+
+      const x=
+        (
+          i*151+
+          t*30
+        )%W;
+
+      ctx.fillRect(
+        x,
+        H-18-
+        (i%3)*7,
+        42,
         3
       );
     }
 
-
-    ctx.globalAlpha =
-      1;
-  }
-}
-
-
-/* =========================================================
-   DRAW WORLD
-========================================================= */
-
-function drawWorld() {
-
-  const world =
-    WORLDS[
-      G.worldId
-    ];
-
-
-  const cam =
-    G.camera;
-
-
-  drawWorldBackground(
-    world,
-    cam
-  );
-
-
-  drawWorldProps(
-    world,
-    cam
-  );
-
-
-  if (
-    G.worldId ===
-    'earth'
-  ) {
-
-    drawEarthStoryObjects(
-      cam
-    );
-  }
-
-
-  /*
-     Everything is sorted by Y.
-     This creates the 2.5D depth effect.
-  */
-
-  const renderables =
-    [];
-
-
-  for (
-    const item of
-    G.pickups
-  ) {
-
-    if (
-      !item.taken
-    ) {
-
-      renderables.push({
-
-        y:
-          item.y,
-
-        draw:
-          () =>
-            drawPickup(
-              item,
-              cam
-            )
-      });
-    }
-  }
-
-
-  for (
-    const enemy of
-    G.enemies
-  ) {
-
-    if (
-      enemy.alive &&
-      enemy.world ===
-      G.worldId
-    ) {
-
-      renderables.push({
-
-        y:
-          enemy.y,
-
-        draw:
-          () =>
-            drawEnemy(
-              enemy,
-              cam
-            )
-      });
-    }
-  }
-
-
-  if (
-    activePet()
-  ) {
-
-    renderables.push({
-
-      y:
-        activePet().fy ??
-        P.y,
-
-      draw:
-        () =>
-          drawFollowerPet(
-            cam
-          )
-    });
-  }
-
-
-  renderables.push({
-
-    y:
-      P.y,
-
-    draw:
-      () =>
-        drawRiftwalker(
-          P.x -
-          cam,
-
-          P.y -
-          P.jump,
-
-          1,
-
-          false
-        )
-  });
-
-
-  renderables.sort(
-    (
-      a,
-      b
-    ) =>
-      a.y -
-      b.y
-  );
-
-
-  for (
-    const renderable of
-    renderables
-  ) {
-
-    renderable.draw();
-  }
-
-
-  drawWorldShade();
-
-
-  drawForegroundWorld(
-    cam
-  );
-}
-
-
-/* =========================================================
-   HUB BUILDINGS
-========================================================= */
-
-function drawHubBuilding(
-  x,
-  y,
-  label,
-  color,
-  symbol
-) {
-
-  contactShadow(
-    x,
-    y + 8,
-    140,
-    26,
-    .3
-  );
-
-
-  const g =
-    ctx.createLinearGradient(
-      x - 75,
-      y - 125,
-      x + 75,
-      y
-    );
-
-
-  g.addColorStop(
-    0,
-    '#fbfdfd'
-  );
-
-
-  g.addColorStop(
-    1,
-    color
-  );
-
-
-  rr(
-    ctx,
-    x - 72,
-    y - 118,
-    144,
-    120,
-    22,
-    g,
-    '#42536a',
-    5
-  );
-
-
-  ctx.fillStyle =
-    '#132035';
-
-
-  ctx.font =
-    '900 11px system-ui';
-
-
-  ctx.textAlign =
-    'center';
-
-
-  ctx.fillText(
-    label,
-    x,
-    y - 58
-  );
-
-
-  ctx.textAlign =
-    'left';
-
-
-  ctx.save();
-
-
-  ctx.translate(
-    x,
-    y - 91
-  );
-
-
-  ctx.strokeStyle =
-    '#18324b';
-
-
-  ctx.lineWidth =
-    4;
-
-
-  if (
-    symbol ===
-    'paw'
-  ) {
-
-    ellipse(
-      ctx,
-      0,
-      4,
-      10,
-      8,
-      '#6cecff',
-      '#18324b',
-      2
-    );
-
-
-    ellipse(
-      ctx,
-      -12,
-      -7,
-      5,
-      6,
-      '#6cecff'
-    );
-
-
-    ellipse(
-      ctx,
-      0,
-      -11,
-      5,
-      6,
-      '#6cecff'
-    );
-
-
-    ellipse(
-      ctx,
-      12,
-      -7,
-      5,
-      6,
-      '#6cecff'
-    );
-  }
-
-
-  else if (
-    symbol ===
-    'armor'
-  ) {
-
-    ctx.fillStyle =
-      '#6cecff';
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-      -13,
-      -12
-    );
-
-
-    ctx.lineTo(
-      13,
-      -12
-    );
-
-
-    ctx.lineTo(
-      18,
-      2
-    );
-
-
-    ctx.lineTo(
-      0,
-      18
-    );
-
-
-    ctx.lineTo(
-      -18,
-      2
-    );
-
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.stroke();
-  }
-
-
-  else {
-
-    ctx.rotate(
-      Math.PI / 4
-    );
-
-
-    ctx.fillStyle =
-      '#6cecff';
-
-
-    ctx.fillRect(
-      -10,
-      -10,
-      20,
-      20
-    );
-
-
-    ctx.strokeRect(
-      -10,
-      -10,
-      20,
-      20
-    );
+    ctx.globalAlpha=1;
   }
 
 
   ctx.restore();
 }
-
-
 /* =========================================================
-   ASTRA
-========================================================= */
+   THE HUB - BUILDING GLOW UP
+   Each building now has its own silhouette, animated lighting,
+   signage, windows, doors and 2.5D platform details.
+   ========================================================= */
 
-function drawAstra(
-  x,
-  y
-) {
+function drawHub(){
 
-  contactShadow(
-    x,
-    y + 5,
-    48,
-    11,
-    .22
-  );
+  space(G.time*7);
 
-
-  ctx.save();
-
-
-  ctx.translate(
-    x,
-    y
-  );
-
-
-  ellipse(
-    ctx,
-    0,
-    -74,
-    27,
-    29,
-    '#f5f0ff',
-    '#33284f',
-    4
-  );
-
-
-  rr(
-    ctx,
-    -20,
-    -49,
-    40,
-    50,
-    15,
-    '#7d68b5',
-    '#33284f',
-    4
-  );
-
-
-  ctx.shadowColor =
-    '#b58cff';
-
-
-  ctx.shadowBlur =
-    10;
-
-
-  ellipse(
-    ctx,
-    -8,
-    -76,
-    3,
-    3,
-    '#d7c6ff'
-  );
-
-
-  ellipse(
-    ctx,
-    8,
-    -76,
-    3,
-    3,
-    '#d7c6ff'
-  );
-
-
-  ctx.restore();
-}
-
-
-/* =========================================================
-   DRAW HUB
-========================================================= */
-
-function drawHub() {
-
-  drawSpace(
-    G.time *
-    25
-  );
-
+  // Deep-space skyline behind the station.
 
   drawPlanet(
     1110,
-    150,
+    145,
     95,
     '#a67eff',
     '#2e286d'
   );
 
-
   drawPlanet(
-    160,
-    115,
-    60,
-    '#7ce6b1',
-    '#245a50'
+    155,
+    105,
+    48,
+    '#9ff4df',
+    '#285d66'
   );
 
 
-  ctx.fillStyle =
-    '#eef3f2';
+  ctx.save();
+
+  ctx.globalAlpha=.18;
+
+  ctx.strokeStyle='#6cecff';
+
+  ctx.lineWidth=2;
 
 
-  ctx.strokeStyle =
-    '#5d7593';
+  for(let i=0;i<5;i++){
+
+    ctx.beginPath();
+
+    ctx.arc(
+      640,
+      340,
+      150+i*75,
+      Math.PI*.08,
+      Math.PI*.92
+    );
+
+    ctx.stroke();
+  }
+
+  ctx.restore();
 
 
-  ctx.lineWidth =
-    6;
+  // Floating Hub island.
+
+  shadow(
+    640,
+    620,
+    1040,
+    100,
+    .42
+  );
+
+
+  const rim=
+    ctx.createLinearGradient(
+      0,
+      420,
+      0,
+      680
+    );
+
+
+  rim.addColorStop(
+    0,
+    '#f7fbff'
+  );
+
+  rim.addColorStop(
+    .34,
+    '#a9c1d2'
+  );
+
+  rim.addColorStop(
+    .72,
+    '#4d6680'
+  );
+
+  rim.addColorStop(
+    1,
+    '#18283d'
+  );
+
+
+  ctx.fillStyle=rim;
+
+  ctx.strokeStyle='#4f7591';
+
+  ctx.lineWidth=7;
 
 
   ctx.beginPath();
 
-
   ctx.ellipse(
-    750 -
-    G.camera,
-    545,
-    690,
+    640,
+    535,
+    575,
     170,
     0,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
-
 
   ctx.fill();
 
   ctx.stroke();
 
 
-  const island =
+  // Underside gives the island actual thickness.
+
+  const under=
     ctx.createLinearGradient(
       0,
-      410,
+      545,
       0,
-      700
+      690
     );
 
 
-  island.addColorStop(
+  under.addColorStop(
     0,
-    'rgba(110,230,255,.06)'
+    'rgba(54,78,105,.85)'
   );
 
-
-  island.addColorStop(
+  under.addColorStop(
     1,
-    'rgba(24,45,72,.25)'
+    'rgba(8,17,31,.98)'
   );
 
 
-  ctx.fillStyle =
-    island;
+  ctx.fillStyle=under;
 
 
   ctx.beginPath();
 
-
-  ctx.ellipse(
-    750 -
-    G.camera,
-    545,
-    680,
-    160,
-    0,
-    0,
-    Math.PI * 2
+  ctx.moveTo(
+    92,
+    545
   );
 
+  ctx.quadraticCurveTo(
+    640,
+    760,
+    1188,
+    545
+  );
+
+  ctx.quadraticCurveTo(
+    640,
+    690,
+    92,
+    545
+  );
 
   ctx.fill();
 
 
-  drawHubBuilding(
-    350 -
-    G.camera,
-    505,
-    'PET SANCTUARY',
-    '#d4b56f',
-    'paw'
+  // Animated energy ring around the Hub.
+
+  ctx.save();
+
+  ctx.globalAlpha=
+    .55+
+    .18*
+    Math.sin(
+      G.time*3
+    );
+
+  ctx.strokeStyle='#6cecff';
+
+  ctx.shadowColor='#6cecff';
+
+  ctx.shadowBlur=18;
+
+  ctx.lineWidth=5;
+
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    640,
+    535,
+    548,
+    148,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+
+  // Walkways connect the three facilities.
+
+  drawHubPath(
+    340,
+    650,
+    500
+  );
+
+  drawHubPath(
+    650,
+    980,
+    500
   );
 
 
-  drawHubBuilding(
-    620 -
-    G.camera,
-    505,
-    'ARMOR',
-    '#6a7fa1',
-    'armor'
-  );
+  // Small animated runway lights.
 
+  for(
+    let x=180;
+    x<=1100;
+    x+=58
+  ){
 
-  drawAstra(
-    760 -
-    G.camera,
-    520
-  );
-
-
-  drawHubBuilding(
-    980 -
-    G.camera,
-    505,
-    'RIFT MAP',
-    '#5fc6d8',
-    'rift'
-  );
-
-
-  if (
-    activePet()
-  ) {
-
-    drawFollowerPet(
-      G.camera
+    drawHubLight(
+      x,
+      566,
+      (x/58|0)%2===0
     );
   }
 
 
+  // Unique buildings instead of three identical boxes.
+
+  drawHubSanctuary(
+    340,
+    500
+  );
+
+  drawHubArmory(
+    650,
+    500
+  );
+
+  drawHubTerminal(
+    980,
+    500
+  );
+
+
+  // Central Rift Core monument makes the Hub feel like a base.
+
+  drawHubCoreMonument(
+    650,
+    390
+  );
+
+
+  for(
+    const egg
+    of EASTER_EGGS
+  ){
+
+    if(
+      egg.world==='hub' &&
+      !G.easterEggs.has(
+        egg.id
+      )
+    ){
+
+      drawEasterEgg(
+        egg,
+        0
+      );
+    }
+  }
+
+
+  if(activePet()){
+
+    drawFollowerPet(0);
+  }
+
+
   drawRiftwalker(
-    P.x -
-    G.camera,
-    P.y -
-    P.jump,
+    P.x,
+    P.y-P.jump,
     1,
     false
   );
+
+
+  // Foreground railings create extra 2.5D depth/occlusion.
+
+  ctx.save();
+
+  ctx.strokeStyle=
+    'rgba(26,45,65,.8)';
+
+  ctx.lineWidth=7;
+
+  ctx.lineCap='round';
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    110,
+    618
+  );
+
+  ctx.lineTo(
+    330,
+    650
+  );
+
+  ctx.moveTo(
+    950,
+    650
+  );
+
+  ctx.lineTo(
+    1170,
+    618
+  );
+
+  ctx.stroke();
+
+
+  ctx.strokeStyle=
+    'rgba(105,231,255,.5)';
+
+  ctx.lineWidth=2;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    110,
+    611
+  );
+
+  ctx.lineTo(
+    330,
+    643
+  );
+
+  ctx.moveTo(
+    950,
+    643
+  );
+
+  ctx.lineTo(
+    1170,
+    611
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 
 /* =========================================================
-   DRAW PARTICLES
-========================================================= */
+   HUB WALKWAYS
+   ========================================================= */
 
-function drawParticles(
-  cam = 0
-) {
+function drawHubPath(
+  x1,
+  x2,
+  y
+){
 
-  for (
-    const p of
-    G.particles
-  ) {
+  const mid=
+    (x1+x2)/2;
+
+
+  const w=
+    Math.abs(
+      x2-x1
+    )-100;
+
+
+  const g=
+    ctx.createLinearGradient(
+      0,
+      y-10,
+      0,
+      y+55
+    );
+
+
+  g.addColorStop(
+    0,
+    'rgba(223,241,247,.88)'
+  );
+
+  g.addColorStop(
+    1,
+    'rgba(83,111,136,.72)'
+  );
+
+
+  rr(
+    ctx,
+    mid-w/2,
+    y-5,
+    w,
+    58,
+    18,
+    g,
+    'rgba(49,77,101,.85)',
+    4
+  );
+
+
+  ctx.save();
+
+  ctx.strokeStyle=
+    'rgba(99,233,255,.65)';
+
+  ctx.lineWidth=3;
+
+  ctx.setLineDash([
+    18,
+    15
+  ]);
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    mid-w/2+22,
+    y+24
+  );
+
+  ctx.lineTo(
+    mid+w/2-22,
+    y+24
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+
+function drawHubLight(
+  x,
+  y,
+  alt=false
+){
+
+  const pulse=
+    .65+
+    .35*
+    Math.sin(
+      G.time*4+
+      x*.03
+    );
+
+
+  ctx.save();
+
+  ctx.globalAlpha=pulse;
+
+
+  ctx.shadowColor=
+    alt
+      ?'#70efff'
+      :'#a889ff';
+
+
+  ctx.shadowBlur=13;
+
+
+  ellipse(
+    ctx,
+    x,
+    y,
+    5,
+    3,
+    alt
+      ?'#baf8ff'
+      :'#d8c8ff'
+  );
+
+
+  ctx.restore();
+}
+
+
+function drawHubSign(
+  x,
+  y,
+  text,
+  accent
+){
+
+  ctx.save();
+
+  ctx.shadowColor=accent;
+
+  ctx.shadowBlur=13;
+
+
+  rr(
+    ctx,
+    x-62,
+    y-15,
+    124,
+    30,
+    10,
+    'rgba(9,21,37,.9)',
+    accent,
+    2
+  );
+
+
+  ctx.shadowBlur=0;
+
+
+  ctx.fillStyle=
+    '#f4fbff';
+
+
+  ctx.font=
+    '900 10px system-ui';
+
+
+  ctx.textAlign=
+    'center';
+
+
+  ctx.fillText(
+    text,
+    x,
+    y+4
+  );
+
+
+  ctx.textAlign=
+    'left';
+
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   PET SANCTUARY BUILDING
+   ========================================================= */
+
+function drawHubSanctuary(
+  x,
+  y
+){
+
+  shadow(
+    x,
+    y+10,
+    190,
+    28,
+    .32
+  );
+
+
+  ctx.save();
+
+
+  // Side habitat pods.
+
+  const pod=
+    ctx.createLinearGradient(
+      x-100,
+      y-110,
+      x+100,
+      y
+    );
+
+
+  pod.addColorStop(
+    0,
+    '#d7f2dc'
+  );
+
+  pod.addColorStop(
+    .5,
+    '#9ccaa9'
+  );
+
+  pod.addColorStop(
+    1,
+    '#587d6c'
+  );
+
+
+  rr(
+    ctx,
+    x-105,
+    y-88,
+    55,
+    90,
+    24,
+    pod,
+    '#355667',
+    5
+  );
+
+
+  rr(
+    ctx,
+    x+50,
+    y-88,
+    55,
+    90,
+    24,
+    pod,
+    '#355667',
+    5
+  );
+
+
+  // Main glass dome.
+
+  const dome=
+    ctx.createRadialGradient(
+      x-28,
+      y-118,
+      8,
+      x,
+      y-82,
+      105
+    );
+
+
+  dome.addColorStop(
+    0,
+    'rgba(235,255,248,.98)'
+  );
+
+  dome.addColorStop(
+    .45,
+    'rgba(139,226,205,.92)'
+  );
+
+  dome.addColorStop(
+    1,
+    'rgba(48,104,105,.95)'
+  );
+
+
+  ctx.fillStyle=dome;
+
+  ctx.strokeStyle='#294d5d';
+
+  ctx.lineWidth=6;
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-56,
+    82,
+    Math.PI,
+    0
+  );
+
+  ctx.lineTo(
+    x+82,
+    y
+  );
+
+  ctx.lineTo(
+    x-82,
+    y
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  // Glass ribs.
+
+  ctx.strokeStyle=
+    'rgba(226,255,249,.55)';
+
+  ctx.lineWidth=3;
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-56,
+    55,
+    Math.PI,
+    0
+  );
+
+  ctx.stroke();
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x,
+    y-137
+  );
+
+  ctx.lineTo(
+    x,
+    y-7
+  );
+
+  ctx.stroke();
+
+
+  // Habitat plants visible through glass.
+
+  ctx.fillStyle=
+    '#6fcf8e';
+
+
+  for(
+    const dx
+    of [
+      -48,
+      -26,
+      32,
+      50
+    ]
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x+dx,
+      y-10
+    );
+
+    ctx.quadraticCurveTo(
+      x+dx-12,
+      y-48,
+      x+dx+2,
+      y-63
+    );
+
+    ctx.quadraticCurveTo(
+      x+dx+15,
+      y-42,
+      x+dx,
+      y-10
+    );
+
+    ctx.fill();
+  }
+
+
+  // Door.
+
+  const door=
+    ctx.createLinearGradient(
+      x-24,
+      y-66,
+      x+24,
+      y
+    );
+
+
+  door.addColorStop(
+    0,
+    '#16304a'
+  );
+
+  door.addColorStop(
+    1,
+    '#274f64'
+  );
+
+
+  rr(
+    ctx,
+    x-27,
+    y-63,
+    54,
+    65,
+    22,
+    door,
+    '#73e9df',
+    4
+  );
+
+
+  ctx.shadowColor=
+    '#6ef1df';
+
+  ctx.shadowBlur=16;
+
+
+  ctx.strokeStyle=
+    '#9ffcef';
+
+  ctx.lineWidth=3;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x,
+    y-54
+  );
+
+  ctx.lineTo(
+    x,
+    y-10
+  );
+
+  ctx.stroke();
+
+
+  ctx.shadowBlur=0;
+
+
+  // Paw hologram.
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y-105
+  );
+
+
+  ctx.globalAlpha=
+    .75+
+    .2*
+    Math.sin(
+      G.time*3
+    );
+
+
+  ctx.shadowColor=
+    '#9ffcef';
+
+  ctx.shadowBlur=18;
+
+
+  ellipse(
+    ctx,
+    0,
+    8,
+    10,
+    8,
+    '#c8fff5'
+  );
+
+
+  ellipse(
+    ctx,
+    -13,
+    -4,
+    5,
+    6,
+    '#c8fff5'
+  );
+
+
+  ellipse(
+    ctx,
+    0,
+    -9,
+    5,
+    6,
+    '#c8fff5'
+  );
+
+
+  ellipse(
+    ctx,
+    13,
+    -4,
+    5,
+    6,
+    '#c8fff5'
+  );
+
+
+  ctx.restore();
+
+
+  drawHubSign(
+    x,
+    y-155,
+    'PET SANCTUARY',
+    '#76eadb'
+  );
+
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   ARMOR WORKSHOP
+   ========================================================= */
+
+function drawHubArmory(
+  x,
+  y
+){
+
+  shadow(
+    x,
+    y+10,
+    200,
+    30,
+    .34
+  );
+
+
+  ctx.save();
+
+
+  // Heavy angular frame.
+
+  const body=
+    ctx.createLinearGradient(
+      x-95,
+      y-145,
+      x+95,
+      y
+    );
+
+
+  body.addColorStop(
+    0,
+    '#b8c7d4'
+  );
+
+  body.addColorStop(
+    .45,
+    '#667d93'
+  );
+
+  body.addColorStop(
+    1,
+    '#26384d'
+  );
+
+
+  ctx.fillStyle=body;
+
+  ctx.strokeStyle='#1a2b3d';
+
+  ctx.lineWidth=6;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-95,
+    y
+  );
+
+  ctx.lineTo(
+    x-82,
+    y-105
+  );
+
+  ctx.lineTo(
+    x-48,
+    y-145
+  );
+
+  ctx.lineTo(
+    x+48,
+    y-145
+  );
+
+  ctx.lineTo(
+    x+82,
+    y-105
+  );
+
+  ctx.lineTo(
+    x+95,
+    y
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  // Forge towers.
+
+  rr(
+    ctx,
+    x-112,
+    y-112,
+    34,
+    112,
+    9,
+    '#3e5267',
+    '#1a2939',
+    5
+  );
+
+
+  rr(
+    ctx,
+    x+78,
+    y-112,
+    34,
+    112,
+    9,
+    '#3e5267',
+    '#1a2939',
+    5
+  );
+
+
+  for(
+    const sx
+    of [
+      x-95,
+      x+95
+    ]
+  ){
 
     ctx.save();
 
 
-    ctx.globalAlpha =
+    ctx.globalAlpha=
+      .7+
+      .25*
+      Math.sin(
+        G.time*5+
+        sx
+      );
+
+
+    ctx.shadowColor=
+      '#ffb35c';
+
+    ctx.shadowBlur=18;
+
+
+    ellipse(
+      ctx,
+      sx,
+      y-91,
+      8,
+      18,
+      '#ffd08a'
+    );
+
+
+    ctx.restore();
+  }
+
+
+  // Central armored door.
+
+  rr(
+    ctx,
+    x-38,
+    y-79,
+    76,
+    80,
+    12,
+    '#172638',
+    '#0c1724',
+    5
+  );
+
+
+  ctx.strokeStyle=
+    '#6cecff';
+
+  ctx.lineWidth=3;
+
+  ctx.shadowColor=
+    '#6cecff';
+
+  ctx.shadowBlur=12;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-25,
+    y-64
+  );
+
+  ctx.lineTo(
+    x,
+    y-42
+  );
+
+  ctx.lineTo(
+    x+25,
+    y-64
+  );
+
+  ctx.stroke();
+
+
+  ctx.shadowBlur=0;
+
+
+  // Display racks.
+
+  rr(
+    ctx,
+    x-72,
+    y-77,
+    24,
+    58,
+    7,
+    '#24394e',
+    '#7292aa',
+    3
+  );
+
+
+  rr(
+    ctx,
+    x+48,
+    y-77,
+    24,
+    58,
+    7,
+    '#24394e',
+    '#7292aa',
+    3
+  );
+
+
+  ctx.strokeStyle=
+    '#dceaff';
+
+  ctx.lineWidth=4;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x-60,
+    y-68
+  );
+
+  ctx.lineTo(
+    x-60,
+    y-33
+  );
+
+  ctx.moveTo(
+    x+60,
+    y-68
+  );
+
+  ctx.lineTo(
+    x+60,
+    y-33
+  );
+
+  ctx.stroke();
+
+
+  // Armor crest hologram.
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y-112
+  );
+
+
+  ctx.globalAlpha=
+    .72+
+    .2*
+    Math.sin(
+      G.time*3.5
+    );
+
+
+  ctx.shadowColor=
+    '#6cecff';
+
+  ctx.shadowBlur=15;
+
+
+  ctx.fillStyle=
+    '#b9f7ff';
+
+  ctx.strokeStyle=
+    '#31556d';
+
+  ctx.lineWidth=2;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -14,
+    -12
+  );
+
+  ctx.lineTo(
+    14,
+    -12
+  );
+
+  ctx.lineTo(
+    20,
+    2
+  );
+
+  ctx.lineTo(
+    0,
+    20
+  );
+
+  ctx.lineTo(
+    -20,
+    2
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.stroke();
+
+  ctx.restore();
+
+
+  drawHubSign(
+    x,
+    y-166,
+    'ARMOR WORKSHOP',
+    '#75eaff'
+  );
+
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   RIFT TERMINAL
+   ========================================================= */
+
+function drawHubTerminal(
+  x,
+  y
+){
+
+  shadow(
+    x,
+    y+10,
+    205,
+    30,
+    .34
+  );
+
+
+  ctx.save();
+
+
+  // Tall Rift arch.
+
+  const tower=
+    ctx.createLinearGradient(
+      x-90,
+      y-170,
+      x+90,
+      y
+    );
+
+
+  tower.addColorStop(
+    0,
+    '#dff8fb'
+  );
+
+  tower.addColorStop(
+    .4,
+    '#5faebd'
+  );
+
+  tower.addColorStop(
+    1,
+    '#29445c'
+  );
+
+
+  rr(
+    ctx,
+    x-91,
+    y-128,
+    44,
+    130,
+    15,
+    tower,
+    '#23384d',
+    5
+  );
+
+
+  rr(
+    ctx,
+    x+47,
+    y-128,
+    44,
+    130,
+    15,
+    tower,
+    '#23384d',
+    5
+  );
+
+
+  ctx.strokeStyle=
+    '#42657c';
+
+  ctx.lineWidth=18;
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    x,
+    y-116,
+    70,
+    Math.PI,
+    0
+  );
+
+  ctx.stroke();
+
+
+  // Portal interior.
+
+  const portal=
+    ctx.createRadialGradient(
+      x,
+      y-67,
+      8,
+      x,
+      y-67,
+      70
+    );
+
+
+  portal.addColorStop(
+    0,
+    'rgba(239,255,255,.95)'
+  );
+
+  portal.addColorStop(
+    .25,
+    'rgba(105,238,255,.75)'
+  );
+
+  portal.addColorStop(
+    .62,
+    'rgba(126,91,237,.4)'
+  );
+
+  portal.addColorStop(
+    1,
+    'rgba(22,31,65,.08)'
+  );
+
+
+  ctx.fillStyle=portal;
+
+  ctx.shadowColor='#72ecff';
+
+  ctx.shadowBlur=26;
+
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x,
+    y-65,
+    54,
+    70,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+
+  ctx.shadowBlur=0;
+
+
+  // Rotating holographic rings.
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y-70
+  );
+
+  ctx.rotate(
+    G.time*.35
+  );
+
+
+  ctx.strokeStyle=
+    'rgba(202,252,255,.8)';
+
+  ctx.lineWidth=2;
+
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    0,
+    42,
+    17,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+
+  ctx.rotate(
+    Math.PI/3
+  );
+
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    0,
+    42,
+    17,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+
+  // Floating map shards.
+
+  for(let i=0;i<5;i++){
+
+    const a=
+      G.time*.55+
+      i*Math.PI*2/5;
+
+
+    const rx=74;
+
+
+    const px=
+      x+
+      Math.cos(a)*rx;
+
+
+    const py=
+      y-70+
+      Math.sin(a)*22;
+
+
+    ctx.save();
+
+    ctx.translate(
+      px,
+      py
+    );
+
+    ctx.rotate(a);
+
+    ctx.globalAlpha=.65;
+
+    ctx.shadowColor='#a887ff';
+
+    ctx.shadowBlur=10;
+
+    ctx.fillStyle=
+      i%2
+        ?'#baf8ff'
+        :'#c6b3ff';
+
+
+    ctx.fillRect(
+      -5,
+      -5,
+      10,
+      10
+    );
+
+
+    ctx.restore();
+  }
+
+
+  // Control console.
+
+  rr(
+    ctx,
+    x-55,
+    y-29,
+    110,
+    32,
+    9,
+    '#13273b',
+    '#6cecff',
+    3
+  );
+
+
+  ctx.fillStyle=
+    '#8ff3ff';
+
+
+  for(let i=0;i<4;i++){
+
+    ctx.fillRect(
+      x-39+i*22,
+      y-18,
+      12,
+      4
+    );
+  }
+
+
+  drawHubSign(
+    x,
+    y-174,
+    'RIFT TERMINAL',
+    '#8befff'
+  );
+
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   HUB CORE MONUMENT
+   ========================================================= */
+
+function drawHubCoreMonument(
+  x,
+  y
+){
+
+  ctx.save();
+
+
+  shadow(
+    x,
+    y+88,
+    105,
+    20,
+    .22
+  );
+
+
+  // Pedestal.
+
+  rr(
+    ctx,
+    x-34,
+    y+35,
+    68,
+    55,
+    13,
+    '#354b62',
+    '#17293c',
+    5
+  );
+
+
+  rr(
+    ctx,
+    x-48,
+    y+75,
+    96,
+    18,
+    8,
+    '#5f7d93',
+    '#20354a',
+    4
+  );
+
+
+  // Floating diamond core.
+
+  ctx.translate(
+    x,
+    y+15
+  );
+
+
+  ctx.rotate(
+    Math.PI/4+
+    G.time*.35
+  );
+
+
+  ctx.globalAlpha=
+    .82+
+    .16*
+    Math.sin(
+      G.time*4
+    );
+
+
+  ctx.shadowColor=
+    '#6cecff';
+
+  ctx.shadowBlur=28;
+
+
+  const g=
+    ctx.createLinearGradient(
+      -18,
+      -18,
+      18,
+      18
+    );
+
+
+  g.addColorStop(
+    0,
+    '#ffffff'
+  );
+
+  g.addColorStop(
+    .45,
+    '#86efff'
+  );
+
+  g.addColorStop(
+    1,
+    '#8b6dff'
+  );
+
+
+  ctx.fillStyle=g;
+
+  ctx.strokeStyle=
+    '#d7fbff';
+
+  ctx.lineWidth=3;
+
+
+  ctx.fillRect(
+    -17,
+    -17,
+    34,
+    34
+  );
+
+
+  ctx.strokeRect(
+    -17,
+    -17,
+    34,
+    34
+  );
+
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   PARTICLE RENDERING
+   ========================================================= */
+
+function drawParticles(
+  cam=0
+){
+
+  for(
+    const p
+    of G.particles
+  ){
+
+    ctx.save();
+
+
+    ctx.globalAlpha=
       clamp(
-        p.life /
-        p.maxLife,
+        p.life/p.max,
         0,
         1
       );
 
 
-    if (
-      p.type ===
-      'text'
-    ) {
+    if(p.kind==='text'){
 
-      ctx.fillStyle =
+      ctx.fillStyle=
         p.color;
 
 
-      ctx.font =
-        `900 ${p.size}px system-ui`;
+      ctx.font=
+        '900 '+
+        p.size+
+        'px system-ui';
 
 
-      ctx.textAlign =
+      ctx.textAlign=
         'center';
 
 
       ctx.fillText(
         p.text,
-        p.x -
-        cam,
+        p.x-cam,
         p.y
       );
 
 
-      ctx.textAlign =
+      ctx.textAlign=
         'left';
     }
 
+    else{
 
-    else if (
-      p.type ===
-      'star'
-    ) {
-
-      ctx.strokeStyle =
+      ctx.fillStyle=
         p.color;
 
 
-      ctx.lineWidth =
-        p.size;
-
-
-      ctx.beginPath();
-
-
-      ctx.moveTo(
-        p.x,
-        p.y
-      );
-
-
-      ctx.lineTo(
-        p.x + 22,
-        p.y
-      );
-
-
-      ctx.stroke();
-    }
-
-
-    else {
-
-      ctx.fillStyle =
+      ctx.shadowColor=
         p.color;
 
 
-      ctx.shadowColor =
-        p.color;
-
-
-      ctx.shadowBlur =
-        p.type === 'rift'
-          ? 12
-          : 7;
+      ctx.shadowBlur=8;
 
 
       ctx.beginPath();
 
 
       ctx.arc(
-        p.x -
-        cam,
+        p.x-cam,
         p.y,
         p.size,
         0,
-        Math.PI * 2
+        Math.PI*2
       );
 
 
@@ -15001,127 +17368,68 @@ function drawParticles(
 
 
 /* =========================================================
-   BONUS MODE
-   PRIVATE RIFT ARENA
-========================================================= */
+   BONUS MODE / PEER-TO-PEER ARENA
+   ========================================================= */
 
-const arena = {
+let peer=null;
 
-  active:
-    false,
+let connection=null;
 
-  bot:
-    false,
+let isHost=false;
 
-  remote: {
 
-    x:
-      900,
+const arena={
 
-    y:
-      530,
+  active:false,
 
-    hp:
-      500,
+  bot:false,
 
-    maxHP:
-      500,
-
-    facing:
-      -1,
-
-    attack:
-      0,
-
-    attackIndex:
-      0,
-
-    name:
-      'RIVAL',
-
-    state:
-      'idle',
-
-    animTime:
-      0,
-
-    armor:
-      'none',
-
-    pet:
-      null
+  remote:{
+    x:900,
+    y:530,
+    hp:1000,
+    maxHP:1000,
+    facing:-1,
+    attack:0,
+    name:'RIVAL'
   },
 
-  local: {
-
-    hp:
-      500,
-
-    maxHP:
-      500
+  local:{
+    hp:1000,
+    maxHP:1000
   },
 
-  round:
-    1,
+  round:1,
 
-  wins:
-    0,
+  wins:0,
 
-  losses:
-    0,
+  losses:0,
 
-  lastSend:
-    0,
-
-  roundLock:
-    0
+  lastSend:0
 };
 
 
-let peer =
-  null;
-
-
-let connection =
-  null;
-
-
-let isHost =
-  false;
-
-
-/* =========================================================
-   OPEN BONUS MODE
-========================================================= */
-
-function openBonus() {
+function openBonus(){
 
   closeAllOverlays();
 
 
   $('bonusOverlay')
     .classList
-    .remove(
-      'hidden'
-    );
+    .remove('hidden');
 
 
   $('bonusHome')
     .classList
-    .add(
-      'active'
-    );
+    .add('active');
 
 
   $('bonusLobby')
     .classList
-    .remove(
-      'active'
-    );
+    .remove('active');
 
 
-  G.paused =
-    true;
+  G.paused=true;
 
 
   SFX.resume();
@@ -15129,65 +17437,45 @@ function openBonus() {
   MUSIC.start();
 
 
-  const code =
+  const code=
     new URLSearchParams(
       location.search
-    )
-    .get(
-      'fight'
-    );
+    ).get('fight');
 
 
-  if (code) {
+  if(code){
 
-    $('roomCodeInput')
-      .value =
+    $('roomCodeInput').value=
       code;
 
 
-    networkMessage(
-      'Invite detected. Press JOIN FROM LINK / CODE.'
-    );
+    $('networkStatus').textContent=
+      'Invite detected. Press JOIN FROM LINK / CODE.';
   }
 }
 
 
-/* =========================================================
-   CLOSE BONUS MODE
-========================================================= */
-
-function closeBonus() {
+function closeBonus(){
 
   disconnectPeer();
 
 
   $('bonusOverlay')
     .classList
-    .add(
-      'hidden'
-    );
+    .add('hidden');
 
 
-  G.paused =
-    false;
+  G.paused=false;
 }
 
 
-/* =========================================================
-   CREATE PRIVATE FIGHT
-========================================================= */
+function createFight(){
 
-function createFight() {
-
-  if (
-    typeof Peer ===
-    'undefined'
-  ) {
+  if(typeof Peer==='undefined'){
 
     networkMessage(
-      'Online library could not load. Check your internet connection.'
+      'PeerJS could not load. Check your internet connection.'
     );
-
 
     return;
   }
@@ -15196,11 +17484,10 @@ function createFight() {
   disconnectPeer();
 
 
-  isHost =
-    true;
+  isHost=true;
 
 
-  peer =
+  peer=
     new Peer();
 
 
@@ -15211,48 +17498,39 @@ function createFight() {
 
   $('bonusHome')
     .classList
-    .remove(
-      'active'
-    );
+    .remove('active');
 
 
   $('bonusLobby')
     .classList
-    .add(
-      'active'
-    );
+    .add('active');
 
 
   peer.on(
     'open',
-    id => {
+    id=>{
 
-      const base =
+      const base=
         location.href
           .split('?')[0]
           .split('#')[0];
 
 
-      const link =
-        base +
-        '?fight=' +
-        encodeURIComponent(
-          id
-        );
+      const link=
+        base+
+        '?fight='+
+        encodeURIComponent(id);
 
 
-      $('roomCodeText')
-        .textContent =
+      $('roomCodeText').textContent=
         id;
 
 
-      $('inviteLink')
-        .value =
+      $('inviteLink').value=
         link;
 
 
-      $('lobbyStatus')
-        .textContent =
+      $('lobbyStatus').textContent=
         'Waiting for opponent...';
     }
   );
@@ -15260,83 +17538,53 @@ function createFight() {
 
   peer.on(
     'connection',
-    conn => {
+    conn=>{
 
-      if (
-        connection?.open
-      ) {
+      connection=conn;
 
-        conn.close();
-
-        return;
-      }
-
-
-      connection =
-        conn;
-
-
-      setupConnection(
-        conn
-      );
+      setupConnection(conn);
     }
   );
 
 
   peer.on(
     'error',
-    err => {
-
+    err=>
       networkMessage(
-        'Connection error: ' +
+        'Connection error: '+
         err.type
-      );
-    }
+      )
   );
 }
 
 
-/* =========================================================
-   JOIN PRIVATE FIGHT
-========================================================= */
+function joinFight(){
 
-function joinFight() {
-
-  const id =
+  const id=
     $('roomCodeInput')
       .value
       .trim()
-
     ||
-
     new URLSearchParams(
       location.search
-    )
-    .get(
-      'fight'
-    );
+    ).get('fight');
 
 
-  if (!id) {
+  if(!id){
 
     networkMessage(
       'Paste a room code or open an invite link first.'
     );
 
-
     return;
   }
 
 
-  if (
-    typeof Peer ===
-    'undefined'
-  ) {
+  if(typeof Peer==='undefined'){
 
     networkMessage(
-      'Online library could not load. Check your internet connection.'
+      'PeerJS could not load. Check your internet connection.'
     );
-
 
     return;
   }
@@ -15345,11 +17593,10 @@ function joinFight() {
   disconnectPeer();
 
 
-  isHost =
-    false;
+  isHost=false;
 
 
-  peer =
+  peer=
     new Peer();
 
 
@@ -15360,14 +17607,13 @@ function joinFight() {
 
   peer.on(
     'open',
-    () => {
+    ()=>{
 
-      connection =
+      connection=
         peer.connect(
           id,
           {
-            reliable:
-              true
+            reliable:true
           }
         );
 
@@ -15381,42 +17627,30 @@ function joinFight() {
 
   peer.on(
     'error',
-    err => {
-
+    err=>
       networkMessage(
-        'Connection error: ' +
+        'Connection error: '+
         err.type
-      );
-    }
+      )
   );
 }
 
 
-/* =========================================================
-   NETWORK CONNECTION
-========================================================= */
-
 function setupConnection(
   conn
-) {
+){
 
   conn.on(
     'open',
-    () => {
+    ()=>{
 
       conn.send({
-
-        type:
-          'hello',
-
-        name:
-          'RIFTWALKER'
+        type:'hello',
+        name:'RIFTWALKER'
       });
 
 
-      startArena(
-        false
-      );
+      startArena(false);
     }
   );
 
@@ -15429,11 +17663,9 @@ function setupConnection(
 
   conn.on(
     'close',
-    () => {
+    ()=>{
 
-      if (
-        arena.active
-      ) {
+      if(arena.active){
 
         toast(
           'RIFT ARENA',
@@ -15441,346 +17673,163 @@ function setupConnection(
         );
 
 
-        setTimeout(
-          endArenaToMenu,
-          900
-        );
+        endArenaToMenu();
       }
     }
   );
 }
 
 
-/* =========================================================
-   RECEIVE MULTIPLAYER DATA
-========================================================= */
+function handleArenaData(d){
 
-function handleArenaData(
-  data
-) {
-
-  if (
-    !data ||
-    typeof data !==
-    'object'
-  ) {
-
+  if(
+    !d ||
+    typeof d!=='object'
+  ){
     return;
   }
 
 
-  if (
-    data.type ===
-    'hello'
-  ) {
+  if(d.type==='state'){
 
-    arena.remote.name =
-      data.name ||
+    arena.remote.x=
+      d.x;
+
+    arena.remote.y=
+      d.y;
+
+    arena.remote.facing=
+      d.facing;
+
+    arena.remote.hp=
+      d.hp;
+
+    arena.remote.attack=
+      d.attack||0;
+
+    arena.remote.name=
+      d.name||
       'RIVAL';
   }
 
 
-  if (
-    data.type ===
-    'state'
-  ) {
+  if(d.type==='attack'){
 
-    arena.remote.x =
-      data.x;
+    arena.remote.attack=.25;
 
 
-    arena.remote.y =
-      data.y;
-
-
-    arena.remote.facing =
-      data.facing;
-
-
-    arena.remote.hp =
-      data.hp;
-
-
-    arena.remote.maxHP =
-      data.maxHP ||
-      arena.remote.maxHP;
-
-
-    arena.remote.attack =
-      data.attack ||
-      0;
-
-
-    arena.remote.attackIndex =
-      data.attackIndex ||
-      0;
-
-
-    arena.remote.state =
-      data.state ||
-      'idle';
-
-
-    arena.remote.animTime =
-      data.animTime ||
-      0;
-
-
-    arena.remote.name =
-      data.name ||
-      arena.remote.name;
-
-
-    arena.remote.armor =
-      data.armor ||
-      'none';
-
-
-    arena.remote.pet =
-      data.pet ||
-      null;
-  }
-
-
-  if (
-    data.type ===
-    'attack'
-  ) {
-
-    arena.remote.attack =
-      .25;
-
-
-    arena.remote.attackIndex =
-      data.attackIndex ||
-      0;
-
-
-    const dx =
+    const dx=
       (
-        P.x -
+        P.x-
         arena.remote.x
-      )
-      *
+      )*
       arena.remote.facing;
 
 
-    if (
-      dx > -40 &&
-      dx < data.range &&
+    if(
+      dx>-40 &&
+      dx<d.range &&
       Math.abs(
-        P.y -
+        P.y-
         arena.remote.y
-      )
-      <
-      90
-    ) {
+      )<90
+    ){
 
       arenaDamageLocal(
-        data.damage
+        d.damage
       );
     }
   }
 
 
-  if (
-    data.type ===
-    'reset'
-  ) {
+  if(d.type==='round'){
 
-    resetArenaPositions(
-      false
-    );
+    arena.remote.hp=
+      d.hp||
+      1000;
   }
 }
 
 
-/* =========================================================
-   PRACTICE BOT
-========================================================= */
-
-function practiceArena() {
+function practiceArena(){
 
   disconnectPeer();
 
+  arena.bot=true;
 
-  arena.bot =
-    true;
-
-
-  startArena(
-    true
-  );
+  startArena(true);
 }
 
 
-/* =========================================================
-   START ARENA
-========================================================= */
-
 function startArena(
   bot
-) {
+){
 
   closeAllOverlays();
 
 
   $('startScreen')
     .classList
-    .add(
-      'hidden'
-    );
+    .add('hidden');
 
 
   $('hud')
     .classList
-    .add(
-      'hidden'
-    );
+    .add('hidden');
 
 
   $('arenaHud')
     .classList
-    .remove(
-      'hidden'
-    );
+    .remove('hidden');
 
 
-  G.scene =
-    'arena';
+  G.scene='arena';
+
+  G.paused=false;
+
+  G.worldId=null;
 
 
-  G.paused =
-    false;
+  arena.active=true;
+
+  arena.bot=bot;
 
 
-  G.worldId =
-    null;
+  arena.local.hp=1000;
+
+  arena.local.maxHP=1000;
 
 
-  arena.active =
-    true;
+  arena.remote={
 
+    x:900,
 
-  arena.bot =
-    bot;
+    y:530,
 
+    hp:1000,
 
-  arena.round =
-    1;
+    maxHP:1000,
 
+    facing:-1,
 
-  arena.wins =
-    0;
-
-
-  arena.losses =
-    0;
-
-
-  arena.roundLock =
-    0;
-
-
-  /*
-     Bonus Mode reads your Story loadout.
-     Story progress itself is not changed by losing.
-  */
-
-  P.weapon =
-    'Nova Sword';
-
-
-  const arenaStats =
-    getStats();
-
-
-  arena.local = {
-
-    hp:
-      arenaStats.maxHP,
-
-    maxHP:
-      arenaStats.maxHP
-  };
-
-
-  arena.remote = {
-
-    x:
-      900,
-
-    y:
-      530,
-
-    hp:
-      bot
-        ? 560
-        : 500,
-
-    maxHP:
-      bot
-        ? 560
-        : 500,
-
-    facing:
-      -1,
-
-    attack:
-      0,
-
-    attackIndex:
-      0,
+    attack:0,
 
     name:
       bot
-        ? 'TRAINING BOT'
-        : 'RIVAL',
-
-    state:
-      'idle',
-
-    animTime:
-      0,
-
-    armor:
-      bot
-        ? 'scout'
-        : 'none',
-
-    pet:
-      bot
-        ? 'Beat Fox'
-        : null
+        ?'TRAINING BOT'
+        :'RIVAL'
   };
 
 
-  P.x =
-    330;
+  P.x=330;
 
+  P.y=530;
 
-  P.y =
-    530;
+  P.hp=1000;
 
+  P.weapon='Nova Sword';
 
-  P.jump =
-    0;
-
-
-  P.vy =
-    0;
-
-
-  P.onGround =
-    true;
-
-
-  P.hp =
-    arena.local.hp;
-
-
-  P.attackCooldown =
-    0;
+  P.attackCooldown=0;
 
 
   MUSIC.setWorld(
@@ -15788,14 +17837,13 @@ function startArena(
   );
 
 
-  $('arenaP2Name')
-    .textContent =
+  $('arenaP2Name').textContent=
     arena.remote.name;
 
 
-  $('roundText')
-    .textContent =
-    'ROUND 1';
+  $('roundText').textContent=
+    'ROUND '+
+    arena.round;
 
 
   syncArenaHud();
@@ -15808,83 +17856,7 @@ function startArena(
 }
 
 
-/* =========================================================
-   RESET ARENA
-========================================================= */
-
-function resetArenaPositions(
-  send = true
-) {
-
-  arena.local.hp =
-    arena.local.maxHP;
-
-
-  arena.remote.hp =
-    arena.remote.maxHP;
-
-
-  P.x =
-    isHost ||
-    arena.bot
-      ? 330
-      : 900;
-
-
-  P.facing =
-    isHost ||
-    arena.bot
-      ? 1
-      : -1;
-
-
-  P.jump =
-    0;
-
-
-  P.vy =
-    0;
-
-
-  P.onGround =
-    true;
-
-
-  arena.remote.x =
-    isHost ||
-    arena.bot
-      ? 900
-      : 330;
-
-
-  arena.remote.facing =
-    isHost ||
-    arena.bot
-      ? -1
-      : 1;
-
-
-  if (
-    send &&
-    connection?.open
-  ) {
-
-    connection.send({
-
-      type:
-        'reset'
-    });
-  }
-}
-
-
-/* =========================================================
-   UPDATE ARENA
-========================================================= */
-
-function updateArena(
-  dt
-) {
+function updateArena(dt){
 
   updatePlayer(
     dt,
@@ -15892,354 +17864,250 @@ function updateArena(
   );
 
 
-  updatePetFollower(
-    dt
-  );
-
-
-  updateParticles(
-    dt
-  );
-
-
-  updateScreenEffects(
-    dt
-  );
-
-
-  arena.remote.attack =
+  arena.remote.attack=
     Math.max(
       0,
-      arena.remote.attack -
-      dt
+      arena.remote.attack-dt
     );
 
 
-  arena.remote.animTime +=
-    dt;
+  if(arena.bot){
 
-
-  arena.roundLock =
-    Math.max(
-      0,
-      arena.roundLock -
-      dt
-    );
-
-
-  /* BOT */
-
-  if (
-    arena.bot
-  ) {
-
-    const r =
+    const r=
       arena.remote;
 
 
-    const dx =
-      P.x -
-      r.x;
+    const dx=
+      P.x-r.x;
 
 
-    r.facing =
-      dx > 0
-        ? 1
-        : -1;
+    const dy=
+      P.y-r.y;
 
 
-    if (
-      Math.abs(dx) >
-      78
-    ) {
+    const distance=
+      Math.hypot(
+        dx,
+        dy
+      );
 
-      r.x +=
-        clamp(
-          dx *
-          1.35,
-          -165,
-          165
-        )
-        *
+
+    if(
+      Math.abs(dx)>8
+    ){
+
+      r.facing=
+        dx>0
+          ?1
+          :-1;
+    }
+
+
+    if(distance>78){
+
+      r.x+=
+        dx/
+        distance*
+        155*
         dt;
 
 
-      r.state =
-        'run';
-
-    }
-
-    else {
-
-      r.state =
-        'idle';
-    }
+      r.y+=
+        dy/
+        distance*
+        112*
+        dt;
 
 
-    r.botCd =
-      (
-        r.botCd ||
-        .5
-      )
-      -
-      dt;
-
-
-    if (
-      Math.abs(dx) <
-      105
-      &&
-      r.botCd <= 0
-      &&
-      arena.roundLock <= 0
-    ) {
-
-      r.botCd =
-        rand(
-          .55,
-          .85
+      r.y=
+        clamp(
+          r.y,
+          435,
+          620
         );
+    }
 
 
-      r.attack =
-        .25;
+    r.botCd=
+      (
+        r.botCd||
+        .5
+      )-dt;
 
 
-      r.attackIndex =
-        (
-          r.attackIndex +
-          1
-        )
-        %
-        3;
+    if(
+      distance<105 &&
+      r.botCd<=0
+    ){
 
+      r.botCd=.65;
 
-      r.state =
-        'attack';
+      r.attack=.25;
 
 
       arenaDamageLocal(
         randi(
-          32,
-          48
+          30,
+          45
         )
       );
     }
   }
 
-
-  /* ONLINE */
-
-  else if (
+  else if(
     connection?.open
-  ) {
+  ){
 
-    arena.lastSend -=
-      dt;
+    arena.lastSend-=dt;
 
 
-    if (
-      arena.lastSend <=
-      0
-    ) {
+    if(
+      arena.lastSend<=0
+    ){
 
-      arena.lastSend =
-        .05;
+      arena.lastSend=.05;
 
 
       connection.send({
 
-        type:
-          'state',
+        type:'state',
 
-        x:
-          P.x,
+        x:P.x,
 
-        y:
-          P.y,
+        y:P.y,
 
-        facing:
-          P.facing,
+        facing:P.facing,
 
-        hp:
-          arena.local.hp,
+        hp:arena.local.hp,
 
-        maxHP:
-          arena.local.maxHP,
+        attack:P.attackTimer,
 
-        attack:
-          P.attackTimer,
-
-        attackIndex:
-          P.attackIndex,
-
-        state:
-          P.anim.state,
-
-        animTime:
-          P.anim.time,
-
-        name:
-          'RIFTWALKER',
-
-        armor:
-          P.armor,
-
-        pet:
-          PET_STATE.active
+        name:'RIFTWALKER'
       });
     }
   }
 
 
-  if (
-    arena.roundLock <= 0
-    &&
-    (
-      arena.local.hp <= 0 ||
-      arena.remote.hp <= 0
-    )
-  ) {
+  if(
+    arena.local.hp<=0 ||
+    arena.remote.hp<=0
+  ){
 
     finishArenaRound();
   }
-
-
-  syncArenaHud();
 }
 
 
-/* =========================================================
-   ARENA PLAYER ATTACK
-========================================================= */
-
 function arenaLocalAttack(
   range,
-  damage
-) {
+  damage,
+  critical=false
+){
 
-  const r =
+  const r=
     arena.remote;
 
 
-  const dx =
+  const dx=
     (
-      r.x -
-      P.x
-    )
-    *
+      r.x-P.x
+    )*
     P.facing;
 
 
-  if (
-    dx > -40 &&
-    dx < range &&
+  if(
+    dx>-40 &&
+    dx<range &&
     Math.abs(
-      r.y -
-      P.y
-    )
-    <
-    90
-  ) {
+      r.y-P.y
+    )<90
+  ){
 
-    if (
-      arena.bot
-    ) {
+    if(arena.bot){
 
-      r.hp =
+      r.hp=
         Math.max(
           0,
-          r.hp -
-          damage
+          r.hp-damage
         );
 
 
       burst(
         r.x,
-        r.y - 50,
-        '#ff7589',
-        8
+        r.y-50,
+        critical
+          ?'#ffe88b'
+          :'#ff7589',
+        critical
+          ?16
+          :8
       );
 
 
-      SFX.hit();
+      if(critical){
+
+        SFX.crit();
 
 
-      G.screenShake =
-        P.attackIndex === 2
-          ? 8
-          : 4;
+        floatingText(
+          'CRITICAL! '+
+          damage,
+          r.x,
+          r.y-100,
+          '#ffe88b'
+        );
+
+
+        G.screenShake=11;
+      }
+
+      else{
+
+        SFX.hit();
+      }
     }
   }
 
 
-  if (
+  if(
     connection?.open
-  ) {
+  ){
 
     connection.send({
 
-      type:
-        'attack',
+      type:'attack',
 
       range,
 
       damage,
 
-      attackIndex:
-        P.attackIndex
+      critical
     });
   }
 }
 
 
-/* =========================================================
-   ARENA DAMAGE
-========================================================= */
-
 function arenaDamageLocal(
-  damage
-) {
+  dmg
+){
 
-  if (
-    arena.roundLock >
-    0
-  ) {
-
-    return;
-  }
-
-
-  const finalDamage =
+  arena.local.hp=
     Math.max(
-      1,
-
-      Math.round(
-        damage -
-        getStats().def *
-        .25
+      0,
+      arena.local.hp-
+      Math.max(
+        1,
+        Math.round(
+          dmg-
+          getStats().def*.25
+        )
       )
     );
 
 
-  arena.local.hp =
-    Math.max(
-      0,
-      arena.local.hp -
-      finalDamage
-    );
+  P.hitFlash=.18;
 
-
-  P.hitFlash =
-    .18;
-
-
-  G.screenShake =
-    7;
-
-
-  G.flash =
-    .06;
+  G.screenShake=7;
 
 
   SFX.hurt();
@@ -16247,18 +18115,9 @@ function arenaDamageLocal(
 
   burst(
     P.x,
-    P.y - 55,
+    P.y-55,
     '#ff7589',
     8
-  );
-
-
-  floatingText(
-    '-' +
-    finalDamage,
-    P.x,
-    P.y - 105,
-    '#ff8794'
   );
 
 
@@ -16266,210 +18125,108 @@ function arenaDamageLocal(
 }
 
 
-/* =========================================================
-   FINISH ARENA ROUND
-========================================================= */
+function finishArenaRound(){
 
-function finishArenaRound() {
-
-  arena.roundLock =
-    1.1;
+  const won=
+    arena.remote.hp<=0 &&
+    arena.local.hp>0;
 
 
-  const won =
-    arena.remote.hp <= 0 &&
-    arena.local.hp > 0;
-
-
-  if (won) {
+  if(won){
 
     arena.wins++;
-
   }
 
-  else {
+  else{
 
     arena.losses++;
   }
 
 
-  $('roundText')
-    .textContent =
-    won
-      ? 'ROUND WON'
-      : 'ROUND LOST';
-
-
   toast(
     won
-      ? 'ROUND WON'
-      : 'ROUND LOST',
+      ?'ROUND WON'
+      :'ROUND LOST',
 
-    `Score ${arena.wins} - ${arena.losses}`
+    `Score ${arena.wins} - ${arena.losses}`,
+
+    2
   );
 
 
-  setTimeout(
-    () => {
-
-      if (
-        !arena.active
-      ) {
-
-        return;
-      }
+  arena.round++;
 
 
-      /* BEST OF 3 */
+  arena.local.hp=1000;
 
-      if (
-        arena.wins >= 2 ||
-        arena.losses >= 2
-      ) {
-
-        const matchWon =
-          arena.wins >= 2;
+  arena.remote.hp=1000;
 
 
-        $('roundText')
-          .textContent =
-          matchWon
-            ? 'MATCH WON'
-            : 'MATCH LOST';
+  P.x=330;
+
+  arena.remote.x=900;
 
 
-        toast(
-          matchWon
-            ? 'RIFT VICTORY'
-            : 'MATCH COMPLETE',
+  if(
+    connection?.open
+  ){
 
-          `Final score ${arena.wins} - ${arena.losses}`,
-
-          3500
-        );
-
-
-        setTimeout(
-          () => {
-
-            arena.round =
-              1;
+    connection.send({
+      type:'round',
+      hp:1000
+    });
+  }
 
 
-            arena.wins =
-              0;
+  $('roundText').textContent=
+    'ROUND '+
+    arena.round;
 
 
-            arena.losses =
-              0;
-
-
-            resetArenaPositions();
-
-
-            $('roundText')
-              .textContent =
-              'REMATCH · ROUND 1';
-
-          },
-          2200
-        );
-
-      }
-
-      else {
-
-        arena.round++;
-
-
-        resetArenaPositions();
-
-
-        $('roundText')
-          .textContent =
-          'ROUND ' +
-          arena.round;
-      }
-
-    },
-    1100
-  );
+  syncArenaHud();
 }
 
 
-/* =========================================================
-   ARENA HUD
-========================================================= */
+function syncArenaHud(){
 
-function syncArenaHud() {
-
-  const a =
-    clamp(
-      arena.local.hp /
-      arena.local.maxHP,
-      0,
-      1
-    );
-
-
-  const b =
-    clamp(
-      arena.remote.hp /
-      arena.remote.maxHP,
-      0,
-      1
-    );
-
-
-  $('arenaP1Hp')
-    .style
-    .width =
-    a *
-    100 +
-    '%';
-
-
-  $('arenaP2Hp')
-    .style
-    .width =
-    b *
-    100 +
-    '%';
-
-
-  $('arenaP1Text')
-    .textContent =
-    Math.round(
-      arena.local.hp
-    )
-    +
-    ' / ' +
+  const a=
+    arena.local.hp/
     arena.local.maxHP;
 
 
-  $('arenaP2Text')
-    .textContent =
-    Math.round(
-      arena.remote.hp
-    )
-    +
-    ' / ' +
+  const b=
+    arena.remote.hp/
     arena.remote.maxHP;
 
 
-  $('arenaP2Name')
-    .textContent =
-    arena.remote.name;
+  $('arenaP1Hp').style.width=
+    (
+      a*100
+    )+'%';
+
+
+  $('arenaP2Hp').style.width=
+    (
+      b*100
+    )+'%';
+
+
+  $('arenaP1Text').textContent=
+    arena.local.hp+
+    ' / '+
+    arena.local.maxHP;
+
+
+  $('arenaP2Text').textContent=
+    arena.remote.hp+
+    ' / '+
+    arena.remote.maxHP;
 }
 
 
-/* =========================================================
-   DRAW RIFT ARENA
-========================================================= */
+function drawArena(){
 
-function drawArena() {
-
-  const g =
+  const g=
     ctx.createLinearGradient(
       0,
       0,
@@ -16483,12 +18240,10 @@ function drawArena() {
     '#151d3b'
   );
 
-
   g.addColorStop(
     .55,
     '#334b70'
   );
-
 
   g.addColorStop(
     1,
@@ -16496,9 +18251,7 @@ function drawArena() {
   );
 
 
-  ctx.fillStyle =
-    g;
-
+  ctx.fillStyle=g;
 
   ctx.fillRect(
     0,
@@ -16508,7 +18261,7 @@ function drawArena() {
   );
 
 
-  ctx.fillStyle =
+  ctx.fillStyle=
     '#26384a';
 
 
@@ -16520,180 +18273,118 @@ function drawArena() {
   );
 
 
-  /* BACKGROUND LIGHTS */
+  for(let i=0;i<8;i++){
 
-  for (
-    let i = 0;
-    i < 8;
-    i++
-  ) {
-
-    ctx.globalAlpha =
-      .16;
+    ctx.globalAlpha=.18;
 
 
-    ctx.fillStyle =
-      i % 2
-        ? '#6cecff'
-        : '#9b72ff';
+    ctx.fillStyle=
+      i%2
+        ?'#6cecff'
+        :'#9b72ff';
 
 
     ctx.beginPath();
 
-
     ctx.moveTo(
-      i *
-      180,
+      i*180,
       400
     );
 
-
     ctx.lineTo(
-      i *
-      180 +
-      100,
+      i*180+100,
       250
     );
 
-
     ctx.lineTo(
-      i *
-      180 +
-      200,
+      i*180+200,
       400
     );
-
 
     ctx.fill();
   }
 
 
-  ctx.globalAlpha =
-    1;
+  ctx.globalAlpha=1;
 
-
-  /* FLOOR GRID */
-
-  ctx.strokeStyle =
-    'rgba(112,232,255,.2)';
-
-
-  ctx.lineWidth =
-    2;
-
-
-  for (
-    let x = 0;
-    x < W;
-    x += 80
-  ) {
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-      x,
-      400
-    );
-
-
-    ctx.lineTo(
-      x + 130,
-      H
-    );
-
-
-    ctx.stroke();
-  }
-
-
-  /* PETS */
-
-  if (
-    PET_STATE.active
-  ) {
-
-    drawPetSprite(
-      ctx,
-
-      P.x -
-      P.facing *
-      72,
-
-      P.y - 18,
-
-      PET_STATE.active,
-
-      .72,
-
-      G.time
-    );
-  }
-
-
-  if (
-    arena.remote.pet
-  ) {
-
-    drawPetSprite(
-      ctx,
-
-      arena.remote.x -
-      arena.remote.facing *
-      72,
-
-      arena.remote.y - 18,
-
-      arena.remote.pet,
-
-      .72,
-
-      G.time
-    );
-  }
-
-
-  /* FIGHTERS */
 
   drawRiftwalker(
     P.x,
-    P.y -
-    P.jump,
+    P.y-P.jump,
     1,
     false
   );
 
 
-  drawRiftwalker(
+  drawRemoteRiftwalker(
     arena.remote.x,
     arena.remote.y,
-    1,
-    true,
     arena.remote
   );
 
 
-  drawParticles(
-    0
-  );
+  drawParticles(0);
 
 
   syncArenaHud();
 }
 
 
-/* =========================================================
-   END ARENA
-========================================================= */
+function drawRemoteRiftwalker(
+  x,
+  y,
+  r
+){
 
-function endArenaToMenu() {
-
-  arena.active =
-    false;
+  const saveFacing=
+    P.facing;
 
 
-  arena.bot =
-    false;
+  const saveAttack=
+    P.attackTimer;
+
+
+  const saveIndex=
+    P.attackIndex;
+
+
+  P.facing=
+    r.facing;
+
+
+  P.attackTimer=
+    r.attack;
+
+
+  P.attackIndex=1;
+
+
+  drawRiftwalker(
+    x,
+    y,
+    1,
+    true
+  );
+
+
+  P.facing=
+    saveFacing;
+
+
+  P.attackTimer=
+    saveAttack;
+
+
+  P.attackIndex=
+    saveIndex;
+}
+
+
+function endArenaToMenu(){
+
+  arena.active=false;
+
+  arena.bot=false;
 
 
   disconnectPeer();
@@ -16701,31 +18392,20 @@ function endArenaToMenu() {
 
   $('arenaHud')
     .classList
-    .add(
-      'hidden'
-    );
+    .add('hidden');
 
 
   $('hud')
     .classList
-    .add(
-      'hidden'
-    );
+    .add('hidden');
 
 
   $('startScreen')
     .classList
-    .remove(
-      'hidden'
-    );
+    .remove('hidden');
 
 
-  G.scene =
-    'menu';
-
-
-  G.paused =
-    false;
+  G.scene='menu';
 
 
   MUSIC.setWorld(
@@ -16734,223 +18414,188 @@ function endArenaToMenu() {
 }
 
 
-/* =========================================================
-   DISCONNECT ONLINE
-========================================================= */
+function disconnectPeer(){
 
-function disconnectPeer() {
-
-  try {
-
+  try{
     connection?.close();
-
   }
+  catch{}
 
-  catch (_) {}
 
-
-  try {
-
+  try{
     peer?.destroy();
-
   }
-
-  catch (_) {}
-
-
-  connection =
-    null;
+  catch{}
 
 
-  peer =
-    null;
+  connection=null;
+
+  peer=null;
+}
+
+
+function networkMessage(t){
+
+  $('networkStatus').textContent=
+    t;
+
+
+  $('lobbyStatus').textContent=
+    t;
 }
 
 
 /* =========================================================
-   NETWORK MESSAGE
-========================================================= */
+   BONUS BUTTONS
+   ========================================================= */
 
-function networkMessage(
-  text
-) {
+$('bonusBtn').onclick=
+  openBonus;
 
-  if (
-    $('networkStatus')
-  ) {
 
-    $('networkStatus')
-      .textContent =
-      text;
+$('closeBonus').onclick=
+  closeBonus;
+
+
+$('createFightBtn').onclick=
+  createFight;
+
+
+$('joinFightBtn').onclick=
+  joinFight;
+
+
+$('practiceBtn').onclick=
+  practiceArena;
+
+
+$('cancelLobbyBtn').onclick=
+  ()=>{
+
+    disconnectPeer();
+
+
+    $('bonusLobby')
+      .classList
+      .remove('active');
+
+
+    $('bonusHome')
+      .classList
+      .add('active');
+  };
+
+
+$('copyInviteBtn').onclick=
+  async()=>{
+
+    try{
+
+      await navigator.clipboard
+        .writeText(
+          $('inviteLink').value
+        );
+
+
+      $('copyInviteBtn').textContent=
+        'COPIED';
+
+
+      setTimeout(
+        ()=>
+          $('copyInviteBtn').textContent=
+            'COPY LINK',
+        1200
+      );
+    }
+
+    catch{
+
+      $('inviteLink').select();
+
+
+      networkMessage(
+        'Select and copy the link manually.'
+      );
+    }
+  };
+/* =========================================================
+   MAIN UPDATE / DRAW LOOP
+   ========================================================= */
+
+function update(dt){
+
+  G.time+=dt;
+
+  if(G.paused){
+    justPressed.clear();
+    return;
   }
 
 
-  if (
-    $('lobbyStatus')
-  ) {
+  G.screenShake=
+    Math.max(
+      0,
+      G.screenShake-dt*24
+    );
 
-    $('lobbyStatus')
-      .textContent =
-      text;
+
+  G.flash=
+    Math.max(
+      0,
+      G.flash-dt
+    );
+
+
+  updateParticles(dt);
+
+
+  if(G.messageTime>0){
+
+    G.messageTime-=dt;
+
+    if(G.messageTime<=0){
+
+      $('toast')
+        .classList
+        .add('hidden');
+    }
   }
-}
 
 
-/* =========================================================
-   BUTTON EVENTS
-========================================================= */
+  /* OPENING SPACE FLIGHT */
 
-$('newBtn')
-  .addEventListener(
-    'click',
-    () => {
+  if(G.scene==='flight'){
 
-      SFX.resume();
+    G.sceneTime+=dt;
 
-      MUSIC.start();
 
-      resetGame();
+    $('cinematic')
+      .classList
+      .remove('hidden');
+
+
+    $('cinematic').textContent=
+
+      G.sceneTime<2
+        ?'DEEP SPACE'
+
+        :G.sceneTime<4
+          ?'UNKNOWN SIGNAL DETECTED'
+
+          :G.sceneTime<6
+            ?'NAVIGATION FAILURE'
+
+            :'PULL UP!';
+
+
+    if(G.sceneTime>7){
+
+      G.scene='crash';
+
+      G.sceneTime=0;
     }
-  );
 
-
-$('loadBtn')
-  .addEventListener(
-    'click',
-    () => {
-
-      SFX.resume();
-
-      MUSIC.start();
-
-      loadGame();
-    }
-  );
-
-
-$('bonusBtn')
-  .addEventListener(
-    'click',
-    openBonus
-  );
-
-
-$('closeBonus')
-  .addEventListener(
-    'click',
-    closeBonus
-  );
-
-
-$('createFightBtn')
-  .addEventListener(
-    'click',
-    createFight
-  );
-
-
-$('joinFightBtn')
-  .addEventListener(
-    'click',
-    joinFight
-  );
-
-
-$('practiceBtn')
-  .addEventListener(
-    'click',
-    practiceArena
-  );
-
-
-$('cancelLobbyBtn')
-  .addEventListener(
-    'click',
-    () => {
-
-      disconnectPeer();
-
-
-      $('bonusLobby')
-        .classList
-        .remove(
-          'active'
-        );
-
-
-      $('bonusHome')
-        .classList
-        .add(
-          'active'
-        );
-    }
-  );
-
-
-$('copyInviteBtn')
-  .addEventListener(
-    'click',
-    async () => {
-
-      try {
-
-        await navigator
-          .clipboard
-          .writeText(
-            $('inviteLink')
-              .value
-          );
-
-
-        $('copyInviteBtn')
-          .textContent =
-          'COPIED';
-
-
-        setTimeout(
-          () => {
-
-            $('copyInviteBtn')
-              .textContent =
-              'COPY LINK';
-
-          },
-          1200
-        );
-
-      }
-
-      catch (_) {
-
-        $('inviteLink')
-          .select();
-
-
-        networkMessage(
-          'Select the link and copy it manually.'
-        );
-      }
-    }
-  );
-
-
-/* =========================================================
-   MAIN UPDATE
-========================================================= */
-
-function update(
-  dt
-) {
-
-  G.time +=
-    dt;
-
-
-  if (
-    G.paused
-  ) {
-
-    drawHudIcons();
 
     justPressed.clear();
 
@@ -16958,94 +18603,117 @@ function update(
   }
 
 
-  if (
-    G.scene ===
-    'flight'
-  ) {
+  /* CRASH SEQUENCE */
 
-    updateOpeningFlight(
-      dt
-    );
+  if(G.scene==='crash'){
+
+    G.sceneTime+=dt;
+
+
+    $('cinematic').textContent=
+      G.sceneTime<1.5
+        ?'IMPACT IMMINENT'
+        :'';
+
+
+    if(G.sceneTime>3){
+
+      $('cinematic')
+        .classList
+        .add('hidden');
+
+
+      beginWorld('earth');
+    }
+
+
+    justPressed.clear();
+
+    return;
   }
 
 
-  else if (
-    G.scene ===
-    'crash'
-  ) {
+  /* WORLD TRAVEL */
 
-    updateCrash(
-      dt
-    );
+  if(G.scene==='travel'){
+
+    G.sceneTime+=dt;
+
+
+    if(G.sceneTime>2.2){
+
+      beginWorld(
+        G.travelTarget
+      );
+    }
+
+
+    justPressed.clear();
+
+    return;
   }
 
 
-  else if (
-    G.scene ===
-    'hubFlight'
-  ) {
+  /* RIFT ARENA */
 
-    updateHubFlight(
-      dt
-    );
+  if(G.scene==='arena'){
+
+    updateArena(dt);
+
+    syncHUD();
+
+    justPressed.clear();
+
+    return;
   }
 
 
-  else if (
-    G.scene ===
-    'travel'
-  ) {
+  /* HUB */
 
-    updateTravel(
-      dt
+  if(G.scene==='hub'){
+
+    updatePlayer(
+      dt,
+      1280
     );
+
+
+    updateInteraction();
   }
 
 
-  else if (
-    G.scene ===
-    'hub'
-  ) {
+  /* NORMAL WORLD */
 
-    updatePetFollower(
-      dt
+  if(G.scene==='world'){
+
+    updatePlayer(
+      dt,
+      WORLDS[G.worldId].width
     );
 
 
-    updateHub(
-      dt
-    );
+    updateEnemies(dt);
+
+
+    G.camera=
+      lerp(
+        G.camera,
+
+        clamp(
+          P.x-W*.44,
+          0,
+          WORLDS[G.worldId].width-W
+        ),
+
+        .08
+      );
+
+
+    updateInteraction();
   }
 
 
-  else if (
-    G.scene ===
-    'world'
-  ) {
-
-    updatePetFollower(
-      dt
-    );
-
-
-    updateWorld(
-      dt
-    );
-  }
-
-
-  else if (
-    G.scene ===
-    'arena'
-  ) {
-
-    updateArena(
-      dt
-    );
-  }
-
-
-  drawHudIcons();
+  syncHUD();
 
 
   justPressed.clear();
@@ -17053,413 +18721,17 @@ function update(
 
 
 /* =========================================================
-   OPENING CINEMATIC
-========================================================= */
-
-function drawOpeningFlight() {
-
-  drawSpace(
-    G.sceneTime *
-    120
-  );
-
-
-  drawPlanet(
-    1080,
-    120,
-    70,
-    '#a27aff',
-    '#332463'
-  );
-
-
-  drawShip(
-    380,
-    360,
-    1.25,
-    Math.sin(
-      G.time
-    )
-    *
-    .02
-  );
-
-
-  const text =
-    G.sceneTime < 1.3
-      ? 'DEEP SPACE'
-      : (
-          G.sceneTime < 2.8
-            ? 'UNKNOWN SIGNAL DETECTED'
-            : (
-                G.sceneTime < 4
-                  ? 'SYSTEM FAILURE'
-                  : 'RIFT COLLISION'
-              )
-        );
-
-
-  ctx.fillStyle =
-    '#ffffff';
-
-
-  ctx.font =
-    '900 24px system-ui';
-
-
-  ctx.textAlign =
-    'center';
-
-
-  ctx.fillText(
-    text,
-    W / 2,
-    100
-  );
-
-
-  ctx.textAlign =
-    'left';
-}
-
-
-/* =========================================================
-   CRASH CINEMATIC
-========================================================= */
-
-function drawCrash() {
-
-  const p =
-    clamp(
-      G.sceneTime /
-      1.6,
-      0,
-      1
-    );
-
-
-  const sky =
-    ctx.createLinearGradient(
-      0,
-      0,
-      0,
-      H
-    );
-
-
-  sky.addColorStop(
-    0,
-    '#1a2841'
-  );
-
-
-  sky.addColorStop(
-    1,
-    '#7bbd9d'
-  );
-
-
-  ctx.fillStyle =
-    sky;
-
-
-  ctx.fillRect(
-    0,
-    0,
-    W,
-    H
-  );
-
-
-  drawPlanet(
-    W / 2,
-
-    lerp(
-      850,
-      470,
-      p
-    ),
-
-    lerp(
-      240,
-      760,
-      p
-    ),
-
-    '#91e6a3',
-
-    '#255d48'
-  );
-
-
-  drawShip(
-    W / 2,
-
-    lerp(
-      120,
-      560,
-      p
-    ),
-
-    1.35,
-
-    p *
-    2.2
-  );
-
-
-  ctx.fillStyle =
-    '#ffffff';
-
-
-  ctx.font =
-    '900 26px system-ui';
-
-
-  ctx.textAlign =
-    'center';
-
-
-  ctx.fillText(
-    'IMPACT IMMINENT',
-    W / 2,
-    90
-  );
-
-
-  ctx.textAlign =
-    'left';
-}
-
-
-/* =========================================================
-   HUB DISCOVERY FLIGHT
-========================================================= */
-
-function drawHubFlight() {
-
-  drawSpace(
-    G.time *
-    130
-  );
-
-
-  const p =
-    clamp(
-      G.sceneTime /
-      2.8,
-      0,
-      1
-    );
-
-
-  ctx.shadowColor =
-    '#7ceeff';
-
-
-  ctx.shadowBlur =
-    30;
-
-
-  ctx.strokeStyle =
-    '#7ceeff';
-
-
-  ctx.lineWidth =
-    12;
-
-
-  ctx.beginPath();
-
-
-  ctx.arc(
-    W / 2,
-    340,
-    80 +
-    p *
-    170,
-    0,
-    Math.PI * 2
-  );
-
-
-  ctx.stroke();
-
-
-  ctx.shadowBlur =
-    0;
-
-
-  drawShip(
-    W / 2,
-
-    520 -
-    p *
-    120,
-
-    1.1 -
-    p *
-    .25,
-
-    -Math.PI / 2
-  );
-
-
-  ctx.fillStyle =
-    '#ffffff';
-
-
-  ctx.font =
-    '900 18px system-ui';
-
-
-  ctx.textAlign =
-    'center';
-
-
-  ctx.fillText(
-    'FOLLOWING UNKNOWN SIGNAL',
-    W / 2,
-    90
-  );
-
-
-  ctx.textAlign =
-    'left';
-}
-
-
-/* =========================================================
-   RIFT TRAVEL
-========================================================= */
-
-function drawTravel() {
-
-  drawSpace(
-    G.time *
-    160
-  );
-
-
-  for (
-    let i = 0;
-    i < 8;
-    i++
-  ) {
-
-    ctx.strokeStyle =
-      i % 2
-        ? 'rgba(108,236,255,.24)'
-        : 'rgba(156,114,255,.22)';
-
-
-    ctx.lineWidth =
-      3;
-
-
-    ctx.beginPath();
-
-
-    ctx.arc(
-      W / 2,
-      H / 2,
-
-      80 +
-      i *
-      55
-      +
-      Math.sin(
-        G.time *
-        4 +
-        i
-      )
-      *
-      10,
-
-      0,
-      Math.PI * 2
-    );
-
-
-    ctx.stroke();
-  }
-
-
-  drawShip(
-    W / 2,
-    360,
-    1.2,
-    0
-  );
-
-
-  rr(
-    ctx,
-    380,
-    610,
-    520,
-    14,
-    7,
-    '#122039'
-  );
-
-
-  rr(
-    ctx,
-    380,
-    610,
-
-    520 *
-    clamp(
-      G.sceneTime /
-      1.65,
-      0,
-      1
-    ),
-
-    14,
-    7,
-    '#6fe1ff'
-  );
-
-
-  ctx.fillStyle =
-    '#ffffff';
-
-
-  ctx.font =
-    '900 14px system-ui';
-
-
-  ctx.textAlign =
-    'center';
-
-
-  ctx.fillText(
-    'TRAVELLING THROUGH THE RIFT',
-    W / 2,
-    590
-  );
-
-
-  ctx.textAlign =
-    'left';
-}
-
-
-/* =========================================================
    MAIN DRAW
-========================================================= */
+   ========================================================= */
 
-function draw() {
+function draw(){
 
   ctx.save();
 
 
-  if (
-    G.screenShake >
-    0
-  ) {
+  /* SCREEN SHAKE */
+
+  if(G.screenShake>0){
 
     ctx.translate(
 
@@ -17476,14 +18748,12 @@ function draw() {
   }
 
 
-  if (
-    G.scene ===
-    'menu'
-  ) {
+  /* MAIN MENU */
 
-    drawSpace(
-      G.time *
-      25
+  if(G.scene==='menu'){
+
+    space(
+      G.time*8
     );
 
 
@@ -17506,89 +18776,185 @@ function draw() {
   }
 
 
-  else if (
-    G.scene ===
-    'flight'
-  ) {
+  /* OPENING SHIP FLIGHT */
 
-    drawOpeningFlight();
+  else if(G.scene==='flight'){
+
+    space(
+      G.sceneTime*85
+    );
+
+
+    drawShip(
+      370,
+      360,
+      1.35,
+      0
+    );
   }
 
 
-  else if (
-    G.scene ===
-    'crash'
-  ) {
+  /* CRASH */
 
-    drawCrash();
+  else if(G.scene==='crash'){
+
+    space(
+      G.time*60
+    );
+
+
+    const p=
+      clamp(
+        G.sceneTime/3,
+        0,
+        1
+      );
+
+
+    drawPlanet(
+
+      W/2,
+
+      lerp(
+        760,
+        380,
+        p
+      ),
+
+      lerp(
+        200,
+        700,
+        p
+      ),
+
+      '#79dd94',
+
+      '#1c5b42'
+    );
+
+
+    drawShip(
+
+      W/2,
+
+      lerp(
+        130,
+        560,
+        p
+      ),
+
+      1.45,
+
+      p*2
+    );
   }
 
 
-  else if (
-    G.scene ===
-    'hubFlight'
-  ) {
+  /* RIFT TRAVEL */
 
-    drawHubFlight();
+  else if(G.scene==='travel'){
+
+    space(
+      G.time*110
+    );
+
+
+    drawShip(
+      W/2,
+      360,
+      1.35,
+      0
+    );
+
+
+    rr(
+      ctx,
+      380,
+      610,
+      520,
+      14,
+      7,
+      '#122039'
+    );
+
+
+    rr(
+      ctx,
+      380,
+      610,
+
+      520*
+      clamp(
+        G.sceneTime/2.2,
+        0,
+        1
+      ),
+
+      14,
+      7,
+      '#6fe1ff'
+    );
+
+
+    ctx.fillStyle='#fff';
+
+
+    ctx.font=
+      '900 14px system-ui';
+
+
+    ctx.textAlign=
+      'center';
+
+
+    ctx.fillText(
+      'TRAVELLING THROUGH THE RIFT',
+      W/2,
+      590
+    );
+
+
+    ctx.textAlign=
+      'left';
   }
 
 
-  else if (
-    G.scene ===
-    'travel'
-  ) {
+  /* HUB */
 
-    drawTravel();
-  }
-
-
-  else if (
-    G.scene ===
-    'hub'
-  ) {
+  else if(G.scene==='hub'){
 
     drawHub();
 
-
-    drawParticles(
-      G.camera
-    );
+    drawParticles(0);
   }
 
 
-  else if (
-    G.scene ===
-    'world'
-  ) {
+  /* WORLD */
+
+  else if(G.scene==='world'){
 
     drawWorld();
 
-
     drawParticles(
       G.camera
     );
   }
 
 
-  else if (
-    G.scene ===
-    'arena'
-  ) {
+  /* ARENA */
+
+  else if(G.scene==='arena'){
 
     drawArena();
   }
 
 
-  if (
-    G.flash >
-    0
-  ) {
+  /* SCREEN HIT FLASH */
 
-    ctx.fillStyle =
-      `rgba(255,255,255,${
-        G.flash *
-        4
-      })`;
+  if(G.flash>0){
+
+    ctx.fillStyle=
+      `rgba(255,255,255,${G.flash*4})`;
 
 
     ctx.fillRect(
@@ -17605,83 +18971,109 @@ function draw() {
 
 
 /* =========================================================
-   AUTO DETECT FIGHT LINK
-========================================================= */
+   BUTTONS / INITIALIZATION
+   ========================================================= */
 
-const fightParam =
+$('newBtn').onclick=
+  ()=>{
+
+    SFX.resume();
+
+    resetGame();
+  };
+
+
+$('loadBtn').onclick=
+  ()=>{
+
+    SFX.resume();
+
+
+    if(!loadGame()){
+
+      toast(
+        'SYSTEM',
+        'No save game found.'
+      );
+    }
+  };
+
+
+function resizeCanvasCss(){
+
+  /*
+    Canvas keeps its internal 1280 x 720
+    16:9 resolution.
+
+    CSS handles responsive scaling.
+  */
+}
+
+
+window.addEventListener(
+  'resize',
+  resizeCanvasCss
+);
+
+
+/* =========================================================
+   AUTOMATIC FIGHT INVITE DETECTION
+   ========================================================= */
+
+const fightParam=
   new URLSearchParams(
     location.search
-  )
-  .get(
-    'fight'
-  );
+  ).get('fight');
 
 
-if (
-  fightParam
-) {
+if(fightParam){
 
   setTimeout(
     openBonus,
-    80
+    50
   );
 }
 
 
 /* =========================================================
-   MAIN GAME LOOP
-========================================================= */
+   GAME LOOP
+   ========================================================= */
 
-let lastFrame =
+let last=
   performance.now();
 
 
-function gameLoop(
-  now
-) {
+function loop(now){
 
-  const dt =
+  const dt=
     Math.min(
       .033,
-
-      Math.max(
-        0,
-        (
-          now -
-          lastFrame
-        )
-        /
-        1000
-      )
+      (now-last)/1000
     );
 
 
-  lastFrame =
-    now;
+  last=now;
 
 
-  update(
-    dt
-  );
+  update(dt);
 
 
   draw();
 
 
   requestAnimationFrame(
-    gameLoop
+    loop
   );
 }
 
 
 /* =========================================================
    START
-========================================================= */
+   ========================================================= */
 
 syncHUD();
 
-drawHudIcons();
 
 requestAnimationFrame(
-  gameLoop
+  loop
 );
