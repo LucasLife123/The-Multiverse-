@@ -3,22 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Multiverse: Riftwalker</title>
+  <title>MULTIVERSE</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <main id="gameShell">
-    <canvas id="gameCanvas" width="1280" height="720" aria-label="Multiverse game canvas"></canvas>
 
+    <canvas
+      id="gameCanvas"
+      width="1280"
+      height="720"
+      aria-label="Multiverse game canvas">
+    </canvas>
+
+    <!-- START SCREEN -->
     <section id="startScreen" class="screen">
       <div class="startPanel">
-        <div class="titleMark" aria-hidden="true"><span></span><i></i></div>
-        <div class="eyebrow">RIFTWALKER PROTOCOL // ONLINE</div>
+
+        <div class="titleMark" aria-hidden="true">
+          <span></span>
+          <i></i>
+        </div>
+
+        <div class="eyebrow">
+          RIFTWALKER PROTOCOL // ONLINE
+        </div>
+
         <h1>MULTIVERSE</h1>
-        <div class="titleRule" aria-hidden="true"><span></span><i></i><span></span></div>
-        <p class="subtitle">Crash on Earth 2.0. Discover The Hub. Recover the Core Shards. Become a Riftwalker.</p>
+
+        <div class="titleRule" aria-hidden="true">
+          <span></span>
+          <i></i>
+          <span></span>
+        </div>
+
+        <p class="subtitle">
+          Explore 31 worlds, unlock Corrupted and Master Modes,
+          hunt Legendary creatures, collect world relics,
+          forge pet gear, fuse weapons and armor,
+          and build the ultimate Riftwalker.
+        </p>
 
         <div class="menuButtons">
+
           <button id="newBtn" class="primary">
             <span>NEW GAME</span>
             <small>BEGIN THE CRASH</small>
@@ -33,6 +61,7 @@
             <span>BONUS MODE</span>
             <small>ENTER RIFT ARENA</small>
           </button>
+
         </div>
 
         <div class="controlsLegend" aria-label="Game controls">
@@ -50,29 +79,64 @@
           World Map <b>M</b> ·
           Audio <b>V</b>
         </p>
+
       </div>
 
       <div class="menuStatus" aria-hidden="true">
         <span>CORE LINK: STABLE</span>
-        <span>7 WORLDS DETECTED</span>
-        <span>BUILD V5</span>
+        <span>31 WORLDS + FORBIDDEN REALMS</span>
+        <span>238+ SEGMENTS</span>
+        <span>RIFTWALKER SYSTEM ONLINE</span>
       </div>
     </section>
 
+
+    <!-- CINEMATICS -->
     <div id="cinematic" class="cinematic hidden"></div>
 
-    <!-- =====================================================
-         CONTROLS TUTORIAL
-         ===================================================== -->
 
-    <section id="tutorialPanel" class="tutorialPanel hidden" aria-live="polite">
+    <!-- SEGMENT INTRO -->
+    <section
+      id="segmentBanner"
+      class="segmentBanner hidden"
+      aria-live="polite">
+
+      <div
+        class="segmentNumber"
+        id="segmentCode">
+        1-1
+      </div>
+
+      <div class="segmentCopy">
+        <small id="segmentWorld">
+          EARTH 2.0
+        </small>
+
+        <b id="segmentName">
+          CRASH LANDING
+        </b>
+      </div>
+
+    </section>
+
+
+    <!-- TUTORIAL -->
+    <section
+      id="tutorialPanel"
+      class="tutorialPanel hidden"
+      aria-live="polite">
+
       <div class="tutorialTop">
+
         <div>
           <small>RIFTWALKER TRAINING</small>
           <b id="tutorialTitle">Movement</b>
         </div>
 
-        <span id="tutorialProgress">1 / 6</span>
+        <span id="tutorialProgress">
+          1 / 6
+        </span>
+
       </div>
 
       <p id="tutorialText">
@@ -90,7 +154,10 @@
       </div>
 
       <div class="tutorialActions">
-        <button id="tutorialSkipBtn" type="button">
+
+        <button
+          id="tutorialSkipBtn"
+          type="button">
           SKIP TUTORIAL
         </button>
 
@@ -100,18 +167,23 @@
           class="primary hidden">
           DONE
         </button>
+
       </div>
+
     </section>
 
-    <!-- =====================================================
-         MAIN HUD
-         ===================================================== -->
 
-    <section id="hud" class="hidden" aria-label="Player HUD">
+    <!-- MAIN HUD -->
+    <section
+      id="hud"
+      class="hidden"
+      aria-label="Player HUD">
 
       <div class="hudTop">
 
+        <!-- PLAYER -->
         <div class="hudCard playerCard">
+
           <canvas
             id="hudAvatar"
             width="58"
@@ -121,15 +193,18 @@
           <div class="playerInfo">
 
             <div class="nameRow">
+
               <strong>RIFTWALKER</strong>
 
               <span>
                 LV <b id="levelText">1</b>
 
                 <em class="lifeBadge">
-                  LIFE <b id="lifeText">SAFE</b>
+                  LIFE
+                  <b id="lifeText">SAFE</b>
                 </em>
               </span>
+
             </div>
 
             <div class="hpTrack">
@@ -137,15 +212,23 @@
             </div>
 
             <div class="hpNumbers">
-              <b id="hpText">1000 / 1000</b>
-              <span id="armorText">NO ARMOR</span>
+
+              <b id="hpText">
+                1000 / 1000
+              </b>
+
+              <span id="armorText">
+                NO ARMOR
+              </span>
+
             </div>
 
           </div>
+
         </div>
 
-        <!-- PLAYER STATS -->
 
+        <!-- STATS -->
         <div class="hudCard statsCard">
 
           <div>
@@ -170,8 +253,8 @@
 
         </div>
 
-        <!-- CURRENCY -->
 
+        <!-- CURRENCY -->
         <div class="hudCard currencyCard">
 
           <canvas
@@ -194,28 +277,39 @@
 
       </div>
 
-      <!-- LEFT HUD -->
 
+      <!-- LEFT HUD -->
       <div class="leftHud">
 
         <div class="hudCard locationCard">
           <small>LOCATION</small>
-          <b id="locationText">EARTH 2.0</b>
+          <b id="locationText">
+            EARTH 2.0
+          </b>
         </div>
 
         <div class="hudCard questCard">
+
           <small>MAIN QUEST</small>
-          <b id="questTitle">STRANDED</b>
-          <span id="questText">Inspect the crash site.</span>
+
+          <b id="questTitle">
+            STRANDED
+          </b>
+
+          <span id="questText">
+            Inspect the crash site.
+          </span>
+
         </div>
 
       </div>
 
-      <!-- RIGHT HUD -->
 
+      <!-- RIGHT HUD -->
       <div class="rightHud">
 
         <div class="hudCard loadoutCard">
+
           <small>LOADOUT</small>
 
           <div class="loadRow">
@@ -230,11 +324,20 @@
 
         </div>
 
+
+        <!-- ATTACK COOLDOWN -->
         <div class="hudCard cooldownCard">
 
           <div class="cooldownLabel">
-            <small>NOVA ATTACK</small>
-            <b id="cooldownText">READY</b>
+
+            <small id="attackLabel">
+              WEAPON ATTACK
+            </small>
+
+            <b id="cooldownText">
+              READY
+            </b>
+
           </div>
 
           <div class="cooldownTrack">
@@ -243,33 +346,74 @@
 
         </div>
 
+
+        <!-- STYLE METER -->
+        <div
+          id="styleMeter"
+          class="hudCard styleCard">
+
+          <div class="styleTop">
+
+            <small>RIFT STYLE</small>
+
+            <b id="styleRank">
+              D
+            </b>
+
+          </div>
+
+          <div class="styleTrack">
+            <i id="styleFill"></i>
+          </div>
+
+          <span id="styleText">
+            LAND HITS TO BUILD STYLE
+          </span>
+
+        </div>
+
       </div>
 
-      <!-- INTERACTION PROMPT -->
 
-      <div id="interactPrompt" class="interact hidden">
+      <!-- INTERACTION -->
+      <div
+        id="interactPrompt"
+        class="interact hidden">
+
         <kbd>E</kbd>
-        <span id="interactText">INTERACT</span>
+
+        <span id="interactText">
+          INTERACT
+        </span>
+
       </div>
 
-      <!-- GAME MESSAGE -->
 
-      <div id="toast" class="toast hidden">
-        <b id="toastTitle">SYSTEM</b>
+      <!-- TOAST -->
+      <div
+        id="toast"
+        class="toast hidden">
+
+        <b id="toastTitle">
+          SYSTEM
+        </b>
+
         <span id="toastText"></span>
+
       </div>
 
     </section>
 
-    <!-- =====================================================
-         INVENTORY
-         ===================================================== -->
 
-    <section id="inventoryOverlay" class="overlay hidden">
+    <!-- INVENTORY -->
+    <section
+      id="inventoryOverlay"
+      class="overlay hidden">
 
       <div class="panel widePanel">
 
         <header>
+
           <div>
             <small>RIFTWALKER</small>
             <h2>Inventory & Loadout</h2>
@@ -280,18 +424,179 @@
             data-close="inventoryOverlay">
             CLOSE
           </button>
+
         </header>
 
+
+        <!-- WEAPONS -->
+        <div class="weaponSection">
+
+          <div class="sectionHeading">
+
+            <div>
+              <small>RIFT ARMORY</small>
+
+              <h3>
+                Weapons
+                <b id="weaponCountBadge">93</b>
+              </h3>
+            </div>
+
+            <span>
+              Defeat world bosses to unlock weapon sets,
+              then combine weapons in the Rift Fusion Forge.
+            </span>
+
+          </div>
+
+
+          <!-- WEAPON FUSION -->
+          <div
+            id="fusionForge"
+            class="fusionForge">
+
+            <div class="fusionForgeHead">
+
+              <div>
+                <small>RIFT FUSION FORGE</small>
+                <h3>Fuse Two Weapons</h3>
+              </div>
+
+              <span>
+                Keep both original weapons.
+                Create powerful hybrid weapons with
+                inherited abilities.
+              </span>
+
+            </div>
+
+
+            <div class="fusionForgeBody">
+
+              <label class="fusionSlot">
+
+                <small>CORE WEAPON</small>
+
+                <select id="fusionCoreSelect"></select>
+
+                <span id="fusionCoreTrait">
+                  Choose an owned weapon
+                </span>
+
+              </label>
+
+
+              <div class="fusionPlus">
+                +
+              </div>
+
+
+              <label class="fusionSlot">
+
+                <small>CATALYST WEAPON</small>
+
+                <select id="fusionCatalystSelect"></select>
+
+                <span id="fusionCatalystTrait">
+                  Choose a different weapon
+                </span>
+
+              </label>
+
+
+              <div class="fusionArrow">
+                →
+              </div>
+
+
+              <div class="fusionResult">
+
+                <canvas
+                  id="fusionPreview"
+                  width="120"
+                  height="86">
+                </canvas>
+
+                <div>
+
+                  <small>
+                    FUSION RESULT
+                  </small>
+
+                  <b id="fusionPreviewName">
+                    SELECT TWO WEAPONS
+                  </b>
+
+                  <span id="fusionPreviewStats">
+                    Dual traits + Fusion Burst
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="fusionForgeFoot">
+
+              <span id="fusionCostText">
+                COST: 500 RIFT CREDITS + 1 BOSS CORE
+              </span>
+
+              <button
+                id="fuseWeaponBtn"
+                class="primary"
+                type="button">
+                FUSE WEAPONS
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- WEAPON FILTERS -->
+          <div
+            id="weaponFilters"
+            class="weaponFilters"
+            aria-label="Weapon type filters">
+          </div>
+
+
+          <!-- WEAPON GRID -->
+          <div
+            id="weaponGrid"
+            class="cardGrid weaponGrid">
+          </div>
+
+        </div>
+
+
+        <!-- ARMOR + MATERIALS -->
         <div class="inventoryLayout">
 
           <div>
+
             <h3>Armor</h3>
-            <div id="armorGrid" class="cardGrid"></div>
+
+            <div
+              id="armorGrid"
+              class="cardGrid">
+            </div>
+
           </div>
 
+
           <div>
+
             <h3>Materials</h3>
-            <div id="materialGrid" class="cardGrid"></div>
+
+            <div
+              id="materialGrid"
+              class="cardGrid">
+            </div>
+
           </div>
 
         </div>
@@ -300,11 +605,11 @@
 
     </section>
 
-    <!-- =====================================================
-         PET SANCTUARY
-         ===================================================== -->
 
-    <section id="petsOverlay" class="overlay hidden">
+    <!-- PET SANCTUARY -->
+    <section
+      id="petsOverlay"
+      class="overlay hidden">
 
       <div class="panel widePanel">
 
@@ -323,6 +628,8 @@
 
         </header>
 
+
+        <!-- PET TABS -->
         <div class="tabs">
 
           <button
@@ -343,17 +650,32 @@
             TRAINING
           </button>
 
+          <button
+            class="tab"
+            data-pet-tab="gear">
+            PET GEAR
+          </button>
+
         </div>
 
-        <!-- PET COLLECTION -->
 
-        <div id="petCollection" class="petPage active">
-          <div id="petGrid" class="cardGrid petGrid"></div>
+        <!-- COLLECTION -->
+        <div
+          id="petCollection"
+          class="petPage active">
+
+          <div
+            id="petGrid"
+            class="cardGrid petGrid">
+          </div>
+
         </div>
 
-        <!-- PET JOURNAL -->
 
-        <div id="petJournal" class="petPage">
+        <!-- JOURNAL -->
+        <div
+          id="petJournal"
+          class="petPage">
 
           <div
             id="journalSummary"
@@ -367,8 +689,8 @@
 
         </div>
 
-        <!-- PET TRAINING -->
 
+        <!-- TRAINING -->
         <div
           id="petTraining"
           class="petPage trainingPage">
@@ -399,15 +721,25 @@
 
         </div>
 
+
+        <!-- PET GEAR -->
+        <div
+          id="petGear"
+          class="petPage">
+
+          <div id="petGearPanel"></div>
+
+        </div>
+
       </div>
 
     </section>
 
-    <!-- =====================================================
-         WORLD MAP
-         ===================================================== -->
 
-    <section id="mapOverlay" class="overlay hidden">
+    <!-- WORLD MAP -->
+    <section
+      id="mapOverlay"
+      class="overlay hidden">
 
       <div class="panel widePanel">
 
@@ -421,7 +753,7 @@
           <button
             class="closeBtn"
             data-close="mapOverlay">
-            CLOSE
+            ← BACK
           </button>
 
         </header>
@@ -430,17 +762,59 @@
           The Hub is your base and is not counted as a world.
         </p>
 
-        <div id="worldGrid" class="worldGrid"></div>
+        <div
+          id="worldGrid"
+          class="worldGrid">
+        </div>
 
       </div>
 
     </section>
 
-    <!-- =====================================================
-         BONUS MODE
-         ===================================================== -->
 
-    <section id="bonusOverlay" class="overlay hidden">
+    <!-- HUB FACILITIES -->
+    <section
+      id="hubFacilityOverlay"
+      class="overlay hidden">
+
+      <div class="panel widePanel hubFacilityPanel">
+
+        <header>
+
+          <div>
+
+            <small id="hubFacilitySub">
+              THE HUB
+            </small>
+
+            <h2 id="hubFacilityTitle">
+              Hub Facility
+            </h2>
+
+          </div>
+
+          <button
+            class="closeBtn"
+            data-close="hubFacilityOverlay">
+            CLOSE
+          </button>
+
+        </header>
+
+        <div
+          id="hubFacilityBody"
+          class="hubFacilityBody">
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- BONUS MODE -->
+    <section
+      id="bonusOverlay"
+      class="overlay hidden">
 
       <div class="panel bonusPanel">
 
@@ -459,8 +833,8 @@
 
         </header>
 
-        <!-- BONUS HOME -->
 
+        <!-- BONUS HOME -->
         <div
           id="bonusHome"
           class="bonusPage active">
@@ -477,11 +851,12 @@
 
           </div>
 
+
           <p>
-            Create a private fight and send the invite link
-            to a friend. This prototype uses WebRTC through
-            PeerJS for direct browser-to-browser play.
+            Create a private fight and send the invite
+            link to a friend.
           </p>
+
 
           <div class="bonusActions">
 
@@ -501,6 +876,7 @@
 
           </div>
 
+
           <label class="roomInput">
 
             Room code or host ID
@@ -512,16 +888,19 @@
 
           </label>
 
+
           <p
             id="networkStatus"
             class="networkStatus">
+
             Online arena ready when internet access is available.
+
           </p>
 
         </div>
 
-        <!-- BONUS LOBBY -->
 
+        <!-- BONUS LOBBY -->
         <div
           id="bonusLobby"
           class="bonusPage">
@@ -536,9 +915,11 @@
 
           </div>
 
+
           <p id="lobbyStatus">
             Creating room...
           </p>
+
 
           <div class="inviteBox">
 
@@ -552,6 +933,7 @@
 
           </div>
 
+
           <button id="cancelLobbyBtn">
             CANCEL
           </button>
@@ -562,17 +944,21 @@
 
     </section>
 
-    <!-- =====================================================
-         PAUSE MENU
-         ===================================================== -->
 
-    <section id="pauseOverlay" class="overlay hidden">
+    <!-- PAUSE -->
+    <section
+      id="pauseOverlay"
+      class="overlay hidden">
 
       <div class="panel pausePanel">
 
-        <small>GAME PAUSED</small>
+        <small>
+          GAME PAUSED
+        </small>
 
-        <h2>MULTIVERSE</h2>
+        <h2>
+          MULTIVERSE
+        </h2>
 
         <button
           id="resumeBtn"
@@ -602,11 +988,11 @@
 
     </section>
 
-    <!-- =====================================================
-         RIFT ARENA HUD
-         ===================================================== -->
 
-    <section id="arenaHud" class="hidden">
+    <!-- ARENA HUD -->
+    <section
+      id="arenaHud"
+      class="hidden">
 
       <div class="arenaPlayer p1">
 
@@ -624,11 +1010,24 @@
 
       </div>
 
-      <div
-        id="roundText"
-        class="roundText">
-        ROUND 1
+
+      <div class="arenaCenter">
+
+        <div
+          id="roundText"
+          class="roundText">
+          ROUND 1
+        </div>
+
+        <button
+          id="arenaExitBtn"
+          class="arenaExitBtn"
+          type="button">
+          EXIT
+        </button>
+
       </div>
+
 
       <div class="arenaPlayer p2">
 
@@ -650,13 +1049,14 @@
 
   </main>
 
-  <!-- PeerJS is used for the optional online Rift Arena -->
+
+  <!-- ONLINE MULTIPLAYER -->
   <script
     async
     src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js">
   </script>
 
-  <!-- Main game JavaScript (original game + all expansions) -->
+  <!-- MAIN GAME CODE -->
   <script src="script.js"></script>
 
 </body>
